@@ -1,12 +1,13 @@
 import UIKit
 
 extension UIView {
-    func addGradient(with layer: CAGradientLayer,
-                     gradientFrame: CGRect? = nil,
-                     colorSet: [UIColor],
-                     locations: [Double],
-                     startEndPoints: (CGPoint, CGPoint)? = nil) {
-        
+    func addGradient (
+        with layer: CAGradientLayer,
+        gradientFrame: CGRect? = nil,
+        colorSet: [UIColor],
+        locations: [Double],
+        startEndPoints: (CGPoint, CGPoint)? = nil
+    ) {
         layer.frame = gradientFrame ?? self.bounds
         layer.frame.origin = .zero
         
