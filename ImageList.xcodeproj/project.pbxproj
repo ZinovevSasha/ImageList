@@ -9,23 +9,43 @@
 /* Begin PBXBuildFile section */
 		F9843EEF295847EA00EB2CF4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9843EEE295847EA00EB2CF4 /* AppDelegate.swift */; };
 		F9843EF1295847EA00EB2CF4 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9843EF0295847EA00EB2CF4 /* SceneDelegate.swift */; };
-		F9843EF3295847EA00EB2CF4 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9843EF2295847EA00EB2CF4 /* ViewController.swift */; };
 		F9843EF8295847EC00EB2CF4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F9843EF7295847EC00EB2CF4 /* Assets.xcassets */; };
 		F9843EFB295847EC00EB2CF4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F9843EF9295847EC00EB2CF4 /* LaunchScreen.storyboard */; };
 		F9843F0729585B7100EB2CF4 /* UIColor+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9843F0629585B7100EB2CF4 /* UIColor+Extension.swift */; };
 		F9843F0A29585BD500EB2CF4 /* UIView+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9843F0929585BD500EB2CF4 /* UIView+Extension.swift */; };
+		F9843F0D2958610F00EB2CF4 /* ImageListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9843F0C2958610F00EB2CF4 /* ImageListCell.swift */; };
+		F9843F132958618C00EB2CF4 /* ImagesListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9843F102958618C00EB2CF4 /* ImagesListCell.swift */; };
+		F9843F142958618C00EB2CF4 /* ImagesListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9843F112958618C00EB2CF4 /* ImagesListViewController.swift */; };
+		F9843F152958618C00EB2CF4 /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9843F122958618C00EB2CF4 /* ImageLoader.swift */; };
+		F9843F1A295861CF00EB2CF4 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9843F17295861CF00EB2CF4 /* ProfileViewController.swift */; };
+		F9843F1B295861CF00EB2CF4 /* WelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9843F18295861CF00EB2CF4 /* WelcomeViewController.swift */; };
+		F9843F1C295861CF00EB2CF4 /* TabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9843F19295861CF00EB2CF4 /* TabBarViewController.swift */; };
+		F9843F1F2958620B00EB2CF4 /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9843F1E2958620B00EB2CF4 /* AuthManager.swift */; };
+		F9843F212958630E00EB2CF4 /* UIImage+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9843F202958630E00EB2CF4 /* UIImage+Extension.swift */; };
+		F9843F232958643700EB2CF4 /* UIFont+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9843F222958643700EB2CF4 /* UIFont+Extension.swift */; };
+		F9B1A5752958745E002D6394 /* Date+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9B1A5742958745E002D6394 /* Date+Extension.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		F9843EEB295847EA00EB2CF4 /* ImageList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ImageList.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F9843EEE295847EA00EB2CF4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		F9843EF0295847EA00EB2CF4 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		F9843EF2295847EA00EB2CF4 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		F9843EF7295847EC00EB2CF4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F9843EFA295847EC00EB2CF4 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		F9843EFC295847EC00EB2CF4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F9843F0629585B7100EB2CF4 /* UIColor+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extension.swift"; sourceTree = "<group>"; };
 		F9843F0929585BD500EB2CF4 /* UIView+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Extension.swift"; sourceTree = "<group>"; };
+		F9843F0C2958610F00EB2CF4 /* ImageListCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageListCell.swift; sourceTree = "<group>"; };
+		F9843F102958618C00EB2CF4 /* ImagesListCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImagesListCell.swift; sourceTree = "<group>"; };
+		F9843F112958618C00EB2CF4 /* ImagesListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImagesListViewController.swift; sourceTree = "<group>"; };
+		F9843F122958618C00EB2CF4 /* ImageLoader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
+		F9843F17295861CF00EB2CF4 /* ProfileViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
+		F9843F18295861CF00EB2CF4 /* WelcomeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
+		F9843F19295861CF00EB2CF4 /* TabBarViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TabBarViewController.swift; sourceTree = "<group>"; };
+		F9843F1E2958620B00EB2CF4 /* AuthManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
+		F9843F202958630E00EB2CF4 /* UIImage+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Extension.swift"; sourceTree = "<group>"; };
+		F9843F222958643700EB2CF4 /* UIFont+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+Extension.swift"; sourceTree = "<group>"; };
+		F9B1A5742958745E002D6394 /* Date+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extension.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,10 +80,12 @@
 			children = (
 				F9843EEE295847EA00EB2CF4 /* AppDelegate.swift */,
 				F9843EF0295847EA00EB2CF4 /* SceneDelegate.swift */,
-				F9843EF2295847EA00EB2CF4 /* ViewController.swift */,
+				F9843F1D2958620000EB2CF4 /* Manager */,
+				F9843F16295861C400EB2CF4 /* Controllers */,
+				F9843F0F2958617A00EB2CF4 /* ImageList */,
+				F9843F0B2958610000EB2CF4 /* Models */,
 				F9843F0829585BB500EB2CF4 /* Helper */,
-				F9843EF7295847EC00EB2CF4 /* Assets.xcassets */,
-				F9843EF9295847EC00EB2CF4 /* LaunchScreen.storyboard */,
+				F9843F0E2958614F00EB2CF4 /* Resources */,
 				F9843EFC295847EC00EB2CF4 /* Info.plist */,
 			);
 			path = ImageList;
@@ -74,8 +96,56 @@
 			children = (
 				F9843F0629585B7100EB2CF4 /* UIColor+Extension.swift */,
 				F9843F0929585BD500EB2CF4 /* UIView+Extension.swift */,
+				F9843F202958630E00EB2CF4 /* UIImage+Extension.swift */,
+				F9843F222958643700EB2CF4 /* UIFont+Extension.swift */,
+				F9B1A5742958745E002D6394 /* Date+Extension.swift */,
 			);
 			path = Helper;
+			sourceTree = "<group>";
+		};
+		F9843F0B2958610000EB2CF4 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				F9843F0C2958610F00EB2CF4 /* ImageListCell.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		F9843F0E2958614F00EB2CF4 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				F9843EF9295847EC00EB2CF4 /* LaunchScreen.storyboard */,
+				F9843EF7295847EC00EB2CF4 /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		F9843F0F2958617A00EB2CF4 /* ImageList */ = {
+			isa = PBXGroup;
+			children = (
+				F9843F122958618C00EB2CF4 /* ImageLoader.swift */,
+				F9843F102958618C00EB2CF4 /* ImagesListCell.swift */,
+				F9843F112958618C00EB2CF4 /* ImagesListViewController.swift */,
+			);
+			path = ImageList;
+			sourceTree = "<group>";
+		};
+		F9843F16295861C400EB2CF4 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				F9843F17295861CF00EB2CF4 /* ProfileViewController.swift */,
+				F9843F19295861CF00EB2CF4 /* TabBarViewController.swift */,
+				F9843F18295861CF00EB2CF4 /* WelcomeViewController.swift */,
+			);
+			path = Controllers;
+			sourceTree = "<group>";
+		};
+		F9843F1D2958620000EB2CF4 /* Manager */ = {
+			isa = PBXGroup;
+			children = (
+				F9843F1E2958620B00EB2CF4 /* AuthManager.swift */,
+			);
+			path = Manager;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -85,6 +155,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F9843EFF295847EC00EB2CF4 /* Build configuration list for PBXNativeTarget "ImageList" */;
 			buildPhases = (
+				F9B1A57629587B91002D6394 /* SwiftLint */,
 				F9843EE7295847EA00EB2CF4 /* Sources */,
 				F9843EE8295847EA00EB2CF4 /* Frameworks */,
 				F9843EE9295847EA00EB2CF4 /* Resources */,
@@ -143,13 +214,45 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		F9B1A57629587B91002D6394 /* SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 12;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = SwiftLint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "export PATH=\"$PATH:/opt/homebrew/bin\"\nif which swiftlint > /dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		F9843EE7295847EA00EB2CF4 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F9843EF3295847EA00EB2CF4 /* ViewController.swift in Sources */,
+				F9843F232958643700EB2CF4 /* UIFont+Extension.swift in Sources */,
+				F9843F212958630E00EB2CF4 /* UIImage+Extension.swift in Sources */,
+				F9843F0D2958610F00EB2CF4 /* ImageListCell.swift in Sources */,
+				F9843F1F2958620B00EB2CF4 /* AuthManager.swift in Sources */,
+				F9843F1B295861CF00EB2CF4 /* WelcomeViewController.swift in Sources */,
+				F9B1A5752958745E002D6394 /* Date+Extension.swift in Sources */,
+				F9843F1A295861CF00EB2CF4 /* ProfileViewController.swift in Sources */,
+				F9843F1C295861CF00EB2CF4 /* TabBarViewController.swift in Sources */,
+				F9843F142958618C00EB2CF4 /* ImagesListViewController.swift in Sources */,
 				F9843EEF295847EA00EB2CF4 /* AppDelegate.swift in Sources */,
+				F9843F132958618C00EB2CF4 /* ImagesListCell.swift in Sources */,
+				F9843F152958618C00EB2CF4 /* ImageLoader.swift in Sources */,
 				F9843EF1295847EA00EB2CF4 /* SceneDelegate.swift in Sources */,
 				F9843F0A29585BD500EB2CF4 /* UIView+Extension.swift in Sources */,
 				F9843F0729585B7100EB2CF4 /* UIColor+Extension.swift in Sources */,
@@ -296,6 +399,7 @@
 				INFOPLIST_FILE = ImageList/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIStatusBarHidden = NO;
 				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleLightContent;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
@@ -327,6 +431,7 @@
 				INFOPLIST_FILE = ImageList/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIStatusBarHidden = NO;
 				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleLightContent;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
