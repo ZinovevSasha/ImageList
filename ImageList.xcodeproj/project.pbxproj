@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F9594AA9295C4EA6000C9253 /* CGFloat+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9594AA8295C4EA6000C9253 /* CGFloat+Extension.swift */; };
+		F96083A3296D6D2300986DBE /* ImageListPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F96083A2296D6D2300986DBE /* ImageListPresenter.swift */; };
 		F9843EEF295847EA00EB2CF4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9843EEE295847EA00EB2CF4 /* AppDelegate.swift */; };
 		F9843EF1295847EA00EB2CF4 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9843EF0295847EA00EB2CF4 /* SceneDelegate.swift */; };
 		F9843EF8295847EC00EB2CF4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F9843EF7295847EC00EB2CF4 /* Assets.xcassets */; };
@@ -20,13 +22,16 @@
 		F9843F1A295861CF00EB2CF4 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9843F17295861CF00EB2CF4 /* ProfileViewController.swift */; };
 		F9843F1B295861CF00EB2CF4 /* WelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9843F18295861CF00EB2CF4 /* WelcomeViewController.swift */; };
 		F9843F1C295861CF00EB2CF4 /* TabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9843F19295861CF00EB2CF4 /* TabBarViewController.swift */; };
-		F9843F1F2958620B00EB2CF4 /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9843F1E2958620B00EB2CF4 /* AuthManager.swift */; };
 		F9843F212958630E00EB2CF4 /* UIImage+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9843F202958630E00EB2CF4 /* UIImage+Extension.swift */; };
-		F9843F232958643700EB2CF4 /* UIFont+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9843F222958643700EB2CF4 /* UIFont+Extension.swift */; };
+		F9A584CE2962CD990055FC5D /* DetailImagesListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9A584CD2962CD990055FC5D /* DetailImagesListViewController.swift */; };
+		F9A584DD29632FD30055FC5D /* ImageLoaderDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9A584DC29632FD30055FC5D /* ImageLoaderDelegate.swift */; };
+		F9A584DF29632FEF0055FC5D /* ImageLoaderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9A584DE29632FEF0055FC5D /* ImageLoaderProtocol.swift */; };
 		F9B1A5752958745E002D6394 /* Date+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9B1A5742958745E002D6394 /* Date+Extension.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		F9594AA8295C4EA6000C9253 /* CGFloat+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGFloat+Extension.swift"; sourceTree = "<group>"; };
+		F96083A2296D6D2300986DBE /* ImageListPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageListPresenter.swift; sourceTree = "<group>"; };
 		F9843EEB295847EA00EB2CF4 /* ImageList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ImageList.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F9843EEE295847EA00EB2CF4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		F9843EF0295847EA00EB2CF4 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -42,9 +47,10 @@
 		F9843F17295861CF00EB2CF4 /* ProfileViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		F9843F18295861CF00EB2CF4 /* WelcomeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
 		F9843F19295861CF00EB2CF4 /* TabBarViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TabBarViewController.swift; sourceTree = "<group>"; };
-		F9843F1E2958620B00EB2CF4 /* AuthManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
 		F9843F202958630E00EB2CF4 /* UIImage+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Extension.swift"; sourceTree = "<group>"; };
-		F9843F222958643700EB2CF4 /* UIFont+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+Extension.swift"; sourceTree = "<group>"; };
+		F9A584CD2962CD990055FC5D /* DetailImagesListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailImagesListViewController.swift; sourceTree = "<group>"; };
+		F9A584DC29632FD30055FC5D /* ImageLoaderDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoaderDelegate.swift; sourceTree = "<group>"; };
+		F9A584DE29632FEF0055FC5D /* ImageLoaderProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoaderProtocol.swift; sourceTree = "<group>"; };
 		F9B1A5742958745E002D6394 /* Date+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extension.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -59,6 +65,35 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		F9594AA7295C4B02000C9253 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				F9843F0629585B7100EB2CF4 /* UIColor+Extension.swift */,
+				F9843F202958630E00EB2CF4 /* UIImage+Extension.swift */,
+				F9594AA8295C4EA6000C9253 /* CGFloat+Extension.swift */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
+		F96083A7296D89C700986DBE /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				F9843F19295861CF00EB2CF4 /* TabBarViewController.swift */,
+				F9843F18295861CF00EB2CF4 /* WelcomeViewController.swift */,
+				F9843F112958618C00EB2CF4 /* ImagesListViewController.swift */,
+				F9843F17295861CF00EB2CF4 /* ProfileViewController.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		F96083A8296D8C0500986DBE /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				F9843F122958618C00EB2CF4 /* ImageLoader.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
 		F9843EE2295847EA00EB2CF4 = {
 			isa = PBXGroup;
 			children = (
@@ -80,10 +115,11 @@
 			children = (
 				F9843EEE295847EA00EB2CF4 /* AppDelegate.swift */,
 				F9843EF0295847EA00EB2CF4 /* SceneDelegate.swift */,
-				F9843F1D2958620000EB2CF4 /* Manager */,
-				F9843F16295861C400EB2CF4 /* Controllers */,
-				F9843F0F2958617A00EB2CF4 /* ImageList */,
+				F9A584D629630CE10055FC5D /* Protocols */,
+				F96083A8296D8C0500986DBE /* Services */,
 				F9843F0B2958610000EB2CF4 /* Models */,
+				F9DA07E2296C9A2D00F210D9 /* Presenter */,
+				F9DA07DF296C974400F210D9 /* View+Controllers */,
 				F9843F0829585BB500EB2CF4 /* Helper */,
 				F9843F0E2958614F00EB2CF4 /* Resources */,
 				F9843EFC295847EC00EB2CF4 /* Info.plist */,
@@ -94,11 +130,9 @@
 		F9843F0829585BB500EB2CF4 /* Helper */ = {
 			isa = PBXGroup;
 			children = (
-				F9843F0629585B7100EB2CF4 /* UIColor+Extension.swift */,
-				F9843F0929585BD500EB2CF4 /* UIView+Extension.swift */,
-				F9843F202958630E00EB2CF4 /* UIImage+Extension.swift */,
-				F9843F222958643700EB2CF4 /* UIFont+Extension.swift */,
+				F9594AA7295C4B02000C9253 /* Theme */,
 				F9B1A5742958745E002D6394 /* Date+Extension.swift */,
+				F9843F0929585BD500EB2CF4 /* UIView+Extension.swift */,
 			);
 			path = Helper;
 			sourceTree = "<group>";
@@ -120,32 +154,31 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
-		F9843F0F2958617A00EB2CF4 /* ImageList */ = {
+		F9A584D629630CE10055FC5D /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
-				F9843F122958618C00EB2CF4 /* ImageLoader.swift */,
+				F9A584DC29632FD30055FC5D /* ImageLoaderDelegate.swift */,
+				F9A584DE29632FEF0055FC5D /* ImageLoaderProtocol.swift */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
+		F9DA07DF296C974400F210D9 /* View+Controllers */ = {
+			isa = PBXGroup;
+			children = (
 				F9843F102958618C00EB2CF4 /* ImagesListCell.swift */,
-				F9843F112958618C00EB2CF4 /* ImagesListViewController.swift */,
+				F9A584CD2962CD990055FC5D /* DetailImagesListViewController.swift */,
+				F96083A7296D89C700986DBE /* Core */,
 			);
-			path = ImageList;
+			path = "View+Controllers";
 			sourceTree = "<group>";
 		};
-		F9843F16295861C400EB2CF4 /* Controllers */ = {
+		F9DA07E2296C9A2D00F210D9 /* Presenter */ = {
 			isa = PBXGroup;
 			children = (
-				F9843F17295861CF00EB2CF4 /* ProfileViewController.swift */,
-				F9843F19295861CF00EB2CF4 /* TabBarViewController.swift */,
-				F9843F18295861CF00EB2CF4 /* WelcomeViewController.swift */,
+				F96083A2296D6D2300986DBE /* ImageListPresenter.swift */,
 			);
-			path = Controllers;
-			sourceTree = "<group>";
-		};
-		F9843F1D2958620000EB2CF4 /* Manager */ = {
-			isa = PBXGroup;
-			children = (
-				F9843F1E2958620B00EB2CF4 /* AuthManager.swift */,
-			);
-			path = Manager;
+			path = Presenter;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -241,21 +274,24 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F9843F232958643700EB2CF4 /* UIFont+Extension.swift in Sources */,
 				F9843F212958630E00EB2CF4 /* UIImage+Extension.swift in Sources */,
 				F9843F0D2958610F00EB2CF4 /* ImageListCell.swift in Sources */,
-				F9843F1F2958620B00EB2CF4 /* AuthManager.swift in Sources */,
 				F9843F1B295861CF00EB2CF4 /* WelcomeViewController.swift in Sources */,
 				F9B1A5752958745E002D6394 /* Date+Extension.swift in Sources */,
 				F9843F1A295861CF00EB2CF4 /* ProfileViewController.swift in Sources */,
 				F9843F1C295861CF00EB2CF4 /* TabBarViewController.swift in Sources */,
+				F96083A3296D6D2300986DBE /* ImageListPresenter.swift in Sources */,
+				F9A584DD29632FD30055FC5D /* ImageLoaderDelegate.swift in Sources */,
 				F9843F142958618C00EB2CF4 /* ImagesListViewController.swift in Sources */,
+				F9A584CE2962CD990055FC5D /* DetailImagesListViewController.swift in Sources */,
 				F9843EEF295847EA00EB2CF4 /* AppDelegate.swift in Sources */,
 				F9843F132958618C00EB2CF4 /* ImagesListCell.swift in Sources */,
+				F9A584DF29632FEF0055FC5D /* ImageLoaderProtocol.swift in Sources */,
 				F9843F152958618C00EB2CF4 /* ImageLoader.swift in Sources */,
 				F9843EF1295847EA00EB2CF4 /* SceneDelegate.swift in Sources */,
 				F9843F0A29585BD500EB2CF4 /* UIView+Extension.swift in Sources */,
 				F9843F0729585B7100EB2CF4 /* UIColor+Extension.swift in Sources */,
+				F9594AA9295C4EA6000C9253 /* CGFloat+Extension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

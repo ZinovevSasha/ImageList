@@ -7,8 +7,7 @@ final class TabBarViewController: UITabBarController {
         let vc1 = ImagesListViewController()
         let vc2 = ProfileViewController()
         
-        let nav = UINavigationController(rootViewController: vc1)
-        nav.tabBarItem = UITabBarItem(
+        vc1.tabBarItem = UITabBarItem(
             title: "",
             image: .tabBarLeft,
             tag: 1)
@@ -17,12 +16,17 @@ final class TabBarViewController: UITabBarController {
             image: .tabBarRight,
             tag: 2)
 
-        setViewControllers([nav, vc2], animated: false)
+        setViewControllers([vc1, vc2], animated: false)
         
-        let appearance1 = UITabBarAppearance()
-        appearance1.configureWithOpaqueBackground()
-        appearance1.backgroundColor = .ypBlack
-        tabBar.standardAppearance = appearance1
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .myBlack
+        tabBar.standardAppearance = appearance
+        if #available(iOS 15.0, *) {
+            tabBar.scrollEdgeAppearance = appearance
+        } else {
+            // Fallback on earlier versions
+        }
         tabBar.tintColor = .white
     }
 }

@@ -1,0 +1,3 @@
+protocol ImageLoaderProtocol {
+    func loadData()
+}

@@ -3,11 +3,11 @@ import UIKit
 final class WelcomeViewController: UIViewController {
     private var enterButton: UIButton = {
         let button = UIButton()
-        button.backgroundColor = .white
         button.layer.cornerRadius = 16
+        button.backgroundColor = .white
         button.setTitle("Войти", for: .normal)
-        button.setTitleColor(.ypBlack, for: .normal)
-        button.titleLabel?.font = .boldSFPro17
+        button.setTitleColor(.myBlack, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -21,38 +21,46 @@ final class WelcomeViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .ypBlack
-        view.addSubview(enterButton)
-        view.addSubview(image)
-        createConstraints()
+        
+        setViews()
         enterButton.addTarget(
             self,
             action: #selector(enterButtonTapped),
             for: .touchUpInside)
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        setConstraint()
+    }
+    
     @objc private func enterButtonTapped() {
         let tabBarController = TabBarViewController()
         tabBarController.modalPresentationStyle = .fullScreen
         present(tabBarController, animated: false)
-        
-        AuthManager.shared.isSignedIn = true
     }
     
-    private func createConstraints() {
+    private func setViews() {
+        view.backgroundColor = .myBlack
+        view.addSubview(enterButton)
+        view.addSubview(image)
+    }
+    
+    private func setConstraint() {
         NSLayoutConstraint.activate([
             // Image
             image.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             image.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
             // Button
-            enterButton.heightAnchor.constraint(equalToConstant: 60),
+            enterButton.heightAnchor.constraint(
+                equalToConstant: .enterButtonHeight),
             enterButton.leadingAnchor.constraint(
                 equalTo: view.leadingAnchor,
-                constant: 16),
+                constant: .leftSpacing),
             enterButton.trailingAnchor.constraint(
                 equalTo: view.trailingAnchor,
-                constant: -16),
+                constant: -.rightSpacing),
             enterButton.bottomAnchor.constraint(
                 equalTo: view.bottomAnchor,
                 constant: -124)

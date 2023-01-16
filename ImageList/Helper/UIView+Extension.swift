@@ -25,4 +25,8 @@ extension UIView {
         // insert layer below all other subviews
         self.layer.insertSublayer(layer, at: 0)
     }
+    
+    func addSubviews(_ view: UIView...) {
+        view.forEach { addSubview($0) }
+    }
 }
