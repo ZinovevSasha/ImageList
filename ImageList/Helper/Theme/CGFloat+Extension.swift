@@ -1,6 +1,7 @@
 import Foundation
 
 extension CGFloat {
+    static let topProfileScreenSpacing = 32.0
     static let leftSpacing = 16.0
     static let rightSpacing = 16.0
     static let zeroSpacing = 0.0

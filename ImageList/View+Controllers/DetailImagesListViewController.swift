@@ -8,13 +8,13 @@ class DetailImagesListViewController: UIViewController {
     }()
     let backButton: UIButton = {
         let button = UIButton()
-        button.setImage(UIImage(named: "backward"), for: .normal)
+        button.setImage(.backward, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     let shareButton: UIButton = {
         let shareButton = UIButton()
-        shareButton.setImage(UIImage(named: "sharing"), for: .normal)
+        shareButton.setImage(.share, for: .normal)
         shareButton.translatesAutoresizingMaskIntoConstraints = false
         return shareButton
     }()

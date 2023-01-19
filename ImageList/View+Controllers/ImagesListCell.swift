@@ -44,14 +44,11 @@ final class ImagesListCell: UITableViewCell {
         NSLayoutConstraint.activate([
             // dateContainer
             dateContainer.leadingAnchor.constraint(
-                equalTo: pictureImageContainer.leadingAnchor,
-                constant: 0),
+                equalTo: pictureImageContainer.leadingAnchor),
             dateContainer.bottomAnchor.constraint(
-                equalTo: pictureImageContainer.bottomAnchor,
-                constant: 0),
+                equalTo: pictureImageContainer.bottomAnchor),
             dateContainer.trailingAnchor.constraint(
-                equalTo: pictureImageContainer.trailingAnchor,
-                constant: 0),
+                equalTo: pictureImageContainer.trailingAnchor),
             dateContainer.heightAnchor.constraint(equalToConstant: 30),
             
             // dateLabel
@@ -70,27 +67,21 @@ final class ImagesListCell: UITableViewCell {
             
             // button
             heartButton.topAnchor.constraint(
-                equalTo: pictureImageContainer.topAnchor,
-                constant: 0),
+                equalTo: pictureImageContainer.topAnchor),
             heartButton.trailingAnchor.constraint(
-                equalTo: pictureImageContainer.trailingAnchor,
-                constant: 0),
+                equalTo: pictureImageContainer.trailingAnchor),
             heartButton.widthAnchor.constraint(equalToConstant: 42),
             heartButton.heightAnchor.constraint(equalToConstant: 42),
             
             // pictureImage
             pictureImage.leadingAnchor.constraint(
-                equalTo: pictureImageContainer.leadingAnchor,
-                constant: 0),
+                equalTo: pictureImageContainer.leadingAnchor),
             pictureImage.topAnchor.constraint(
-                equalTo: pictureImageContainer.topAnchor,
-                constant: 0),
+                equalTo: pictureImageContainer.topAnchor),
             pictureImage.trailingAnchor.constraint(
-                equalTo: pictureImageContainer.trailingAnchor,
-                constant: 0),
+                equalTo: pictureImageContainer.trailingAnchor),
             pictureImage.bottomAnchor.constraint(
-                equalTo: pictureImageContainer.bottomAnchor,
-                constant: 0),
+                equalTo: pictureImageContainer.bottomAnchor),
                         
             // pictureImageContainer
             pictureImageContainer.leadingAnchor.constraint(
@@ -145,14 +136,14 @@ final class ImagesListCell: UITableViewCell {
     }
     
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        fatalError("Unsupported")
     }
     
     override func prepareForReuse() {
         super.prepareForReuse()
         pictureImage.image = nil
         dateLabel.text = nil
-        heartButton.setImage(nil, for: .normal)
+//        heartButton.setImage(nil, for: .normal)
     }
 }
 

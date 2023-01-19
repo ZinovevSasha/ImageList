@@ -2,24 +2,33 @@ import UIKit
 
 extension UIImage {
     static let noLike = UIImage(
-        named: "!Like"
+        named: "01!Like"
     )
     static let like = UIImage(
-        named: "Like"
+        named: "02Like"
     )
     static let tabBarLeft = UIImage(
-        named: "TabBarLeft"
+        named: "03TabBarLeft"
     )
     static let tabBarRight = UIImage(
-        named: "TabBarRight"
+        named: "04TabBarRight"
     )
     static let welcomeScreenImage = UIImage(
-        named: "WelcomeScreen"
+        named: "05WelcomeScreen"
     )
     static let person = UIImage(
-        named: "person"
+        named: "06person"
     )
     static let exit = UIImage(
-        named: "exit"
+        named: "07exit"
+    )
+    static let backward = UIImage(
+        named: "08backward"
+    )
+    static let share = UIImage(
+        named: "09sharing"
+    )
+    static let scribble = UIImage(
+        named: "10scribble.variable"
     )
 }

@@ -87,7 +87,7 @@ final class ProfileViewController: UIViewController {
             // verticalStackView
             verticalStackView.topAnchor.constraint(
                 equalTo: view.safeAreaLayoutGuide.topAnchor,
-                constant: .leftSpacing * 2),
+                constant: .topProfileScreenSpacing),
             verticalStackView.leadingAnchor.constraint(
                 equalTo: view.leadingAnchor,
                 constant: .leftSpacing),
