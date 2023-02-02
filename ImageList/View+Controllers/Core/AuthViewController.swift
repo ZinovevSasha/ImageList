@@ -1,6 +1,6 @@
 import UIKit
 
-final class WelcomeViewController: UIViewController {
+final class AuthViewController: UIViewController {
     private var enterButton: UIButton = {
         let button = UIButton()
         button.layer.cornerRadius = 16
@@ -19,6 +19,9 @@ final class WelcomeViewController: UIViewController {
         return image
     }()
     
+    public weak var delegate: AuthViewControllerDelegate?
+    
+    // MARK: - LifeCicle
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -26,24 +29,26 @@ final class WelcomeViewController: UIViewController {
         enterButton.addTarget(
             self,
             action: #selector(enterButtonTapped),
-            for: .touchUpInside)
+            for: .touchUpInside
+        )
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        
         setConstraint()
     }
     
     @objc private func enterButtonTapped() {
-        let tabBarController = TabBarViewController()
-        tabBarController.modalPresentationStyle = .fullScreen
-        present(tabBarController, animated: false)
+        let webViewController = WebViewViewController()
+        webViewController.delegate = self
+        webViewController.modalPresentationStyle = .fullScreen
+        present(webViewController, animated: true)
     }
     
     private func setViews() {
         view.backgroundColor = .myBlack
-        view.addSubview(enterButton)
-        view.addSubview(image)
+        view.addSubviews(enterButton, image)
     }
     
     private func setConstraint() {
@@ -65,5 +70,20 @@ final class WelcomeViewController: UIViewController {
                 equalTo: view.bottomAnchor,
                 constant: -124)
         ])
+    }
+}
+
+extension AuthViewController: WebViewViewControllerDelegate {
+    func webViewViewController(
+        _ vc: WebViewViewController,
+        didAuthenticateWithCode code: String
+    ) {
+        delegate?.authViewController(self, didAuthenticateWithCode: code)
+        vc.dismiss(animated: true)
+    }
+    
+    func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
+        vc.dismiss(animated: true)
+        
     }
 }

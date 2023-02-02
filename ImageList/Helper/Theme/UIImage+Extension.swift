@@ -31,4 +31,10 @@ extension UIImage {
     static let scribble = UIImage(
         named: "10scribble.variable"
     )
+    static let backWebView = UIImage(
+        named: "11Backward"
+    )
+    static let launchScreen = UIImage(
+        named: "12LaunchScreen"
+    )
 }

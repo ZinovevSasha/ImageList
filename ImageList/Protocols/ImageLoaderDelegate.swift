@@ -1,3 +1,3 @@
 protocol ImageLoaderDelegate: AnyObject {
-    func didLoadImages(_ images: [ImageCell])
+    func didLoadImages(_: ImageLoaderProtocol, _ images: [ImageCell])
 }

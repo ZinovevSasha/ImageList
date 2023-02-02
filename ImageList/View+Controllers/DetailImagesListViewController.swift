@@ -6,19 +6,19 @@ class DetailImagesListViewController: UIViewController {
         image.translatesAutoresizingMaskIntoConstraints = false
         return image
     }()
-    let backButton: UIButton = {
+    private let backButton: UIButton = {
         let button = UIButton()
         button.setImage(.backward, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
-    let shareButton: UIButton = {
+    private let shareButton: UIButton = {
         let shareButton = UIButton()
         shareButton.setImage(.share, for: .normal)
         shareButton.translatesAutoresizingMaskIntoConstraints = false
         return shareButton
     }()
-    let scrollView: UIScrollView = {
+    private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.minimumZoomScale = 0.1
         scrollView.maximumZoomScale = 1.2
@@ -31,6 +31,22 @@ class DetailImagesListViewController: UIViewController {
         
         addViews()
         setUpElements()
+    }
+    
+    public func configureImage(imageName: String) {
+        image.image = UIImage(named: "\(imageName)")
+        rescaleAndCenterImageInScrollView(image.image ?? UIImage())
+    }
+    
+    private func addViews() {
+        view.addSubviews(scrollView, backButton, shareButton)
+        scrollView.addSubview(image)
+    }
+    
+    private func setUpElements() {
+        backButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
+        shareButton.addTarget(self, action: #selector(share), for: .touchUpInside)
+        scrollView.delegate = self
     }
     
     override func viewDidLayoutSubviews() {
@@ -51,37 +67,17 @@ class DetailImagesListViewController: UIViewController {
         present(activityController, animated: true)
     }
     
-    private func addViews() {
-        view.addSubviews(scrollView, backButton, shareButton)
-        scrollView.addSubview(image)
-    }
-    
-    private func setUpElements() {
-        backButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
-        shareButton.addTarget(self, action: #selector(share), for: .touchUpInside)
-        scrollView.delegate = self
-    }
-    
-    public func configureImage(imageName: String) {
-        image.image = UIImage(named: "\(imageName)")
-        rescaleAndCenterImageInScrollView(image.image ?? UIImage())
-    }
-    
     private func setConstraint() {
         NSLayoutConstraint.activate([
             // pictureImage
             image.leadingAnchor.constraint(
-                equalTo: scrollView.contentLayoutGuide.leadingAnchor,
-                constant: 0),
+                equalTo: scrollView.contentLayoutGuide.leadingAnchor),
             image.bottomAnchor.constraint(
-                equalTo: scrollView.contentLayoutGuide.bottomAnchor,
-                constant: 0),
+                equalTo: scrollView.contentLayoutGuide.bottomAnchor),
             image.trailingAnchor.constraint(
-                equalTo: scrollView.contentLayoutGuide.trailingAnchor,
-                constant: 0),
+                equalTo: scrollView.contentLayoutGuide.trailingAnchor),
             image.topAnchor.constraint(
-                equalTo: scrollView.contentLayoutGuide.topAnchor,
-                constant: 0),
+                equalTo: scrollView.contentLayoutGuide.topAnchor),
             
             // scrollView
             scrollView.leadingAnchor.constraint(

@@ -143,7 +143,6 @@ final class ImagesListCell: UITableViewCell {
         super.prepareForReuse()
         pictureImage.image = nil
         dateLabel.text = nil
-//        heartButton.setImage(nil, for: .normal)
     }
 }
 

@@ -10,6 +10,8 @@ disabled_rules:
   - todo
   - unused_capture_list
   - force_unwrapping
+  - identifier_name
+  - opening_brace
 
 opt_in_rules:
   - array_init

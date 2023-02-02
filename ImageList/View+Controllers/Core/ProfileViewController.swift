@@ -1,7 +1,7 @@
 import UIKit
 
 final class ProfileViewController: UIViewController {
-    let portraitImage: UIImageView = {
+    private let portraitImage: UIImageView = {
         let image = UIImageView()
         image.image = UIImage.person
         image.translatesAutoresizingMaskIntoConstraints = false
@@ -9,14 +9,14 @@ final class ProfileViewController: UIViewController {
         return image
     }()
     
-    let exitButton: UIButton = {
+    private let exitButton: UIButton = {
         let image = UIButton()
         image.setImage(.exit, for: .normal)
         image.translatesAutoresizingMaskIntoConstraints = false
         return image
     }()
     
-    let nameLabel: UILabel = {
+    private let nameLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
         label.textColor = .white
@@ -26,7 +26,7 @@ final class ProfileViewController: UIViewController {
         return label
     }()
     
-    let emailLabel: UILabel = {
+    private let emailLabel: UILabel = {
         let label = UILabel()
         label.textColor = .white
         label.text = "blip@gmail.com"
@@ -35,7 +35,7 @@ final class ProfileViewController: UIViewController {
         return label
     }()
     
-    let helloLabel: UILabel = {
+    private let helloLabel: UILabel = {
         let label = UILabel()
         label.textColor = .white
         label.text = "Hello, world!"
@@ -44,7 +44,7 @@ final class ProfileViewController: UIViewController {
         return label
     }()
     
-    let verticalStackView: UIStackView = {
+    private let verticalStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.spacing = .spacingStack
         stackView.axis = .vertical
@@ -55,7 +55,7 @@ final class ProfileViewController: UIViewController {
         return stackView
     }()
     
-    let horizontalStackView: UIStackView = {
+    private let horizontalStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
         stackView.alignment = .center
@@ -64,6 +64,7 @@ final class ProfileViewController: UIViewController {
         return stackView
     }()
     
+    // MARK: - LifeCicle
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -75,14 +76,18 @@ final class ProfileViewController: UIViewController {
         setConstraints()
     }
     
-    func setViews() {
+    private func setViews() {
         view.backgroundColor = .myBlack
         view.addSubview(verticalStackView)
-        [portraitImage, exitButton].forEach { horizontalStackView.addArrangedSubview($0) }
-        [horizontalStackView, nameLabel, emailLabel, helloLabel].forEach { verticalStackView.addArrangedSubview($0) }
+        
+        [portraitImage, exitButton]
+            .forEach { horizontalStackView.addArrangedSubview($0) }
+        
+        [horizontalStackView, nameLabel, emailLabel, helloLabel]
+            .forEach { verticalStackView.addArrangedSubview($0) }
     }
     
-    func setConstraints() {
+    private func setConstraints() {
         NSLayoutConstraint.activate([
             // verticalStackView
             verticalStackView.topAnchor.constraint(
