@@ -21,11 +21,10 @@ final class TabBarViewController: UITabBarController {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.backgroundColor = .myBlack
+        appearance.selectionIndicatorTintColor = .black
         tabBar.standardAppearance = appearance
         if #available(iOS 15.0, *) {
             tabBar.scrollEdgeAppearance = appearance
-        } else {
-            // Fallback on earlier versions
         }
         tabBar.tintColor = .white
     }

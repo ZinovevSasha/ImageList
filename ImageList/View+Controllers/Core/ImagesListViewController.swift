@@ -13,7 +13,8 @@ final class ImagesListViewController: UIViewController, ImageListProtocol {
             forCellReuseIdentifier: ImagesListCell.identifier)
         return tableView
     }()
-
+    
+    // MARK: - LifeCicle
     override func viewDidLoad() {
         super.viewDidLoad()
         presenter = ImageListPresenter(imageList: self)
@@ -22,6 +23,8 @@ final class ImagesListViewController: UIViewController, ImageListProtocol {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        
+       
         tableView.frame = view.bounds
     }
     
@@ -30,7 +33,7 @@ final class ImagesListViewController: UIViewController, ImageListProtocol {
         tableView.delegate = presenter
         tableView.contentInset.top = 16
         tableView.contentOffset.y = -16
-        view.backgroundColor = .clear
+        view.backgroundColor = .myBlack
         view.addSubview(tableView)
     }
     

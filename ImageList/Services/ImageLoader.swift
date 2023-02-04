@@ -1,17 +1,17 @@
 import Foundation
 
-class ImageLoader: ImageLoaderProtocol {
+final class ImageLoader: ImageLoaderProtocol {
     weak var delegate: ImageLoaderDelegate?
     
     init(delegate: ImageLoaderDelegate) {
         self.delegate = delegate
     }
     
-    var data: [ImageCell] = []
+    private var images: [ImageCell] = []
     
     func loadData() {
-        data = Array(0..<20).map { ImageCell(image: "\($0)", date: Date(), isLiked: "\($0)") }
+        images = Array(0..<20).map { ImageCell(image: "\($0)", date: Date(), isLiked: "\($0)") }
        
-            self.delegate?.didLoadImages(self.data)
+            delegate?.imageLoader(self, didLoadImages: images)
     }
 }
