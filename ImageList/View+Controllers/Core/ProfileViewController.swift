@@ -3,7 +3,7 @@ import UIKit
 final class ProfileViewController: UIViewController {
     private let portraitImage: UIImageView = {
         let image = UIImageView()
-        image.image = UIImage.person
+        image.image = .person
         image.translatesAutoresizingMaskIntoConstraints = false
         image.setContentHuggingPriority(UILayoutPriority(252), for: .horizontal)
         return image
@@ -18,9 +18,9 @@ final class ProfileViewController: UIViewController {
     
     private let nameLabel: UILabel = {
         let label = UILabel()
-        label.numberOfLines = 0
+        label.numberOfLines = 2
         label.textColor = .white
-        label.text = "Aleksandr Zinovev"
+        label.text = "Aleksandr Zinovev Aleksandrovich"
         label.font = .systemFont(ofSize: 23, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -38,7 +38,7 @@ final class ProfileViewController: UIViewController {
     private let helloLabel: UILabel = {
         let label = UILabel()
         label.textColor = .white
-        label.text = "Hello, world!"
+        label.text = "Hello, world! This is my favorite pictures. Take a look"
         label.font = .systemFont(ofSize: 13, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -46,7 +46,7 @@ final class ProfileViewController: UIViewController {
     
     private let verticalStackView: UIStackView = {
         let stackView = UIStackView()
-        stackView.spacing = .spacingStack
+        stackView.spacing = 8
         stackView.axis = .vertical
         stackView.alignment = .leading
         stackView.backgroundColor = .clear
@@ -59,7 +59,7 @@ final class ProfileViewController: UIViewController {
         let stackView = UIStackView()
         stackView.axis = .horizontal
         stackView.alignment = .center
-        stackView.distribution = .equalSpacing
+        stackView.distribution = .equalCentering
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
@@ -80,6 +80,8 @@ final class ProfileViewController: UIViewController {
         view.backgroundColor = .myBlack
         view.addSubview(verticalStackView)
         
+        exitButton.addTarget(self, action: #selector(exitButtonDidTapped), for: .touchDragInside)
+        
         [portraitImage, exitButton]
             .forEach { horizontalStackView.addArrangedSubview($0) }
         
@@ -87,18 +89,22 @@ final class ProfileViewController: UIViewController {
             .forEach { verticalStackView.addArrangedSubview($0) }
     }
     
+    @objc private func exitButtonDidTapped() {
+        exitButton.isHidden = true
+    }
+    
     private func setConstraints() {
         NSLayoutConstraint.activate([
             // verticalStackView
             verticalStackView.topAnchor.constraint(
                 equalTo: view.safeAreaLayoutGuide.topAnchor,
-                constant: .topProfileScreenSpacing),
+                constant: 32),
             verticalStackView.leadingAnchor.constraint(
                 equalTo: view.leadingAnchor,
-                constant: .leftSpacing),
+                constant: 16),
             verticalStackView.trailingAnchor.constraint(
                 equalTo: view.trailingAnchor,
-                constant: -26),
+                constant: -24),
             
             // horizontalStackView
             horizontalStackView.topAnchor.constraint(equalTo: verticalStackView.topAnchor),

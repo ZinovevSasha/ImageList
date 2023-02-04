@@ -71,7 +71,10 @@ extension ImageListPresenter: UITableViewDataSource {
 }
 
 extension ImageListPresenter: ImageLoaderDelegate {
-    func didLoadImages(_: ImageLoaderProtocol, _ images: [ImageCell]) {
+    func imageLoader(
+        _ imageLoader: ImageLoaderProtocol,
+        didLoadImages images: [ImageCell]
+    ) {
         self.images = images
         imageList?.reloadData()
     }

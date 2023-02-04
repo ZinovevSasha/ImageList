@@ -12,15 +12,23 @@ final class OAuth2Service: OAuth2ServiceProtocol {
     
     private let urlSession = URLSession.shared
     
+    private enum ServiceError: Error {
+        case failedToCreateRequest
+    }
+    
     public func fetchOAuthToken(
         _ code: String,
         completion: @escaping (Result<String, Error>) -> Void
     ) {
-        let request = authTokenRequest(code: code)
+        guard let request = authTokenRequest(code: code) else {
+            completion(.failure(ServiceError.failedToCreateRequest))
+            return
+        }
+        
         let task = object(for: request) { result in
             switch result {
             case .success(let body):
-                completion(.success(body.accessToken))
+                completion(.success(body.access_token))
                 
             case .failure(let error):
                 completion(.failure(error))
@@ -36,19 +44,18 @@ extension OAuth2Service {
         completion: @escaping (Result<OAuthTokenResponseBody, Error>) -> Void
     ) -> URLSessionTask {
         let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
         
-        // URLSession extension
-        return urlSession.data(for: request) { (result: Result<Data, Error>) in
+        return urlSession.data(for: request) { result in
             let response = result
                 .flatMap { data -> Result<OAuthTokenResponseBody, Error> in
-                    Result { try decoder.decode(OAuthTokenResponseBody.self, from: data) }
+                    Result { try JSONDecoder().decode(OAuthTokenResponseBody.self, from: data) }
                 }
             completion(response)
         }
     }
     
-    private func authTokenRequest(code: String) -> URLRequest {
-        // URLRequest extension
+    private func authTokenRequest(code: String) -> URLRequest? {
         return URLRequest.makeHTTPRequest(
             path: "/oauth/token",
             queryItems: [
@@ -63,16 +70,9 @@ extension OAuth2Service {
     }
     
     private struct OAuthTokenResponseBody: Codable {
-        let accessToken: String
-        let tokenType: String
+        let access_token: String
+        let token_type: String
         let scope: String
-        let createdAt: Int
-        
-        enum CodingKeys: String, CodingKey {
-            case accessToken = "access_token"
-            case tokenType = "token_type"
-            case scope
-            case createdAt = "created_at"
-        }
+        let created_at: Int
     }
 }

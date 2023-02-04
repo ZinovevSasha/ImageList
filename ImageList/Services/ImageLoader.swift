@@ -7,11 +7,11 @@ final class ImageLoader: ImageLoaderProtocol {
         self.delegate = delegate
     }
     
-    private var data: [ImageCell] = []
+    private var images: [ImageCell] = []
     
     func loadData() {
-        data = Array(0..<20).map { ImageCell(image: "\($0)", date: Date(), isLiked: "\($0)") }
+        images = Array(0..<20).map { ImageCell(image: "\($0)", date: Date(), isLiked: "\($0)") }
        
-            delegate?.didLoadImages(self, data)
+            delegate?.imageLoader(self, didLoadImages: images)
     }
 }

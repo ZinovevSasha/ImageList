@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import ProgressHUD
 
 protocol AuthViewControllerDelegate: AnyObject {
     func authViewController(
@@ -13,8 +14,6 @@ protocol AuthViewControllerDelegate: AnyObject {
         didAuthenticateWithCode code: String
     )
 }
-
-
 
 final class SplashViewController: UIViewController {
     private let imageView: UIImageView = {
@@ -38,13 +37,14 @@ final class SplashViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        addConstraints()
+        imageView.center = view.center
+        //addConstraints()
     }
         
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        if OAuth2TokenStorage().token != nil {
+        if oAuth2TokenStorage.token != nil {
             switchToTabBarController()
         } else {
             let authViewController = AuthViewController()
@@ -74,6 +74,7 @@ extension SplashViewController: AuthViewControllerDelegate {
         _ vc: AuthViewController,
         didAuthenticateWithCode code: String
     ) {
+        ProgressHUD.show()
         fetchAuthToken(auth: vc, code: code)
     }
     
@@ -83,9 +84,11 @@ extension SplashViewController: AuthViewControllerDelegate {
             switch result {
             case .success(let token):
                 self.oAuth2TokenStorage.token = token
+                ProgressHUD.dismiss()
                 self.switchToTabBarController()
             case .failure(let failure):
-                print("")
+                print("aaaaaaaaaaaaaaaaa\(failure)")
+                vc.disableEnableEnterButton()
                 //TODO: - failure
             }
         }

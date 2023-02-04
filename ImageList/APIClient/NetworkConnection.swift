@@ -14,11 +14,12 @@ private enum NetworkError: Error {
 }
 
 extension URLSession {
+    typealias Handler = (Result<Data, Error>) -> Void
     func data(
         for request: URLRequest,
-        completion: @escaping (Result<Data, Error>) -> Void
+        completion: @escaping Handler
     ) -> URLSessionDataTask {
-        let fulfillCompletion: (Result<Data, Error>) -> Void = { result in
+        let fulfillCompletion: Handler = { result in
             DispatchQueue.main.async {
                 completion(result)
             }

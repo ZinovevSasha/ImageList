@@ -8,16 +8,8 @@
 import UIKit
 import WebKit
 
-protocol WebViewViewControllerDelegate: AnyObject {
-    func webViewViewController(
-        _ vc: WebViewViewController,
-        didAuthenticateWithCode code: String
-    )
-    func webViewViewControllerDidCancel(_ vc: WebViewViewController)
-}
-
 final class WebViewViewController: UIViewController {
-    public weak var delegate: WebViewViewControllerDelegate?
+    weak var delegate: WebViewViewControllerDelegate?
     
     @objc private var webView: WKWebView = {
         let webView = WKWebView()
@@ -49,8 +41,9 @@ final class WebViewViewController: UIViewController {
     }
     
     private func setUpViews() {
-        webView.backgroundColor = .white
+        view.backgroundColor = .white
         view.addSubviews(webView, backButton, progressView)
+        webView.backgroundColor = .white
         webView.navigationDelegate = self
         progressView.progress = 0.05
         backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
@@ -114,7 +107,7 @@ final class WebViewViewController: UIViewController {
         NSLayoutConstraint.activate([
             webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            webView.topAnchor.constraint(equalTo: view.topAnchor),
+            webView.topAnchor.constraint(equalTo: progressView.bottomAnchor),
             webView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
             backButton.topAnchor.constraint(
