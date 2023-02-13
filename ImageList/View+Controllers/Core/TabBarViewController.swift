@@ -1,11 +1,26 @@
 import UIKit
 
 final class TabBarViewController: UITabBarController {
+    // MARK: - Dependency
+    private let profileInfo: Profile?
+    
+    // MARK: - Init (Dependency injection)
+    init(
+        profileInfo: Profile?
+    ) {
+        self.profileInfo = profileInfo
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("Unsupported")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         let vc1 = ImagesListViewController()
-        let vc2 = ProfileViewController()
+        let vc2 = ProfileViewController(profileInfo: profileInfo)
         
         vc1.tabBarItem = UITabBarItem(
             title: "",

@@ -1,11 +1,12 @@
 import UIKit
+import Kingfisher
 
 final class ProfileViewController: UIViewController {
     private let portraitImage: UIImageView = {
+        let origin = CGPoint(x: 0, y: 0)
+        let size = CGSize(width: 70, height: 70)
         let image = UIImageView()
-        image.image = .person
         image.translatesAutoresizingMaskIntoConstraints = false
-        image.setContentHuggingPriority(UILayoutPriority(252), for: .horizontal)
         return image
     }()
     
@@ -55,61 +56,109 @@ final class ProfileViewController: UIViewController {
         return stackView
     }()
     
-    private let horizontalStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.alignment = .center
-        stackView.distribution = .equalCentering
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        return stackView
-    }()
+    // MARK: - Dependency
+    private let profileInfo: Profile?
+    private var profileImageServerObserver: NSObjectProtocol?
+
+    // MARK: - Init (Dependency injection)
+    init(profileInfo: Profile?) {
+        self.profileInfo = profileInfo
+        super.init(nibName: nil, bundle: nil)
+    }
     
-    // MARK: - LifeCicle
+    required init?(coder: NSCoder) {
+        fatalError("Unsupported")
+    }
+    
+    // MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        setViews()
+        setView()
+        configureUIWith(profileInfo)
+        addObserver()
+        updateAvatarImage()
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        
         setConstraints()
     }
     
-    private func setViews() {
+    private func updateAvatarImage() {
+        guard let avatar = ProfileImageService.shared.avatarUrl,
+            let url = URL(string: avatar)
+        else {
+            return
+        }
+        
+        let processor = RoundCornerImageProcessor(cornerRadius: portraitImage.frame.height / 2)
+        print(portraitImage.frame.height)
+        
+        portraitImage.kf.indicatorType = .activity
+        portraitImage.kf.setImage(
+            with: url,
+            placeholder: UIImage.person,
+            options: [ .transition(.fade(0.5))]
+        )
+    }
+    
+    private func addObserver() {
+        profileImageServerObserver = NotificationCenter.default
+            .addObserver(
+                forName: ProfileImageService.DidChangeNotification,
+                object: nil,
+                queue: .main) { [weak self] _ in
+                    guard let self = self else { return }
+                    self.updateAvatarImage()
+            }
+    }
+    
+    @objc private func exitButtonDidTapped() { }
+}
+
+// MARK: - UI
+extension ProfileViewController {
+    private func setView() {
         view.backgroundColor = .myBlack
-        view.addSubview(verticalStackView)
         
         exitButton.addTarget(self, action: #selector(exitButtonDidTapped), for: .touchDragInside)
         
-        [portraitImage, exitButton]
-            .forEach { horizontalStackView.addArrangedSubview($0) }
-        
-        [horizontalStackView, nameLabel, emailLabel, helloLabel]
+        [nameLabel, emailLabel, helloLabel]
             .forEach { verticalStackView.addArrangedSubview($0) }
-    }
-    
-    @objc private func exitButtonDidTapped() {
-        exitButton.isHidden = true
+        view.addSubviews(portraitImage, exitButton)
+        view.addSubview(verticalStackView)
     }
     
     private func setConstraints() {
         NSLayoutConstraint.activate([
+            // portraitImage
+            portraitImage.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 32),
+            portraitImage.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            portraitImage.heightAnchor.constraint(equalToConstant: 70),
+            portraitImage.widthAnchor.constraint(equalToConstant: 70),
+            
+            // exitButton
+            exitButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 56),
+            exitButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -26),
+            
             // verticalStackView
             verticalStackView.topAnchor.constraint(
-                equalTo: view.safeAreaLayoutGuide.topAnchor,
-                constant: 32),
+                equalTo: portraitImage.bottomAnchor, constant: 8),
             verticalStackView.leadingAnchor.constraint(
                 equalTo: view.leadingAnchor,
                 constant: 16),
             verticalStackView.trailingAnchor.constraint(
                 equalTo: view.trailingAnchor,
-                constant: -24),
-            
-            // horizontalStackView
-            horizontalStackView.topAnchor.constraint(equalTo: verticalStackView.topAnchor),
-            horizontalStackView.leadingAnchor.constraint(equalTo: verticalStackView.leadingAnchor),
-            horizontalStackView.trailingAnchor.constraint(equalTo: verticalStackView.trailingAnchor)
+                constant: -24)
         ])
+    }
+    
+    private func configureUIWith(_ profile: Profile?) {
+        guard let profile = profile else { return }
+        nameLabel.text = profile.name.capitalized
+        emailLabel.text = profile.loginName
+        helloLabel.text = profile.bio
     }
 }

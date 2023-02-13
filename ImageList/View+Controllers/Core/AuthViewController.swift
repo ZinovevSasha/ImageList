@@ -8,11 +8,7 @@ protocol WebViewViewControllerDelegate: AnyObject {
     func webViewViewControllerDidCancel(_ vc: WebViewViewController)
 }
 
-protocol AuthViewControllerProtocol {
-    func disableEnableEnterButton()
-}
-
-final class AuthViewController: UIViewController, AuthViewControllerProtocol {
+final class AuthViewController: UIViewController {
     private var enterButton: UIButton = {
         let button = UIButton()
         button.layer.cornerRadius = 16
@@ -31,38 +27,50 @@ final class AuthViewController: UIViewController, AuthViewControllerProtocol {
         return image
     }()
     
-    // MARK: - Dependencies
-    public weak var delegate: AuthViewControllerDelegate?
     
-    // MARK: - LifeCicle
+    // MARK: - Dependency
+    weak var delegate: AuthViewControllerDelegate?
+    private var confettiAnimationLayer: ConfettiAnimationEffect?
+    
+    // MARK: - Init (Dependency injection)
+    init(delegate: AuthViewControllerDelegate) {
+        self.delegate = delegate
+        super.init(nibName: nil, bundle: nil)
+        showConfettiAnimationEffect()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("Unsupported")
+    }
+    
+    // MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        setViews()
-        enterButton.addTarget(
-            self,
-            action: #selector(enterButtonTapped),
-            for: .touchUpInside
-        )
+        setView()
     }
-    
+
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
         setConstraint()
     }
     
+    // MARK: - Transition
     @objc private func enterButtonTapped() {
-        let webViewController = WebViewViewController()
-        webViewController.delegate = self
+        let webViewController = WebViewViewController(delegate: self)
         webViewController.modalPresentationStyle = .fullScreen
         present(webViewController, animated: true)
     }
-    
-    private func setViews() {
+}
+
+// MARK: - UI
+extension AuthViewController {
+    private func setView() {
         image.center = view.center
         view.backgroundColor = .myBlack
         view.addSubviews(enterButton, image)
+        enterButton.addTarget(self, action: #selector(enterButtonTapped), for: .touchUpInside)
     }
     
     private func setConstraint() {
@@ -86,18 +94,42 @@ final class AuthViewController: UIViewController, AuthViewControllerProtocol {
         ])
     }
     
-    func disableEnableEnterButton() {
-        enterButton.isEnabled.toggle()
+    private func showConfettiAnimationEffect() {
+        confettiAnimationLayer = ConfettiAnimationEffect(
+            view: view,
+            colors: [.white],
+            position: CGPoint(x: view.center.x, y: -100)
+        )
+    }
+    
+    public func showAlert(
+        title: String,
+        message: String,
+        actionTitle: String
+    ) {
+        let ac = UIAlertController(
+            title: title,
+            message: message,
+            preferredStyle: .alert
+        )
+        
+        let action = UIAlertAction(
+            title: actionTitle,
+            style: .cancel
+        )
+        
+        ac.addAction(action)
+        present(ac, animated: true)
     }
 }
 
+// MARK: - WebViewViewControllerDelegate
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(
         _ vc: WebViewViewController,
         didAuthenticateWithCode code: String
     ) {
         delegate?.authViewController(self, didAuthenticateWithCode: code)
-        disableEnableEnterButton()
         vc.dismiss(animated: true)
     }
     

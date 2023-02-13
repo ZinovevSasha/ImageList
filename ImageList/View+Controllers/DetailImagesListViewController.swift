@@ -1,23 +1,26 @@
 import UIKit
 
 class DetailImagesListViewController: UIViewController {
-    let image: UIImageView = {
+    private let imageView: UIImageView = {
         let image = UIImageView()
         image.translatesAutoresizingMaskIntoConstraints = false
         return image
     }()
+    
     private let backButton: UIButton = {
         let button = UIButton()
         button.setImage(.backward, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
+    
     private let shareButton: UIButton = {
         let shareButton = UIButton()
         shareButton.setImage(.share, for: .normal)
         shareButton.translatesAutoresizingMaskIntoConstraints = false
         return shareButton
     }()
+    
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.minimumZoomScale = 0.1
@@ -26,32 +29,44 @@ class DetailImagesListViewController: UIViewController {
         return scrollView
     }()
     
+    // MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        addViews()
-        setUpElements()
-    }
-    
-    public func configureImage(imageName: String) {
-        image.image = UIImage(named: "\(imageName)")
-        rescaleAndCenterImageInScrollView(image.image ?? UIImage())
-    }
-    
-    private func addViews() {
-        view.addSubviews(scrollView, backButton, shareButton)
-        scrollView.addSubview(image)
-    }
-    
-    private func setUpElements() {
-        backButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
-        shareButton.addTarget(self, action: #selector(share), for: .touchUpInside)
-        scrollView.delegate = self
+        setView()
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        
         setConstraint()
+    }
+    
+    // MARK: - Configure
+    public func configure(image: String) {
+        imageView.image = UIImage(named: "\(image)")
+        rescaleAndCenterImageInScrollView(imageView.image ?? UIImage())
+    }
+    
+    private func rescaleAndCenterImageInScrollView(_ image: UIImage) {
+        let imageSize = image.size
+        let minZoomScale = scrollView.minimumZoomScale
+        let maxZoomScale = scrollView.maximumZoomScale
+        
+        view.layoutIfNeeded()
+        let visibleRectSize = scrollView.bounds.size
+       
+        let hScale = visibleRectSize.width / imageSize.width
+        let vScale = visibleRectSize.height / imageSize.height
+        let theoreticalScale = max(hScale, vScale)
+        let scale = min(maxZoomScale, max(minZoomScale, theoreticalScale))
+        scrollView.setZoomScale(scale, animated: true)
+        
+        scrollView.layoutIfNeeded()
+        let newContentsSize = scrollView.contentSize
+        let x = (newContentsSize.width - visibleRectSize.width) / 2
+        let y = (newContentsSize.height - visibleRectSize.height) / 2
+        scrollView.setContentOffset(CGPoint(x: x, y: y), animated: true)
     }
     
     @objc private func goBack() {
@@ -59,24 +74,35 @@ class DetailImagesListViewController: UIViewController {
     }
     
     @objc private func share() {
-        guard let image = image.image else { return }
+        guard let image = imageView.image else { return }
         
         let activityController = UIActivityViewController(
             activityItems: [image, String(describing: image)],
             applicationActivities: nil)
         present(activityController, animated: true)
     }
+}
+
+// MARK: - UI
+extension DetailImagesListViewController {
+    private func setView() {
+        view.addSubviews(scrollView, backButton, shareButton)
+        scrollView.delegate = self
+        scrollView.addSubview(imageView)
+        backButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
+        shareButton.addTarget(self, action: #selector(share), for: .touchUpInside)
+    }
     
     private func setConstraint() {
         NSLayoutConstraint.activate([
             // pictureImage
-            image.leadingAnchor.constraint(
+            imageView.leadingAnchor.constraint(
                 equalTo: scrollView.contentLayoutGuide.leadingAnchor),
-            image.bottomAnchor.constraint(
+            imageView.bottomAnchor.constraint(
                 equalTo: scrollView.contentLayoutGuide.bottomAnchor),
-            image.trailingAnchor.constraint(
+            imageView.trailingAnchor.constraint(
                 equalTo: scrollView.contentLayoutGuide.trailingAnchor),
-            image.topAnchor.constraint(
+            imageView.topAnchor.constraint(
                 equalTo: scrollView.contentLayoutGuide.topAnchor),
             
             // scrollView
@@ -102,31 +128,11 @@ class DetailImagesListViewController: UIViewController {
             shareButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
     }
-    
-    private func rescaleAndCenterImageInScrollView(_ image: UIImage) {
-        let imageSize = image.size
-        let minZoomScale = scrollView.minimumZoomScale
-        let maxZoomScale = scrollView.maximumZoomScale
-        
-        view.layoutIfNeeded()
-        let visibleRectSize = scrollView.bounds.size
-       
-        let hScale = visibleRectSize.width / imageSize.width
-        let vScale = visibleRectSize.height / imageSize.height
-        let theoreticalScale = max(hScale, vScale)
-        let scale = min(maxZoomScale, max(minZoomScale, theoreticalScale))
-        scrollView.setZoomScale(scale, animated: true)
-        
-        scrollView.layoutIfNeeded()
-        let newContentsSize = scrollView.contentSize
-        let x = (newContentsSize.width - visibleRectSize.width) / 2
-        let y = (newContentsSize.height - visibleRectSize.height) / 2
-        scrollView.setContentOffset(CGPoint(x: x, y: y), animated: true)
-    }
 }
 
+// MARK: - UIScrollViewDelegate
 extension DetailImagesListViewController: UIScrollViewDelegate {
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        return image
+        return imageView
     }
 }

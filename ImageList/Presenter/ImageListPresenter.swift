@@ -12,17 +12,21 @@ protocol ImageListProtocol: AnyObject {
     func reloadData()
 }
 
+protocol ImageLoaderDelegate: AnyObject {
+    func imageLoader(_ imageLoader: ImageLoaderProtocol, didLoadImages: [ImageCell])
+}
+
 final class ImageListPresenter: NSObject {
-    // Dependencies
+    private var images: [ImageCell] = []
+    
+    // MARK: - Dependency
     private weak var imageList: ImageListProtocol?
     private var imageLoader: ImageLoaderProtocol?
   
-    private var images: [ImageCell] = []
-    
-    // Init
+    // MARK: - Init (Dependency injection)
     init(imageList: ImageListProtocol?) {
-        super.init()
         self.imageList = imageList
+        super.init()
         imageLoader = ImageLoader(delegate: self)
         imageLoader?.loadData()
     }
@@ -59,12 +63,13 @@ extension ImageListPresenter: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        print("cellForRowAt method called")
         guard let cell = tableView.dequeueReusableCell(
             withIdentifier: ImagesListCell.identifier,
             for: indexPath) as? ImagesListCell else {
             return UITableViewCell()
         }
-
+        print("number of cell returning from cell for row at",indexPath.row)
         cell.configure(model: images[indexPath.row])
         return cell
     }

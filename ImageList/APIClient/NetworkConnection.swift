@@ -11,27 +11,35 @@ private enum NetworkError: Error {
     case httpStatusCode(Int)
     case urlRequestError(Error)
     case urlSessionError
+    case parsingError(Error)
 }
 
 extension URLSession {
-    typealias Handler = (Result<Data, Error>) -> Void
-    func data(
+    func objectTask<T: Decodable>(
         for request: URLRequest,
-        completion: @escaping Handler
+        expected type: T.Type,
+        completion: @escaping (Result<T, Error>) -> Void
     ) -> URLSessionDataTask {
-        let fulfillCompletion: Handler = { result in
+        let fulfillCompletion: (Result<T, Error>) -> Void = { result in
             DispatchQueue.main.async {
                 completion(result)
             }
         }
-        
-        let task = dataTask(with: request) { data, response, error in
+       
+        let task = dataTask(with: request) { data, response, error -> Void in
             if let data = data,
                 let response = response,
                 let statusCode = (response as? HTTPURLResponse)?.statusCode
             {
                 if 200..<300 ~= statusCode {
-                    fulfillCompletion(.success(data))
+                    let decoder = JSONDecoder()
+                    decoder.keyDecodingStrategy = .convertFromSnakeCase
+                    do {
+                        let objectOfMyType = try decoder.decode(type, from: data)
+                        fulfillCompletion(.success(objectOfMyType))
+                    } catch {
+                        fulfillCompletion(.failure(NetworkError.parsingError(error)))
+                    }
                 } else {
                     fulfillCompletion(.failure(NetworkError.httpStatusCode(statusCode)))
                 }

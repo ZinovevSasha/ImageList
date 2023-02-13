@@ -7,26 +7,23 @@
 
 import Foundation
 
-private enum URLRequestError: Error {
-    case failedToCreateRequest
-}
-
 extension URLRequest {
     static func makeHTTPRequest(
+        host: String = "api.unsplash.com",
         path: String,
         queryItems: [URLQueryItem]? = nil,
-        httpMethod: String,
-        baseUrlString: String = "https://unsplash.com"
-    ) -> URLRequest? {
-        guard var urlComponents = URLComponents(string: baseUrlString) else {
-            return nil
-        }
-        urlComponents.path = path
-        urlComponents.queryItems = queryItems
+        httpMethod: String = "GET"
+    ) -> URLRequest {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = host
+        components.path = path
+        components.queryItems = queryItems
         
-        guard let url = urlComponents.url else {
-            return nil
+        guard let url = components.url else {
+            preconditionFailure("Unable to create url")
         }
+        
         var request = URLRequest(url: url)
         request.httpMethod = httpMethod
         return request

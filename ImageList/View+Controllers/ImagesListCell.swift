@@ -101,19 +101,27 @@ final class ImagesListCell: UITableViewCell {
     
     // MARK: - Configure function
     public func configure(model: ImageCell) {
-        guard let image = UIImage(named: model.image) else {
-            return
-        }
-        pictureImage.image = image
+        pictureImage.image = UIImage(named: model.image)
         dateLabel.text = model.date.dateString
+        print("configure called from cellForRowAt")
+        dateContainer.addGradient(
+            with: gradientLayer,
+            colorSet: [.myGradientStart, .myGradientStop],
+            locations: [0.0, 1.0])
     }
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        setGradient()
-        setConstraint()
+    
+    override func layoutSublayers(of layer: CALayer) {
+        super.layoutSublayers(of: self.layer)
+        print("Layoaout subviews inside cell")
+    
+        if gradientLayer.frame != dateContainer.bounds {
+            print("Container frame is \n",gradientLayer.frame)
+            gradientLayer.frame = dateContainer.bounds
+            print(gradientLayer.frame)
+        }
     }
+
     
     @objc private func heartButtonDidTapped() { }
 
@@ -122,17 +130,18 @@ final class ImagesListCell: UITableViewCell {
         
         contentView.backgroundColor = .clear
         backgroundColor = .clear
-        
-        self.selectionStyle = .none
+        selectionStyle = .none
         
         heartButton.addTarget(
             self,
             action: #selector(heartButtonDidTapped),
             for: .touchUpInside)
         
-        dateContainer.addSubview(dateLabel)
+        print("Init of cell called i set constraints here")
         pictureImageContainer.addSubviews(pictureImage, heartButton, dateContainer)
+        dateContainer.addSubview(dateLabel)
         contentView.addSubview(pictureImageContainer)
+        setConstraint()
     }
     
     required init?(coder: NSCoder) {

@@ -1,5 +1,9 @@
 import Foundation
 
+protocol ImageLoaderProtocol {
+    func loadData()
+}
+
 final class ImageLoader: ImageLoaderProtocol {
     weak var delegate: ImageLoaderDelegate?
     

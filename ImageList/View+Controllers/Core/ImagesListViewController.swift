@@ -1,9 +1,6 @@
 import UIKit
 
 final class ImagesListViewController: UIViewController, ImageListProtocol {
-    // Dependencies
-    private var presenter: ImageListPresenter?
-    
     private var tableView: UITableView = {
         let tableView = UITableView()
         tableView.separatorStyle = .none
@@ -14,9 +11,13 @@ final class ImagesListViewController: UIViewController, ImageListProtocol {
         return tableView
     }()
     
-    // MARK: - LifeCicle
+    // Dependency
+    private var presenter: ImageListPresenter?
+    
+    // MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         presenter = ImageListPresenter(imageList: self)
         createTableView()
     }
@@ -24,7 +25,6 @@ final class ImagesListViewController: UIViewController, ImageListProtocol {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-       
         tableView.frame = view.bounds
     }
     
@@ -43,8 +43,8 @@ final class ImagesListViewController: UIViewController, ImageListProtocol {
     
     public func presentDetailVC(image: ImageCell) {
         let vcDetail = DetailImagesListViewController()
+        vcDetail.configure(image: image.image)
         vcDetail.modalPresentationStyle = .fullScreen
-        vcDetail.configureImage(imageName: image.image)
         present(vcDetail, animated: true)
     }
 }

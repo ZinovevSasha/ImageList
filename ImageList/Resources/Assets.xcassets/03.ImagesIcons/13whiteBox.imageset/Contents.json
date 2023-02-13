@@ -1,15 +1,16 @@
 {
   "images" : [
     {
-      "filename" : "1643544959_new_preview_scale_1200.jpg",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "@2x.whiteBox.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "@3x.whiteBox.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
