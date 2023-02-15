@@ -47,4 +47,3 @@ extension OAuth2Service: OAuth2ServiceProtocol {
         let createdAt: Int
     }
 }
-

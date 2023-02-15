@@ -66,8 +66,8 @@ extension UnsplashRequests {
             guard let url = urlComponents.url else {
                 preconditionFailure("Unable to construct Url")
             }
-            
-            return URLRequest(url: url)            
+            let request = URLRequest(url: url)
+            return request
         }
     }
 }

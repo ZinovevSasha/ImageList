@@ -54,6 +54,7 @@ extension ProfileImageService: ProfileImageServiceProtocol {
                 let avatarUrl = success.profileImage.large
                 self.avatarUrl = avatarUrl
                 self.subscribeToNotificationCenter(property: avatarUrl)
+                completion(.success(avatarUrl))
             case .failure(let failure):
                 completion(.failure(failure))
             }

@@ -23,7 +23,7 @@ final class APIService: APIServiceProtocol {
         expectedType type: T.Type,
         completion: @escaping (Result<T, Error>) -> Void
     ) {
-        assert(Thread.isMainThread, "Thread.isMainThread NOT")
+        assert(Thread.isMainThread, "Thread.isMainThread")
         task?.cancel()
 
         let task = URLSession.shared.objectTask(
