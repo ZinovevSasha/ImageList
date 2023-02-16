@@ -8,6 +8,28 @@
 import UIKit
 import WebKit
 
+/*
+"""
+ WebViewViewController tell his delegate
+(any who conform WebViewViewControllerDelegate)
+in our case AuthViewController that we catch code
+or failed to do that__
+"
+If the user accepts the request,
+the user will be redirected to the redirect_uri,
+with the authorization code in the code query parameter.
+"
+"""
+ */
+
+protocol WebViewViewControllerDelegate: AnyObject {
+    func webViewViewController(
+        _ vc: WebViewViewController,
+        didAuthenticateWithCode code: String
+    )
+    func webViewViewControllerDidCancel(_ vc: WebViewViewController)
+}
+
 final class WebViewViewController: UIViewController {
     @objc private var webView: WKWebView = {
         let webView = WKWebView()
@@ -51,6 +73,7 @@ final class WebViewViewController: UIViewController {
         setView()
         webView.load(authScreen())
         addObserver()
+        deleteCookies()
     }
     
     override func viewDidLayoutSubviews() {
@@ -70,6 +93,15 @@ final class WebViewViewController: UIViewController {
                 guard let self = self else { return }
                 guard let value = change.newValue else { return }
                 self.updateProgress(estimatedProgress: value)
+        }
+    }
+    
+    func deleteCookies() {
+        webView.configuration.websiteDataStore.httpCookieStore.getAllCookies { cookies in
+            for cookie in cookies {
+                self.webView.configuration.websiteDataStore.httpCookieStore.delete(cookie)
+                print("\(cookie.name) is set to \(cookie.value)")
+            }
         }
     }
     
@@ -144,15 +176,15 @@ extension WebViewViewController: WKNavigationDelegate {
             return nil
         }
     }
-}
-
-func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse, decisionHandler: @escaping(WKNavigationResponsePolicy) -> Void) {
-    if let response = navigationResponse.response as? HTTPURLResponse {
-        // TODO: - Check how it works
-        if response.statusCode == 401 {
-            decisionHandler(.cancel)
-        } else {
-            decisionHandler(.allow)
+    
+    func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse, decisionHandler: @escaping(WKNavigationResponsePolicy) -> Void) {
+        if let response = navigationResponse.response as? HTTPURLResponse {
+            // TODO: - Check how it works
+            if response.statusCode == 401 {
+                decisionHandler(.cancel)
+            } else {
+                decisionHandler(.allow)
+            }
         }
     }
 }

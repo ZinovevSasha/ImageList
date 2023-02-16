@@ -7,13 +7,6 @@
 
 import UIKit
 
-protocol AuthViewControllerDelegate: AnyObject {
-    func authViewController(
-        _ vc: AuthViewController,
-        didAuthenticateWithCode code: String
-    )
-}
-
 final class SplashViewController: UIViewController {
     private let imageView: UIImageView = {
         let imageView = UIImageView()
@@ -56,6 +49,7 @@ final class SplashViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        oAuth2TokenStorage.deleteToken()
         setView()
     }
     
@@ -88,6 +82,7 @@ final class SplashViewController: UIViewController {
     }
 }
 
+// MARK: -
 extension SplashViewController: AuthViewControllerDelegate {
     func authViewController(
         _ vc: AuthViewController,

@@ -156,10 +156,7 @@
 				F9843F0B2958610000EB2CF4 /* Models */,
 				F9EA433F2982E301007E1F20 /* APIClient */,
 				F96083A8296D8C0500986DBE /* Services */,
-				F96083A7296D89C700986DBE /* RegistrationFlow */,
-				F9FD3F3A299D56E70071F9FF /* TabBar */,
-				F9DA07E2296C9A2D00F210D9 /* ImageListScreen */,
-				F9DA07DF296C974400F210D9 /* ProfileScreen */,
+				F9FD3F3B299D67730071F9FF /* ViewControllers */,
 				F9843F0829585BB500EB2CF4 /* Helper */,
 				F9843F0E2958614F00EB2CF4 /* Resources */,
 				F9843EFC295847EC00EB2CF4 /* Info.plist */,
@@ -236,6 +233,17 @@
 				F9843F19295861CF00EB2CF4 /* TabBarViewController.swift */,
 			);
 			path = TabBar;
+			sourceTree = "<group>";
+		};
+		F9FD3F3B299D67730071F9FF /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				F96083A7296D89C700986DBE /* RegistrationFlow */,
+				F9FD3F3A299D56E70071F9FF /* TabBar */,
+				F9DA07E2296C9A2D00F210D9 /* ImageListScreen */,
+				F9DA07DF296C974400F210D9 /* ProfileScreen */,
+			);
+			path = ViewControllers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

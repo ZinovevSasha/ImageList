@@ -9,6 +9,7 @@ import Foundation
 
 protocol OAuth2TokenStorageProtocol {
     var token: String? { get set }
+    func deleteToken()
 }
 
 final class OAuth2TokenStorage: OAuth2TokenStorageProtocol{
@@ -25,12 +26,12 @@ final class OAuth2TokenStorage: OAuth2TokenStorageProtocol{
             return String(decoding: data, as: UTF8.self)
         }
         set(newValue) {
-            deleteToken()
+            guard let newValue = newValue else { return }
             do {
                 try save(
                     service: KeyPath.imageList.rawValue,
                     account: KeyPath.key.rawValue,
-                    password: newValue?.data(using: .utf8) ?? Data()
+                    password: newValue.data(using: .utf8) ?? Data()
                 )
             } catch {
                 print("OAuth2TokenStorage", error)
@@ -39,7 +40,7 @@ final class OAuth2TokenStorage: OAuth2TokenStorageProtocol{
     }
     
     // MARK: - PRIVATE
-    private func deleteToken() {
+    func deleteToken() {
         let query = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: KeyPath.imageList.rawValue as AnyObject,
@@ -97,3 +98,55 @@ final class OAuth2TokenStorage: OAuth2TokenStorageProtocol{
         case unknownError(OSStatus)
     }
 }
+
+
+// MARK: - Example from Yandex Book not working
+/*
+final class OAuth2TokenStorage: OAuth2TokenStorageProtocol {
+    private let appTag = "com.imagefeed.keys".data(using: .utf8)!
+
+    public var token: String? {
+        get {
+            let query: [String: Any] = [
+                kSecClass as String: kSecClassKey,
+                kSecMatchLimit as String: kSecMatchLimitOne,
+                kSecAttrApplicationTag as String: appTag,
+                kSecReturnData as String: true
+            ]
+            var item: CFTypeRef?
+            let status = SecItemCopyMatching(query as CFDictionary, &item)              // 2
+            guard status == errSecSuccess else {                                        // 3
+                // ошибка
+                return nil
+            }
+
+            guard                                                                       // 4
+                let existingItem = item as? [String: Any],
+                let tokenData = existingItem[kSecValueData as String] as? Data,
+                let tokenKey = String(data: tokenData, encoding: String.Encoding.utf8)
+            else {
+                // ошибка
+                return nil
+            }
+            return  tokenKey
+        }
+        set(newValue) {
+            guard let newValue = newValue else { return }
+            let token = newValue.data(using: .utf8)!
+            let appTag = "com.imagefeed.keys".data(using: .utf8)!
+            let addquery: [String: Any] = [
+                kSecClass as String: kSecClassKey,
+                kSecAttrApplicationTag as String: appTag,
+                kSecValueRef as String: token
+            ]
+
+            let status = SecItemAdd(addquery as CFDictionary, nil)
+            guard status == errSecSuccess else {
+                return
+            }
+        }
+    }
+
+    func deleteToken() { }
+}
+*/

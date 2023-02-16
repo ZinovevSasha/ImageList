@@ -14,7 +14,8 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         let window = UIWindow(windowScene: windowScene)
-        window.rootViewController = SplashViewController(
+        window.rootViewController =
+        SplashViewController(
             oAuth2Service: OAuth2Service(apiService: APIService()),
             profileService: ProfileService(apiService: APIService()),
             profileImageService: ProfileImageService.shared,
@@ -22,6 +23,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         )
         window.makeKeyAndVisible()
         self.window = window
+        // po NSHomeDirectory()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

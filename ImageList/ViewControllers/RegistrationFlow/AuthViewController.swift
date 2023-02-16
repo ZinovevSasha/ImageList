@@ -1,12 +1,23 @@
 import UIKit
 
+/*
+"""
+AuthViewControllerDelegate tell his delegate
+(any who conform AuthViewControllerDelegate)
+in our case SplashViewController that we catch code __
+"
+If the user accepts the request,
+the user will be redirected to the redirect_uri,
+with the authorization code in the code query parameter.
+"
+"""
+ */
 
-protocol WebViewViewControllerDelegate: AnyObject {
-    func webViewViewController(
-        _ vc: WebViewViewController,
+protocol AuthViewControllerDelegate: AnyObject {
+    func authViewController(
+        _ vc: AuthViewController,
         didAuthenticateWithCode code: String
     )
-    func webViewViewControllerDidCancel(_ vc: WebViewViewController)
 }
 
 final class AuthViewController: UIViewController {
@@ -78,7 +89,7 @@ final class AuthViewController: UIViewController {
         let webViewController = WebViewViewController(delegate: self)
         webViewController.transitioningDelegate = self
         webViewController.modalPresentationStyle = .custom
-        self.present(webViewController, animated: true)
+        present(webViewController, animated: true)
     }
 }
 
@@ -166,22 +177,6 @@ extension AuthViewController {
     }
 }
 
-// MARK: - WebViewViewControllerDelegate
-extension AuthViewController: WebViewViewControllerDelegate {
-    func webViewViewController(
-        _ vc: WebViewViewController,
-        didAuthenticateWithCode code: String
-    ) {
-        delegate?.authViewController(self, didAuthenticateWithCode: code)
-        enterButton.backgroundColor = .myWhite50
-        vc.dismiss(animated: true)
-    }
-    
-    func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
-        vc.dismiss(animated: true)
-    }
-}
-
 extension AuthViewController: UIViewControllerTransitioningDelegate {
     func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         transition.transitionMode = .present
@@ -195,5 +190,21 @@ extension AuthViewController: UIViewControllerTransitioningDelegate {
         transition.startingPoint = image.center
         transition.circleColor = .black
         return transition
+    }
+}
+
+// MARK: - WebViewViewControllerDelegate
+extension AuthViewController: WebViewViewControllerDelegate {
+    func webViewViewController(
+        _ vc: WebViewViewController,
+        didAuthenticateWithCode code: String
+    ) {
+        delegate?.authViewController(self, didAuthenticateWithCode: code)
+        enterButton.backgroundColor = .myWhite50
+        vc.dismiss(animated: true)
+    }
+    
+    func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
+        vc.dismiss(animated: true)
     }
 }
