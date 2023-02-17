@@ -20,19 +20,19 @@ final class TabBarController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let vc1 = ImagesListViewController()
-        let vc2 = ProfileViewController(profileInfo: profileInfo)
+        let imagesListViewController = ImagesListViewController()
+        let profileViewController = ProfileViewController(profileInfo: profileInfo)
         
-        vc1.tabBarItem = UITabBarItem(
+        imagesListViewController.tabBarItem = UITabBarItem(
             title: "",
             image: .tabBarLeft,
             tag: 1)
-        vc2.tabBarItem = UITabBarItem(
+        profileViewController.tabBarItem = UITabBarItem(
             title: "",
             image: .tabBarRight,
             tag: 2)
 
-        setViewControllers([vc1, vc2], animated: false)
+        setViewControllers([imagesListViewController, profileViewController], animated: false)
         
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()

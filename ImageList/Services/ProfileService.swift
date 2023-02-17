@@ -13,38 +13,30 @@ protocol ProfileServiceProtocol {
     )
 }
 
-final class ProfileService {
-    private let apiService: APIServiceProtocol
+final class ProfileService: ProfileServiceProtocol {
+    private let urlSession = URLSession.shared
     
-    init(apiService: APIServiceProtocol) {
-        self.apiService = apiService
-    }
-    
-    deinit {
-        print("deinit... \(String(describing: self))")
-    }
-}
-
-extension ProfileService: ProfileServiceProtocol {
     func fetchProfile(
         completion: @escaping (Result<Profile, Error>) -> Void
     ) {
-        apiService.fetch(
-            request: .getMe,
+        let request = UnsplashRequests.getMe.request
+        let task = urlSession.object(
+            for: request,
             expectedType: ProfileResult.self
         ) { result in
             switch result {
-            case .success(let body):
+            case .success(let profile):
                 completion(.success(Profile(
-                    username: body.username,
-                    name: body.firstName + " " + body.lastName,
-                    loginName: "@" + body.username,
-                    bio: body.bio ?? "Hello, world!"
+                    username: profile.username,
+                    name: profile.firstName + " " + profile.lastName,
+                    loginName: "@" + profile.username,
+                    bio: profile.bio ?? ""
                 )))
-            case .failure(let failure):
-                completion(.failure(failure))
+            case .failure(let error):
+                completion(.failure(error))
             }
         }
+        task.resume()
     }
     
     private struct ProfileResult: Decodable {

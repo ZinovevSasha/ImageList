@@ -72,14 +72,18 @@ final class WebViewViewController: UIViewController {
         
         setView()
         webView.load(authScreen())
-        addObserver()
-        deleteCookies()
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
         addConstraints()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        addObserver()
     }
     
     func authScreen(_ auth: UnsplashRequests = .authentication) -> URLRequest {
@@ -93,15 +97,6 @@ final class WebViewViewController: UIViewController {
                 guard let self = self else { return }
                 guard let value = change.newValue else { return }
                 self.updateProgress(estimatedProgress: value)
-        }
-    }
-    
-    func deleteCookies() {
-        webView.configuration.websiteDataStore.httpCookieStore.getAllCookies { cookies in
-            for cookie in cookies {
-                self.webView.configuration.websiteDataStore.httpCookieStore.delete(cookie)
-                print("\(cookie.name) is set to \(cookie.value)")
-            }
         }
     }
     
@@ -174,17 +169,6 @@ extension WebViewViewController: WKNavigationDelegate {
             return codeItem.value
         } else {
             return nil
-        }
-    }
-    
-    func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse, decisionHandler: @escaping(WKNavigationResponsePolicy) -> Void) {
-        if let response = navigationResponse.response as? HTTPURLResponse {
-            // TODO: - Check how it works
-            if response.statusCode == 401 {
-                decisionHandler(.cancel)
-            } else {
-                decisionHandler(.allow)
-            }
         }
     }
 }

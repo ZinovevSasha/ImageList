@@ -33,6 +33,7 @@ class DetailImagesListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        view.backgroundColor = .red
         setView()
     }
     
@@ -77,8 +78,9 @@ class DetailImagesListViewController: UIViewController {
         guard let image = imageView.image else { return }
         
         let activityController = UIActivityViewController(
-            activityItems: [image, String(describing: image)],
-            applicationActivities: nil)
+            activityItems: [image],
+            applicationActivities: nil
+        )
         present(activityController, animated: true)
     }
 }
@@ -86,42 +88,29 @@ class DetailImagesListViewController: UIViewController {
 // MARK: - UI
 extension DetailImagesListViewController {
     private func setView() {
+        scrollView.addSubview(imageView)
+        view.backgroundColor = .myBlack
         view.addSubviews(scrollView, backButton, shareButton)
         scrollView.delegate = self
-        scrollView.addSubview(imageView)
         backButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
         shareButton.addTarget(self, action: #selector(share), for: .touchUpInside)
     }
     
     private func setConstraint() {
         NSLayoutConstraint.activate([
-            // pictureImage
-            imageView.leadingAnchor.constraint(
-                equalTo: scrollView.contentLayoutGuide.leadingAnchor),
-            imageView.bottomAnchor.constraint(
-                equalTo: scrollView.contentLayoutGuide.bottomAnchor),
-            imageView.trailingAnchor.constraint(
-                equalTo: scrollView.contentLayoutGuide.trailingAnchor),
-            imageView.topAnchor.constraint(
-                equalTo: scrollView.contentLayoutGuide.topAnchor),
-            
             // scrollView
-            scrollView.leadingAnchor.constraint(
-                equalTo: view.leadingAnchor),
-            scrollView.bottomAnchor.constraint(
-                equalTo: view.bottomAnchor),
-            scrollView.trailingAnchor.constraint(
-                equalTo: view.trailingAnchor),
-            scrollView.topAnchor.constraint(
-                equalTo: view.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             
             // backButton
             backButton.leadingAnchor.constraint(
                 equalTo: view.safeAreaLayoutGuide.leadingAnchor,
-                constant: 9),
+                constant: 17),
             backButton.topAnchor.constraint(
-                equalTo: view.safeAreaLayoutGuide.topAnchor,
-                constant: 9),
+                equalTo: view.topAnchor,
+                constant: 60),
             
             // shareButton
             shareButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -17),

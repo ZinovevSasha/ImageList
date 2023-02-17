@@ -75,7 +75,6 @@ final class ProfileViewController: UIViewController {
         
         setView()
         configureUIWith(profileInfo)
-        addObserver()
         updateAvatarImage(url: ProfileImageService.shared.avatarUrl)
     }
     
@@ -98,6 +97,12 @@ final class ProfileViewController: UIViewController {
             placeholder: UIImage.person,
             options: [.transition(.fade(0.5))]
         )
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        addObserver()
     }
     
     private func addObserver() {

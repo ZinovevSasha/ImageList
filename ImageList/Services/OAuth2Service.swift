@@ -14,30 +14,39 @@ protocol OAuth2ServiceProtocol {
     )
 }
 
-final class OAuth2Service {
-    private let apiService: APIServiceProtocol
+final class OAuth2Service: OAuth2ServiceProtocol {
+    private let urlSession = URLSession.shared
+    private var task: URLSessionTask?
+    private var lastCode: String?
     
-    init(apiService: APIServiceProtocol) {
-        self.apiService = apiService
-    }
-}
-
-extension OAuth2Service: OAuth2ServiceProtocol {
+    
     func fetchOAuthToken(
         withCode code: String,
         completion: @escaping (Result<String, Error>) -> Void
     ) {
-        apiService.fetch(
-            request: .oAuthToken(code: code),
+        assert(Thread.isMainThread)
+        if lastCode == code { return }
+        task?.cancel()
+        lastCode = code
+        
+        let request = UnsplashRequests.oAuthToken(code: code).request
+        let task = urlSession.object(
+            for: request,
             expectedType: OAuthTokenResponseBody.self
-        ) { result in
+        ) { [weak self] result in
+            guard let self = self else { return }
             switch result {
-            case .success(let success):
-                completion(.success(success.accessToken))
-            case .failure(let failure):
-                completion(.failure(failure))
+            case .success(let body):
+                let authToken = body.accessToken
+                completion(.success(authToken))
+            case .failure(let error):
+                completion(.failure(error))
+                self.lastCode = nil
             }
+            self.task = nil
         }
+        self.task = task
+        task.resume()
     }
     
     private struct OAuthTokenResponseBody: Decodable {

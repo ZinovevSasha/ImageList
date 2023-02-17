@@ -14,8 +14,6 @@ final class SplashViewController: UIViewController {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
-    
-    override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
 
     // MARK: - Dependency
     private let oAuth2Service: OAuth2ServiceProtocol
@@ -49,7 +47,6 @@ final class SplashViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        oAuth2TokenStorage.deleteToken()
         setView()
     }
     
@@ -62,13 +59,12 @@ final class SplashViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        if oAuth2TokenStorage.token != nil {
+        if let _ = oAuth2TokenStorage.token {
             UIBlockingProgressHUD.show()
             fetchProfile(vc: nil)
         } else {
             let authViewController = AuthViewController(delegate: self)
             authViewController.modalPresentationStyle = .fullScreen
-            authViewController.modalTransitionStyle = .crossDissolve
             present(authViewController, animated: true)
         }
     }
@@ -88,7 +84,7 @@ extension SplashViewController: AuthViewControllerDelegate {
         _ vc: AuthViewController,
         didAuthenticateWithCode code: String
     ) {
-        vc.showSpinner()
+        UIBlockingProgressHUD.show()
         fetchAuthToken(auth: vc, code: code)
     }
     
@@ -100,7 +96,7 @@ extension SplashViewController: AuthViewControllerDelegate {
                 self.oAuth2TokenStorage.token = token
                 self.fetchProfile(vc: vc)
             case .failure(let failure):
-                vc.hideSpinner()
+                UIBlockingProgressHUD.dismiss()
                 vc.showAlert(
                     title: "Что то пошло не так(",
                     message: "Не удалось войти в систему",
@@ -119,23 +115,21 @@ extension SplashViewController: AuthViewControllerDelegate {
                 self.switchToTabBarController(with: profile)
             case .failure(let error):
                 print("fetchProfile", error)
-            }
-            if vc != nil {
-                vc?.hideSpinner()
-            }
+            }        
             UIBlockingProgressHUD.dismiss()
+            vc?.showAlert(
+                title: "Что то пошло не так(",
+                message: "Не удалось войти в систему",
+                actionTitle: "ОК"
+            )
         }
     }
     
     private func fetchProfileImageUrl(username: String) {
         profileImageService
             .fetchProfileImageUrl(username: username) { result in
-                switch result {
-                case .success:
-                    break
-                case .failure(let error):
-                    print("fetchProfileImageUrl", error)
-                }
+                guard case .failure(let error) = result else { return }
+                print("fetchProfileImageUrl", error)
             }
     }
 }

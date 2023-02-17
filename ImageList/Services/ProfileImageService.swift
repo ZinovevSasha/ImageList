@@ -15,27 +15,19 @@ protocol ProfileImageServiceProtocol {
 }
 
 final class ProfileImageService {
-    static let shared = ProfileImageService(apiService: APIService())
+    static let shared = ProfileImageService()
     static let DidChangeNotification = Notification.Name("ProfileImageProviderDidChange")
     
+    private let urlSession = URLSession.shared
     private(set) var avatarUrl: String?
-    private let apiService: APIServiceProtocol
-    
-    private init(apiService: APIServiceProtocol) {
-        self.apiService = apiService
-    }
-    
-    private func subscribeToNotificationCenter(property: String) {
+       
+    private func postNotification(of avatarUrl: String) {
         NotificationCenter.default
             .post(
                 name: ProfileImageService.DidChangeNotification,
                 object: self,
-                userInfo: ["URL": property]
+                userInfo: ["URL": avatarUrl]
             )
-    }
-    
-    deinit {
-        print("deinit... \(String(describing: self))")
     }
 }
  
@@ -44,21 +36,23 @@ extension ProfileImageService: ProfileImageServiceProtocol {
         username: String,
         completion: @escaping (Result<String, Error>) -> Void
     ) {
-        apiService.fetch(
-            request: .userPortfolio(username: username),
+        let request = UnsplashRequests.userPortfolio(username: username).request
+        let task = urlSession.object(
+            for: request,
             expectedType: UserResult.self
         ) { [weak self] result in
             guard let self = self else { return }
             switch result {
-            case .success(let success):
-                let avatarUrl = success.profileImage.large
+            case .success(let userResult):
+                let avatarUrl = userResult.profileImage.large
                 self.avatarUrl = avatarUrl
-                self.subscribeToNotificationCenter(property: avatarUrl)
+                self.postNotification(of: avatarUrl)
                 completion(.success(avatarUrl))
-            case .failure(let failure):
-                completion(.failure(failure))
+            case .failure(let error):
+                completion(.failure(error))
             }
         }
+        task.resume()
     }
  
     private struct UserResult: Decodable {

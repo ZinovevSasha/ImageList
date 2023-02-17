@@ -32,39 +32,20 @@ final class AuthViewController: UIViewController {
         return button
     }()
     
-    private var image: UIButton = {
-        let button = UIButton()
-        button.setImage(.welcomeScreenImage, for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
-    //    private var image: UIImageView = {
-    //        let image = UIImageView()
-    //        image.image = UIImage.welcomeScreenImage
-    //        image.translatesAutoresizingMaskIntoConstraints = false
-    //        return image
-    //    }()
-    
-    private var imageSea: UIImageView = {
+    private var image: UIImageView = {
         let image = UIImageView()
-        image.image = UIImage.sea
+        image.image = UIImage.welcomeScreenImage
         image.translatesAutoresizingMaskIntoConstraints = false
         return image
     }()
     
-    private var spinningCircleView: SpinningCircleView?
-    private let transition = CircularTransition()
-    
     // MARK: - Dependency
     weak var delegate: AuthViewControllerDelegate?
-    private var confettiAnimationLayer: ConfettiAnimationEffect?
     
     // MARK: - Init (Dependency injection)
     init(delegate: AuthViewControllerDelegate) {
         self.delegate = delegate
         super.init(nibName: nil, bundle: nil)
-        showConfettiAnimationEffect()
     }
     
     required init?(coder: NSCoder) {
@@ -86,9 +67,8 @@ final class AuthViewController: UIViewController {
     
     // MARK: - Transition
     @objc private func enterButtonTapped() {
-        let webViewController = WebViewViewController(delegate: self)
-        webViewController.transitioningDelegate = self
-        webViewController.modalPresentationStyle = .custom
+        let webViewController = WebViewViewController(delegate: self)        
+        webViewController.modalPresentationStyle = .fullScreen
         present(webViewController, animated: true)
     }
 }
@@ -99,8 +79,8 @@ extension AuthViewController {
         image.center = view.center
         view.backgroundColor = .myBlack
         
-        image.addTarget(self, action: #selector(enterButtonTapped), for: .touchUpInside)
-        view.addSubviews(imageSea, image)
+        enterButton.addTarget(self, action: #selector(enterButtonTapped), for: .touchUpInside)
+        view.addSubviews(image, enterButton)
     }
     
     private func setConstraint() {
@@ -110,49 +90,18 @@ extension AuthViewController {
             image.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
             // Button
-            //            enterButton.heightAnchor.constraint(
-            //                equalToConstant: 48),
-            //            enterButton.leadingAnchor.constraint(
-            //                equalTo: view.leadingAnchor,
-            //                constant: 16),
-            //            enterButton.trailingAnchor.constraint(
-            //                equalTo: view.trailingAnchor,
-            //                constant: -16),
-            //            enterButton.bottomAnchor.constraint(
-            //                equalTo: view.safeAreaLayoutGuide.bottomAnchor,
-            //                constant: -90),
-            
-            imageSea.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            imageSea.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            imageSea.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            imageSea.heightAnchor.constraint(equalToConstant: view.frame.height * 0.3)
+            enterButton.heightAnchor.constraint(
+                equalToConstant: 48),
+            enterButton.leadingAnchor.constraint(
+                equalTo: view.leadingAnchor,
+                constant: 16),
+            enterButton.trailingAnchor.constraint(
+                equalTo: view.trailingAnchor,
+                constant: -16),
+            enterButton.bottomAnchor.constraint(
+                equalTo: view.safeAreaLayoutGuide.bottomAnchor,
+                constant: -90)
         ])
-    }
-    
-    private func showConfettiAnimationEffect() {
-        confettiAnimationLayer = ConfettiAnimationEffect(
-            view: view,
-            colors: [.white],
-            position: CGPoint(x: view.center.x, y: -100)
-        )
-    }
-    
-    public func showSpinner() {
-        spinningCircleView = SpinningCircleView()
-        if let spinningCircleView {
-            let origin = CGPoint(x: view.center.x - 75, y: view.center.y - 75)
-            spinningCircleView.frame = CGRect(origin: origin, size: CGSize(width: 150, height: 150))
-            view.insertSubview(spinningCircleView, belowSubview: image)
-            spinningCircleView.animate()
-        }
-    }
-    
-    public func hideSpinner() {
-        view.subviews.forEach { $0.layer.removeAllAnimations() }
-        view.layer.removeAllAnimations()
-        view.layoutIfNeeded()
-        spinningCircleView?.removeFromSuperview()
-        spinningCircleView = nil
     }
     
     public func showAlert(
@@ -169,27 +118,13 @@ extension AuthViewController {
         let action = UIAlertAction(
             title: actionTitle,
             style: .cancel) { [weak self] _ in
-                self?.enterButton.backgroundColor = .white
+                UIView.animate(withDuration: 0.5) {
+                    self?.enterButton.backgroundColor = .white
+                }
         }
         
         ac.addAction(action)
         present(ac, animated: true)
-    }
-}
-
-extension AuthViewController: UIViewControllerTransitioningDelegate {
-    func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        transition.transitionMode = .present
-        transition.startingPoint = image.center
-        transition.circleColor = .white
-        return transition
-    }
-    
-    func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        transition.transitionMode = .dismiss
-        transition.startingPoint = image.center
-        transition.circleColor = .black
-        return transition
     }
 }
 

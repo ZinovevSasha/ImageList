@@ -16,8 +16,8 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = UIWindow(windowScene: windowScene)
         window.rootViewController =
         SplashViewController(
-            oAuth2Service: OAuth2Service(apiService: APIService()),
-            profileService: ProfileService(apiService: APIService()),
+            oAuth2Service: OAuth2Service(),
+            profileService: ProfileService(),
             profileImageService: ProfileImageService.shared,
             oAuth2TokenStorage: OAuth2TokenStorage()
         )

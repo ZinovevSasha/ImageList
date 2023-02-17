@@ -7,46 +7,46 @@
 
 import Foundation
 
-private enum NetworkError: Error {
-    case httpStatusCode(Int)
-    case urlRequestError(Error)
-    case urlSessionError
-    case parsingError(Error)
-}
-
 extension URLSession {
-    func objectTask<T: Decodable>(
+    private enum Errors: Error {
+        case httpStatusCode(Int)
+        case urlRequestError(Error)
+        case urlSessionError
+        case decodingError(Error)
+    }
+    
+    func object<T: Decodable>(
         for request: URLRequest,
-        expected type: T.Type,
+        expectedType type: T.Type,
         completion: @escaping (Result<T, Error>) -> Void
-    ) -> URLSessionDataTask {
+    ) -> URLSessionTask {
         let fulfillCompletion: (Result<T, Error>) -> Void = { result in
             DispatchQueue.main.async {
                 completion(result)
             }
         }
-       
-        let task = dataTask(with: request) { data, response, error -> Void in
+        
+        let task = dataTask(with: request) { data, response, error in
             if let data = data,
                 let response = response,
                 let statusCode = (response as? HTTPURLResponse)?.statusCode
             {
-                if 200..<300 ~= statusCode {
+                if 200 ..< 300 ~= statusCode {
                     let decoder = JSONDecoder()
                     decoder.keyDecodingStrategy = .convertFromSnakeCase
                     do {
-                        let objectOfMyType = try decoder.decode(type, from: data)
-                        fulfillCompletion(.success(objectOfMyType))
+                        let decodedData = try decoder.decode(type, from: data)
+                        fulfillCompletion(.success(decodedData))
                     } catch {
-                        fulfillCompletion(.failure(NetworkError.parsingError(error)))
+                        fulfillCompletion(.failure(Errors.decodingError(error)))
                     }
                 } else {
-                    fulfillCompletion(.failure(NetworkError.httpStatusCode(statusCode)))
+                    fulfillCompletion(.failure(Errors.httpStatusCode(statusCode)))
                 }
             } else if let error = error {
-                fulfillCompletion(.failure(NetworkError.urlRequestError(error)))
+                fulfillCompletion(.failure(Errors.urlRequestError(error)))
             } else {
-                fulfillCompletion(.failure(NetworkError.urlSessionError))
+                fulfillCompletion(.failure(Errors.urlSessionError))
             }
         }
         task.resume()

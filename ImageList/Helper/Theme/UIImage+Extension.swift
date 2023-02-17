@@ -40,10 +40,4 @@ extension UIImage {
     static let whiteBox = UIImage(
         named: "13whiteBox"
     )
-    static let sea = UIImage(
-        named: "sea"
-    )
-    static let cloud = UIImage(
-        named: "cloud"
-    )
 }
