@@ -29,4 +29,24 @@ extension UIView {
     func addSubviews(_ view: UIView...) {
         view.forEach { addSubview($0) }
     }
+    
+    var cornerRadius: CGFloat {
+        get { return layer.cornerRadius }
+        
+        set (cornerRadius) {
+            layer.masksToBounds = true
+            layer.cornerRadius = cornerRadius
+        }
+    }
+    
+    func animate(_ transform: CGAffineTransform) {
+        UIView.animate(
+            withDuration: 0.4,
+            delay: 0,
+            usingSpringWithDamping: 0.5,
+            initialSpringVelocity: 3,
+            options: [.curveEaseInOut]) {
+                self.transform = transform
+        }
+    }
 }

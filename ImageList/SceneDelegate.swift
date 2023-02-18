@@ -7,16 +7,23 @@
 
 import UIKit
 
-class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         let window = UIWindow(windowScene: windowScene)
-        window.rootViewController = SplashViewController()
+        window.rootViewController =
+        SplashViewController(
+            oAuth2Service: OAuth2Service(),
+            profileService: ProfileService(),
+            profileImageService: ProfileImageService.shared,
+            oAuth2TokenStorage: OAuth2TokenStorage()
+        )
         window.makeKeyAndVisible()
         self.window = window
+        // po NSHomeDirectory()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

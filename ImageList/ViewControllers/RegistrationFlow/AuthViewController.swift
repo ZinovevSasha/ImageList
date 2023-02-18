@@ -1,21 +1,29 @@
 import UIKit
 
-protocol WebViewViewControllerDelegate: AnyObject {
-    func webViewViewController(
-        _ vc: WebViewViewController,
+/*
+"""
+AuthViewControllerDelegate tell his delegate
+(any who conform AuthViewControllerDelegate)
+in our case SplashViewController that we catch code __
+"
+If the user accepts the request,
+the user will be redirected to the redirect_uri,
+with the authorization code in the code query parameter.
+"
+"""
+ */
+
+protocol AuthViewControllerDelegate: AnyObject {
+    func authViewController(
+        _ vc: AuthViewController,
         didAuthenticateWithCode code: String
     )
-    func webViewViewControllerDidCancel(_ vc: WebViewViewController)
 }
 
-protocol AuthViewControllerProtocol {
-    func disableEnableEnterButton()
-}
-
-final class AuthViewController: UIViewController, AuthViewControllerProtocol {
+final class AuthViewController: UIViewController {
     private var enterButton: UIButton = {
         let button = UIButton()
-        button.layer.cornerRadius = 16
+        button.cornerRadius = 16
         button.backgroundColor = .white
         button.setTitle("Войти", for: .normal)
         button.setTitleColor(.myBlack, for: .normal)
@@ -31,19 +39,24 @@ final class AuthViewController: UIViewController, AuthViewControllerProtocol {
         return image
     }()
     
-    // MARK: - Dependencies
-    public weak var delegate: AuthViewControllerDelegate?
+    // MARK: - Dependency
+    weak var delegate: AuthViewControllerDelegate?
     
-    // MARK: - LifeCicle
+    // MARK: - Init (Dependency injection)
+    init(delegate: AuthViewControllerDelegate) {
+        self.delegate = delegate
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("Unsupported")
+    }
+    
+    // MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        setViews()
-        enterButton.addTarget(
-            self,
-            action: #selector(enterButtonTapped),
-            for: .touchUpInside
-        )
+        setView()
     }
     
     override func viewDidLayoutSubviews() {
@@ -52,17 +65,22 @@ final class AuthViewController: UIViewController, AuthViewControllerProtocol {
         setConstraint()
     }
     
+    // MARK: - Transition
     @objc private func enterButtonTapped() {
-        let webViewController = WebViewViewController()
-        webViewController.delegate = self
+        let webViewController = WebViewViewController(delegate: self)        
         webViewController.modalPresentationStyle = .fullScreen
         present(webViewController, animated: true)
     }
-    
-    private func setViews() {
+}
+
+// MARK: - UI
+extension AuthViewController {
+    private func setView() {
         image.center = view.center
         view.backgroundColor = .myBlack
-        view.addSubviews(enterButton, image)
+        
+        enterButton.addTarget(self, action: #selector(enterButtonTapped), for: .touchUpInside)
+        view.addSubviews(image, enterButton)
     }
     
     private func setConstraint() {
@@ -86,18 +104,38 @@ final class AuthViewController: UIViewController, AuthViewControllerProtocol {
         ])
     }
     
-    func disableEnableEnterButton() {
-        enterButton.isEnabled.toggle()
+    public func showAlert(
+        title: String,
+        message: String,
+        actionTitle: String
+    ) {
+        let ac = UIAlertController(
+            title: title,
+            message: message,
+            preferredStyle: .alert
+        )
+        
+        let action = UIAlertAction(
+            title: actionTitle,
+            style: .cancel) { [weak self] _ in
+                UIView.animate(withDuration: 0.5) {
+                    self?.enterButton.backgroundColor = .white
+                }
+        }
+        
+        ac.addAction(action)
+        present(ac, animated: true)
     }
 }
 
+// MARK: - WebViewViewControllerDelegate
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(
         _ vc: WebViewViewController,
         didAuthenticateWithCode code: String
     ) {
         delegate?.authViewController(self, didAuthenticateWithCode: code)
-        disableEnableEnterButton()
+        enterButton.backgroundColor = .myWhite50
         vc.dismiss(animated: true)
     }
     

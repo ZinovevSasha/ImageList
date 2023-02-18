@@ -12,17 +12,21 @@ protocol ImageListProtocol: AnyObject {
     func reloadData()
 }
 
+protocol ImageLoaderDelegate: AnyObject {
+    func imageLoader(_ imageLoader: ImageLoaderProtocol, didLoadImages: [ImageCell])
+}
+
 final class ImageListPresenter: NSObject {
-    // Dependencies
+    private var images: [ImageCell] = []
+    
+    // MARK: - Dependency
     private weak var imageList: ImageListProtocol?
     private var imageLoader: ImageLoaderProtocol?
   
-    private var images: [ImageCell] = []
-    
-    // Init
+    // MARK: - Init (Dependency injection)
     init(imageList: ImageListProtocol?) {
-        super.init()
         self.imageList = imageList
+        super.init()
         imageLoader = ImageLoader(delegate: self)
         imageLoader?.loadData()
     }
@@ -64,7 +68,6 @@ extension ImageListPresenter: UITableViewDataSource {
             for: indexPath) as? ImagesListCell else {
             return UITableViewCell()
         }
-
         cell.configure(model: images[indexPath.row])
         return cell
     }
