@@ -14,13 +14,11 @@ protocol ProfileServiceProtocol {
 }
 
 final class ProfileService: ProfileServiceProtocol {
-    private let urlSession = URLSession.shared
-    
     func fetchProfile(
         completion: @escaping (Result<Profile, Error>) -> Void
     ) {
         let request = UnsplashRequests.getMe.request
-        let task = urlSession.object(
+        let task = URLSession.shared.object(
             for: request,
             expectedType: ProfileResult.self
         ) { result in

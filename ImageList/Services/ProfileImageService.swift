@@ -12,16 +12,16 @@ protocol ProfileImageServiceProtocol {
         username: String,
         completion: @escaping (Result<String, Error>) -> Void
     )
+    var avatarUrl: String? { get }
 }
 
 final class ProfileImageService {
     static let shared = ProfileImageService()
     static let DidChangeNotification = Notification.Name("ProfileImageProviderDidChange")
     
-    private let urlSession = URLSession.shared
     private(set) var avatarUrl: String?
        
-    private func postNotification(of avatarUrl: String) {
+    private func postNotification(about avatarUrl: String) {
         NotificationCenter.default
             .post(
                 name: ProfileImageService.DidChangeNotification,
@@ -37,7 +37,7 @@ extension ProfileImageService: ProfileImageServiceProtocol {
         completion: @escaping (Result<String, Error>) -> Void
     ) {
         let request = UnsplashRequests.userPortfolio(username: username).request
-        let task = urlSession.object(
+        let task = URLSession.shared.object(
             for: request,
             expectedType: UserResult.self
         ) { [weak self] result in
@@ -46,7 +46,7 @@ extension ProfileImageService: ProfileImageServiceProtocol {
             case .success(let userResult):
                 let avatarUrl = userResult.profileImage.large
                 self.avatarUrl = avatarUrl
-                self.postNotification(of: avatarUrl)
+                self.postNotification(about: avatarUrl)
                 completion(.success(avatarUrl))
             case .failure(let error):
                 completion(.failure(error))
@@ -57,9 +57,9 @@ extension ProfileImageService: ProfileImageServiceProtocol {
  
     private struct UserResult: Decodable {
         let profileImage: ProfileImage
-        
-        struct ProfileImage: Decodable {
-            let small, medium, large: String
-        }
+    }
+    
+    private struct ProfileImage: Decodable {
+        let small, medium, large: String
     }
 }

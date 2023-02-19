@@ -34,6 +34,7 @@ extension URLSession {
                 if 200 ..< 300 ~= statusCode {
                     let decoder = JSONDecoder()
                     decoder.keyDecodingStrategy = .convertFromSnakeCase
+                    decoder.dateDecodingStrategy = .iso8601
                     do {
                         let decodedData = try decoder.decode(type, from: data)
                         fulfillCompletion(.success(decodedData))

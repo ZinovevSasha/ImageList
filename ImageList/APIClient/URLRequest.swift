@@ -9,7 +9,7 @@ import Foundation
 
 extension URLRequest {
     static func makeHTTPRequest(
-        host: String = "api.unsplash.com",
+        host: String = baseURL,
         path: String,
         queryItems: [URLQueryItem]? = nil,
         httpMethod: String = "GET"

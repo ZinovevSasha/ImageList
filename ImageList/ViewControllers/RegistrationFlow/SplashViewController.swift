@@ -59,7 +59,7 @@ final class SplashViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        if let _ = oAuth2TokenStorage.token {
+        if oAuth2TokenStorage.token != nil {
             UIBlockingProgressHUD.show()
             fetchProfile(vc: nil)
         } else {
@@ -103,6 +103,7 @@ extension SplashViewController: AuthViewControllerDelegate {
                     actionTitle: "ОК"
                 )
             }
+            print("FF")
         }
     }
     
@@ -115,13 +116,15 @@ extension SplashViewController: AuthViewControllerDelegate {
                 self.switchToTabBarController(with: profile)
             case .failure(let error):
                 print("fetchProfile", error)
-            }        
+                UIBlockingProgressHUD.dismiss()
+                vc?.showAlert(
+                    title: "Что то пошло не так(",
+                    message: "Не удалось войти в систему",
+                    actionTitle: "ОК"
+                )
+            }
+            print("FF")
             UIBlockingProgressHUD.dismiss()
-            vc?.showAlert(
-                title: "Что то пошло не так(",
-                message: "Не удалось войти в систему",
-                actionTitle: "ОК"
-            )
         }
     }
     

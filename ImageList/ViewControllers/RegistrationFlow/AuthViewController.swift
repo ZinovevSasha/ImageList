@@ -11,7 +11,7 @@ the user will be redirected to the redirect_uri,
 with the authorization code in the code query parameter.
 "
 """
- */
+*/
 
 protocol AuthViewControllerDelegate: AnyObject {
     func authViewController(
@@ -67,7 +67,7 @@ final class AuthViewController: UIViewController {
     
     // MARK: - Transition
     @objc private func enterButtonTapped() {
-        let webViewController = WebViewViewController(delegate: self)        
+        let webViewController = WebViewViewController(delegate: self)
         webViewController.modalPresentationStyle = .fullScreen
         present(webViewController, animated: true)
     }

@@ -20,8 +20,13 @@ final class TabBarController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let imagesListViewController = ImagesListViewController()
-        let profileViewController = ProfileViewController(profileInfo: profileInfo)
+        let imagesListViewController = ImagesListViewController(
+            imageListService: ImageListService()
+        )
+        let profileViewController = ProfileViewController(
+            profileInfo: profileInfo,
+            profileImageService: ProfileImageService.shared
+        )
         
         imagesListViewController.tabBarItem = UITabBarItem(
             title: "",

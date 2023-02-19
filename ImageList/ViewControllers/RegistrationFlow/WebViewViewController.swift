@@ -10,7 +10,7 @@ import WebKit
 
 /*
 """
- WebViewViewController tell his delegate
+WebViewViewController tell his delegate
 (any who conform WebViewViewControllerDelegate)
 in our case AuthViewController that we catch code
 or failed to do that__
@@ -20,7 +20,7 @@ the user will be redirected to the redirect_uri,
 with the authorization code in the code query parameter.
 "
 """
- */
+*/
 
 protocol WebViewViewControllerDelegate: AnyObject {
     func webViewViewController(

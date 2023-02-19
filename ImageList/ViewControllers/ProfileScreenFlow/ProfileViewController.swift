@@ -57,11 +57,16 @@ final class ProfileViewController: UIViewController {
     
     // MARK: - Dependency
     private let profileInfo: Profile?
-    private var profileImageServerObserver: NSObjectProtocol?
+    private let profileImageService: ProfileImageServiceProtocol
+    private var profileImageServiceObserver: NSObjectProtocol?
 
     // MARK: - Init (Dependency injection)
-    init(profileInfo: Profile?) {
+    init(
+        profileInfo: Profile?,
+        profileImageService: ProfileImageServiceProtocol
+    ) {
         self.profileInfo = profileInfo
+        self.profileImageService = profileImageService
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -75,7 +80,7 @@ final class ProfileViewController: UIViewController {
         
         setView()
         configureUIWith(profileInfo)
-        updateAvatarImage(url: ProfileImageService.shared.avatarUrl)
+        updateAvatarImage(url: profileImageService.avatarUrl)
     }
     
     override func viewDidLayoutSubviews() {
@@ -85,8 +90,8 @@ final class ProfileViewController: UIViewController {
     }
     
     private func updateAvatarImage(url: String?) {
-        guard let avatar = url,
-            let url = URL(string: avatar)
+        guard let avatarURLString = url,
+            let url = URL(string: avatarURLString)
         else {
             return
         }
@@ -106,7 +111,7 @@ final class ProfileViewController: UIViewController {
     }
     
     private func addObserver() {
-        profileImageServerObserver = NotificationCenter.default
+        profileImageServiceObserver = NotificationCenter.default
             .addObserver(
                 forName: ProfileImageService.DidChangeNotification,
                 object: nil,
