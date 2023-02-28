@@ -1,7 +1,10 @@
 import UIKit
 import Kingfisher
+import WebKit
 
 final class ProfileViewController: UIViewController {
+    override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
+    
     private let portraitImage: UIImageView = {
         let image = UIImageView()
         image.cornerRadius = 35
@@ -55,6 +58,8 @@ final class ProfileViewController: UIViewController {
         return stackView
     }()
     
+    let gradientView = GradientView()
+    
     // MARK: - Dependency
     private let profileInfo: Profile?
     private let profileImageService: ProfileImageServiceProtocol
@@ -100,8 +105,18 @@ final class ProfileViewController: UIViewController {
         portraitImage.kf.setImage(
             with: url,
             placeholder: UIImage.person,
-            options: [.transition(.fade(0.5))]
-        )
+            options: [.transition(.fade(0.5))]) { [weak self] result in
+                switch result {
+                case .success:
+                    self?.gradientView.animationLayers
+                        .forEach {
+                            $0.removeAllAnimations()
+                            $0.removeFromSuperlayer()
+                        }
+                case .failure:
+                    break
+            }
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -118,12 +133,44 @@ final class ProfileViewController: UIViewController {
                 queue: .main) { [weak self] notification in
                     guard let self = self else { return }
                     
-                    let url = notification.userInfo?["URL"] as? String
+                    let url = notification.userInfo?[UserInfo.url.rawValue] as? String
                     self.updateAvatarImage(url: url)
             }
     }
     
-    @objc private func exitButtonDidTapped() { }
+    @objc private func exitButtonDidTapped() {
+        cleanWebViewSavedData()
+        cleanTokenFromKeyChain()
+        goToSplashViewController()
+    }
+    
+    private func cleanWebViewSavedData() {
+        HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
+        WKWebsiteDataStore.default().fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { records in
+            records.forEach { record in
+                WKWebsiteDataStore.default().removeData(
+                    ofTypes: record.dataTypes,
+                    for: [record]) {}
+            }
+        }
+    }
+    
+    private func cleanTokenFromKeyChain() {
+        OAuth2TokenStorage().token = nil
+    }
+    
+    private func goToSplashViewController() {
+        guard let window = UIApplication.shared.windows.first else {
+            fatalError("Wrong Configuration")
+        }
+        let splashViewController = SplashViewController(
+            oAuth2Service: OAuth2Service(),
+            profileService: ProfileService(),
+            profileImageService: ProfileImageService(),
+            oAuth2TokenStorage: OAuth2TokenStorage()
+        )
+        window.rootViewController = splashViewController
+    }
 }
 
 // MARK: - UI
@@ -131,12 +178,21 @@ extension ProfileViewController {
     private func setView() {
         view.backgroundColor = .myBlack
         
-        exitButton.addTarget(self, action: #selector(exitButtonDidTapped), for: .touchDragInside)
+        exitButton.addTarget(self, action: #selector(exitButtonDidTapped), for: .touchUpInside)
         
         [nameLabel, emailLabel, helloLabel]
             .forEach { verticalStackView.addArrangedSubview($0) }
         view.addSubviews(portraitImage, exitButton)
         view.addSubview(verticalStackView)
+        gradientView.translatesAutoresizingMaskIntoConstraints = false
+        gradientView.animationLayers.forEach { $0.animate(
+            .locations,
+            duration: 3,
+            fromValue: [-1.0, -0.5, 0.0],
+            toValue: [1.0, 1.5, 2.0],
+            forKey: .locationsChanged)
+        }
+        view.addSubview(gradientView)
     }
     
     private func setConstraints() {
@@ -146,11 +202,11 @@ extension ProfileViewController {
             portraitImage.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             portraitImage.heightAnchor.constraint(equalToConstant: 70),
             portraitImage.widthAnchor.constraint(equalToConstant: 70),
-            
+
             // exitButton
             exitButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 56),
             exitButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -26),
-            
+
             // verticalStackView
             verticalStackView.topAnchor.constraint(
                 equalTo: portraitImage.bottomAnchor, constant: 8),
@@ -159,7 +215,11 @@ extension ProfileViewController {
                 constant: 16),
             verticalStackView.trailingAnchor.constraint(
                 equalTo: view.trailingAnchor,
-                constant: -24)
+                constant: -24),
+            
+            gradientView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 32),
+            gradientView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            gradientView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
     }
     

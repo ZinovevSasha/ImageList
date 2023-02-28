@@ -52,6 +52,8 @@ final class WebViewViewController: UIViewController {
         return progressView
     }()
     
+    override var preferredStatusBarStyle: UIStatusBarStyle { .darkContent }
+    
     // MARK: - Dependency
     weak var delegate: WebViewViewControllerDelegate?
     private var estimatedProgressObservation: NSKeyValueObservation?
@@ -159,16 +161,15 @@ extension WebViewViewController: WKNavigationDelegate {
     
     private func code(from url: URL?) -> String? {
         // navigationAction.navigationType == .formSubmitted
-        if
-            let url = url,
+        if let url = url,
             let urlComponents = URLComponents(string: url.absoluteString),
             urlComponents.path == "/oauth/authorize/native",
             let items = urlComponents.queryItems,
-            let codeItem = items.first(where: { $0.name == "code" }
-            ) {
+            let codeItem = items.first(where: { $0.name == "code" }) {
             return codeItem.value
         } else {
             return nil
         }
     }
 }
+// TODO: - DeleteCookies from web view

@@ -39,6 +39,8 @@ final class AuthViewController: UIViewController {
         return image
     }()
     
+    override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
+    
     // MARK: - Dependency
     weak var delegate: AuthViewControllerDelegate?
     

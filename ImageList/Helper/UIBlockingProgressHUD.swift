@@ -15,7 +15,6 @@ enum UIBlockingProgressHUD {
     
     static func show() {
         window?.isUserInteractionEnabled = false
-        ProgressHUD.animationType = .systemActivityIndicator
         ProgressHUD.show()
     }
     

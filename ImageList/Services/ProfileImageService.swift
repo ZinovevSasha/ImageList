@@ -26,7 +26,7 @@ final class ProfileImageService {
             .post(
                 name: ProfileImageService.DidChangeNotification,
                 object: self,
-                userInfo: ["URL": avatarUrl]
+                userInfo: [UserInfo.url.rawValue: avatarUrl]
             )
     }
 }

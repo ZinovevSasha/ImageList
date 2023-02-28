@@ -28,6 +28,7 @@
                             <constraint firstItem="xgE-7Q-QQw" firstAttribute="centerX" secondItem="Csx-oI-PLD" secondAttribute="centerX" id="i7i-u2-A39"/>
                         </constraints>
                     </view>
+                    <nil key="simulatedTopBarMetrics"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="cci-iT-U0n" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>

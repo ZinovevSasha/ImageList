@@ -22,7 +22,10 @@ final class OAuth2TokenStorage: OAuth2TokenStorageProtocol {
             KeychainWrapper.standard.string(forKey: Key.token.rawValue)
         }
         set {
-            guard let newValue = newValue else { return }
+            guard let newValue = newValue else {
+                KeychainWrapper.standard.removeObject(forKey: Key.token.rawValue)
+                return
+            }
             KeychainWrapper.standard.set(newValue, forKey: Key.token.rawValue)
         }
     }

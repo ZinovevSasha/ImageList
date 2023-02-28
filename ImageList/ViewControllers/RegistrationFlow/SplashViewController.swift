@@ -14,6 +14,8 @@ final class SplashViewController: UIViewController {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
+    
+    override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
 
     // MARK: - Dependency
     private let oAuth2Service: OAuth2ServiceProtocol
@@ -37,10 +39,6 @@ final class SplashViewController: UIViewController {
     
     required init?(coder: NSCoder) {
         fatalError("Unsupported")
-    }
-    
-    deinit {
-        print("deinit... \(String(describing: self))")
     }
     
     // MARK: - LifeCycle
@@ -97,13 +95,15 @@ extension SplashViewController: AuthViewControllerDelegate {
                 self.fetchProfile(vc: vc)
             case .failure(let failure):
                 UIBlockingProgressHUD.dismiss()
-                vc.showAlert(
+                vc.openAlert(
                     title: "Что то пошло не так(",
                     message: "Не удалось войти в систему",
-                    actionTitle: "ОК"
+                    alertStyle: .alert,
+                    actionTitles: ["ОК"],
+                    actionStyles: [.cancel],
+                    actions: [nil]
                 )
             }
-            print("FF")
         }
     }
     
@@ -117,13 +117,15 @@ extension SplashViewController: AuthViewControllerDelegate {
             case .failure(let error):
                 print("fetchProfile", error)
                 UIBlockingProgressHUD.dismiss()
-                vc?.showAlert(
+                vc?.openAlert(
                     title: "Что то пошло не так(",
                     message: "Не удалось войти в систему",
-                    actionTitle: "ОК"
+                    alertStyle: .alert,
+                    actionTitles: ["ОК"],
+                    actionStyles: [.cancel],
+                    actions: [nil]
                 )
             }
-            print("FF")
             UIBlockingProgressHUD.dismiss()
         }
     }

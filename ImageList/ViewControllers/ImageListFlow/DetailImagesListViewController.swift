@@ -1,7 +1,10 @@
 import UIKit
+import Kingfisher
 
 class DetailImagesListViewController: UIViewController {
-    private let imageView: UIImageView = {
+    override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
+    
+    private let photoImageView: UIImageView = {
         let image = UIImageView()
         image.translatesAutoresizingMaskIntoConstraints = false
         return image
@@ -29,24 +32,25 @@ class DetailImagesListViewController: UIViewController {
         return scrollView
     }()
     
+    // MARK: - Public
+    public func configure(with data: Data?) {
+        guard let data = data else { return }
+        let image = UIImage(data: data)
+        photoImageView.image = image
+        rescaleAndCenterImageInScrollView(photoImageView.image ?? UIImage())
+    }
+    
     // MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        view.backgroundColor = .red
-        setView()
+    
+        setSubviews()
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
         setConstraint()
-    }
-    
-    // MARK: - Configure
-    public func configure(image: String) {
-        imageView.image = UIImage(named: "\(image)")
-        rescaleAndCenterImageInScrollView(imageView.image ?? UIImage())
     }
     
     private func rescaleAndCenterImageInScrollView(_ image: UIImage) {
@@ -75,22 +79,21 @@ class DetailImagesListViewController: UIViewController {
     }
     
     @objc private func share() {
-        guard let image = imageView.image else { return }
-        
+        guard let image = photoImageView.image else { return }
         let activityController = UIActivityViewController(
             activityItems: [image],
             applicationActivities: nil
         )
-        present(activityController, animated: true)
+        self.present(activityController, animated: true)
     }
 }
 
 // MARK: - UI
-extension DetailImagesListViewController {
-    private func setView() {
-        scrollView.addSubview(imageView)
-        view.backgroundColor = .myBlack
+private extension DetailImagesListViewController {
+    private func setSubviews() {
+        scrollView.addSubview(photoImageView)
         view.addSubviews(scrollView, backButton, shareButton)
+        view.backgroundColor = .myBlack
         scrollView.delegate = self
         backButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
         shareButton.addTarget(self, action: #selector(share), for: .touchUpInside)
@@ -114,6 +117,8 @@ extension DetailImagesListViewController {
             
             // shareButton
             shareButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -17),
+            shareButton.heightAnchor.constraint(equalToConstant: 50),
+            shareButton.widthAnchor.constraint(equalToConstant: 50),
             shareButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
     }
@@ -122,6 +127,6 @@ extension DetailImagesListViewController {
 // MARK: - UIScrollViewDelegate
 extension DetailImagesListViewController: UIScrollViewDelegate {
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        return imageView
+        return photoImageView
     }
 }
