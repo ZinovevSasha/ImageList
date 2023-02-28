@@ -65,32 +65,11 @@ final class ImagesListViewController: UIViewController {
     }
     
     private func presentDetailImagesListViewController(with indexPath: IndexPath) {
-        let url = imageListService.photos[indexPath.row].full
-        guard let url = URL(string: url) else { return }
         let vcDetail = DetailImagesListViewController()
         vcDetail.modalPresentationStyle = .fullScreen
-        UIBlockingProgressHUD.show()
-        
-        KingfisherManager.shared.retrieveImage(with: url) { [weak self] result in
-            UIBlockingProgressHUD.dismiss()
-            guard let self = self else { return }
-            switch result {
-            case .success(let result):
-                vcDetail.configure(with: result.data())
-                self.present(vcDetail, animated: true)
-            case .failure:
-                self.openAlert(
-                    title: "Что то пошло не так(",
-                    message: "Попробовать ещё раз?",
-                    alertStyle: .alert,
-                    actionTitles: ["Не надо", "Повторить"],
-                    actionStyles: [.default, .default],
-                    actions: [
-                        { _ in },
-                        { [weak self] _ in self?.presentDetailImagesListViewController(with: indexPath) }
-                    ])
-            }
-        }
+        let stringURL = imageListService.photos[indexPath.row].full
+        vcDetail.configure(with: stringURL)
+        self.present(vcDetail, animated: true)
     }
     
     private func subscribeToNotification() {
@@ -152,7 +131,6 @@ extension ImagesListViewController: UITableViewDataSource {
         
         return cell
     }
-    
 }
 
 extension ImagesListViewController: ImageListTableViewCellDelegate {
@@ -172,6 +150,4 @@ extension ImagesListViewController: ImageListTableViewCellDelegate {
             }
         }
     }
-    
 }
-

@@ -37,10 +37,4 @@ extension UIImage {
     static let launchScreen = UIImage(
         named: "12LaunchScreen"
     )
-    static let whiteBox = UIImage(
-        named: "13whiteBox"
-    )
-    static let stub = UIImage(
-        named: "14Stub"
-    )
 }

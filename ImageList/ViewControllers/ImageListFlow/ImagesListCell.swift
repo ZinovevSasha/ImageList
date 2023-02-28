@@ -122,13 +122,13 @@ final class ImageListTableViewCell: UITableViewCell {
         likeButton.setImage(likeNoLike, for: .normal)
     }
     
-    enum FeedCellImageState {
+    enum CellImageState {
         case loading
         case error
         case finished(CellViewModel)
     }
     
-    var imageState: FeedCellImageState = .loading {
+    var imageState: CellImageState = .loading {
         didSet {
             configureImageState()
         }
@@ -168,7 +168,7 @@ final class ImageListTableViewCell: UITableViewCell {
 private extension ImageListTableViewCell {
     private func setColors() {
         contentView.backgroundColor = .myBlack
-        photoContainer.backgroundColor = .myGray
+        photoContainer.backgroundColor = .white
     }
     
     private func setSubviews() {
