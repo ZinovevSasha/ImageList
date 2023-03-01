@@ -16,7 +16,6 @@ protocol ProfileImageServiceProtocol {
 }
 
 final class ProfileImageService {
-    static let shared = ProfileImageService()
     static let DidChangeNotification = Notification.Name("ProfileImageProviderDidChange")
     
     private(set) var avatarUrl: String?

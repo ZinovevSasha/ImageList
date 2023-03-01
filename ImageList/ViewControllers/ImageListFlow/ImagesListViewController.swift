@@ -15,6 +15,12 @@ final class ImagesListViewController: UIViewController {
         return tableView
     }()
     
+    private let spinner: UIActivityIndicatorView = {
+        let spinner = UIActivityIndicatorView(style: .large)
+        spinner.hidesWhenStopped = true
+        return spinner
+    }()
+    
     override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
     
     private var imageListServiceObserver: NSObjectProtocol?
@@ -43,14 +49,16 @@ final class ImagesListViewController: UIViewController {
         cache.clearMemoryCache()
         
         createTableView()
+        spinner.startAnimating()
         imageListService.fetchPhotosNextPage()
     }
     
     private func createTableView() {
         tableView.frame = view.bounds
+        spinner.center = view.center
         tableView.dataSource = self
         tableView.delegate = self
-        view.addSubview(tableView)
+        view.addSubviews(tableView, spinner)
         subscribeToNotification()
     }
     
@@ -83,6 +91,7 @@ final class ImagesListViewController: UIViewController {
                 else {
                     return
             }
+            self.spinner.stopAnimating()
             self.updateTableViewAnimated(with: numberOfPictures)
         }
     }
@@ -128,7 +137,6 @@ extension ImagesListViewController: UITableViewDataSource {
         
         cell.delegate = self
         cell.configure(with: imageListService.photos[indexPath.row])
-        
         return cell
     }
 }

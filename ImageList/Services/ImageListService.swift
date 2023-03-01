@@ -49,11 +49,9 @@ extension ImageListService: ImageListServiceProtocol {
             expectedType: LikeResult.self) { [weak self] result in
                 guard let self = self else { return }
                 switch result {
-                case .success(let isLiked):
-                    print("SERVICE", isLiked.photo.likedByUser)
+                case .success(let isLiked):                   
                     if let index = self.photos.firstIndex(where: { $0.id == photoId }) {
                         self.photos[index].isLiked = isLiked.photo.likedByUser
-                        print("ID", self.photos[index].id)
                     }
                     completion(.success(Void()))
                 case .failure(let failure):
@@ -103,7 +101,7 @@ extension ImageListService: ImageListServiceProtocol {
             Photos(
                 id: $0.id,
                 size: CGSize(width: $0.width, height: $0.height),
-                createdAt: $0.createdAt.dateString,
+                createdAt: $0.createdAt?.dateString ?? "",
                 welcomeDescription: $0.description ?? "",
                 thumbImageURL: $0.urls.thumb,
                 largeImageURL: $0.urls.full,
@@ -125,7 +123,7 @@ extension ImageListService: ImageListServiceProtocol {
     
     private struct PhotoResult: Decodable {
         let id: String
-        let createdAt: Date
+        let createdAt: Date?
         let width, height: Double
         let likedByUser: Bool
         let description: String?

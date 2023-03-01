@@ -6,6 +6,7 @@ class DetailImagesListViewController: UIViewController {
     
     private let photoImageView: UIImageView = {
         let image = UIImageView()
+        image.alpha = 0
         image.translatesAutoresizingMaskIntoConstraints = false
         return image
     }()
@@ -56,7 +57,7 @@ class DetailImagesListViewController: UIViewController {
         KingfisherManager.shared.retrieveImage(with: url) { [weak self] result in
             guard let self = self else { return }
             switch result {
-            case .success(let result):
+            case .success(let result):                
                 self.imageState = .finished(result.image)
             case .failure:
                 self.imageState = .error(url)
@@ -97,6 +98,9 @@ class DetailImagesListViewController: UIViewController {
             spinner.stopAnimating()
             photoImageView.image = image
             rescaleAndCenterImageInScrollView(image)
+            UIView.animate(withDuration: 1, delay: 0) {
+                self.photoImageView.alpha = 1
+            }
         }
     }
     
@@ -125,7 +129,7 @@ class DetailImagesListViewController: UIViewController {
         let vScale = visibleRectSize.height / imageSize.height
         let theoreticalScale = max(hScale, vScale)
         let scale = min(maxZoomScale, max(minZoomScale, theoreticalScale))
-        scrollView.setZoomScale(scale, animated: true)
+        scrollView.setZoomScale(scale, animated: false)
         
         scrollView.layoutIfNeeded()
         let newContentsSize = scrollView.contentSize

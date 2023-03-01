@@ -26,7 +26,7 @@ extension URLRequest {
         
         var request = URLRequest(url: url)
         request.httpMethod = httpMethod
-        request.timeoutInterval = 25
+        request.timeoutInterval = 30
         return request
     }
 }

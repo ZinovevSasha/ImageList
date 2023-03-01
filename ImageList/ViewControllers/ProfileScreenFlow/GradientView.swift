@@ -30,10 +30,8 @@ class GradientView: UIView {
             .forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
         
         addSubviews(portraitImage, nameLabel, emailLabel, helloLabel)
-        addConstraint()
-        addGradientAndAnimate()
     }
-
+    
     override func layoutSubviews() {
         super.layoutSubviews()
         
@@ -41,6 +39,8 @@ class GradientView: UIView {
         nameLabelLayer.frame = nameLabel.bounds
         emailLabelLayer.frame = emailLabel.bounds
         helloLabelLayer.frame = helloLabel.bounds
+        addConstraint()
+        addGradientAndAnimate()
     }
     
     required init?(coder: NSCoder) {
@@ -92,6 +92,13 @@ class GradientView: UIView {
                     insertAt: 0
                 )
             }
-        layers.forEach { animationLayers.insert($0) }
+        layers.forEach { $0.animate(
+            .locations,
+            duration: 3,
+            fromValue: [-1.0, -0.5, 0.0],
+            toValue: [1.0, 1.5, 2.0],
+            forKey: .locationsChanged)
+            layers.forEach { animationLayers.insert($0) }
+        }
     }
 }

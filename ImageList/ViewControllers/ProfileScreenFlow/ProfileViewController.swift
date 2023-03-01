@@ -23,7 +23,6 @@ final class ProfileViewController: UIViewController {
         let label = UILabel()
         label.numberOfLines = 2
         label.textColor = .white
-        label.text = "Aleksandr Zinovev Aleksandrovich"
         label.font = .systemFont(ofSize: 23, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -32,7 +31,6 @@ final class ProfileViewController: UIViewController {
     private let emailLabel: UILabel = {
         let label = UILabel()
         label.textColor = .white
-        label.text = "blip@gmail.com"
         label.font = .systemFont(ofSize: 13, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -41,7 +39,6 @@ final class ProfileViewController: UIViewController {
     private let helloLabel: UILabel = {
         let label = UILabel()
         label.textColor = .white
-        label.text = "Hello, world! This is my favorite pictures. Take a look"
         label.font = .systemFont(ofSize: 13, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -61,18 +58,21 @@ final class ProfileViewController: UIViewController {
     let gradientView = GradientView()
     
     // MARK: - Dependency
-    private let profileInfo: Profile?
     private let profileImageService: ProfileImageServiceProtocol
+    private let profileService: ProfileServiceProtocol
     private var profileImageServiceObserver: NSObjectProtocol?
 
+    private var profileInfo: Profile?
+    
     // MARK: - Init (Dependency injection)
     init(
-        profileInfo: Profile?,
-        profileImageService: ProfileImageServiceProtocol
+        profileImageService: ProfileImageServiceProtocol,
+        profileService: ProfileServiceProtocol
     ) {
-        self.profileInfo = profileInfo
         self.profileImageService = profileImageService
+        self.profileService = profileService
         super.init(nibName: nil, bundle: nil)
+        fetchProfile()
     }
     
     required init?(coder: NSCoder) {
@@ -84,7 +84,6 @@ final class ProfileViewController: UIViewController {
         super.viewDidLoad()
         
         setView()
-        configureUIWith(profileInfo)
         updateAvatarImage(url: profileImageService.avatarUrl)
     }
     
@@ -94,29 +93,86 @@ final class ProfileViewController: UIViewController {
         setConstraints()
     }
     
+    enum ProfilePersonalDataState {
+        case loading
+        case error
+        case finished(UIImage)
+    }
+    
+    var profileState: ProfilePersonalDataState = .loading {
+        didSet {
+            configureImageState()
+        }
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if nameLabel.text == nil {
+            
+        }
+    }
+    
+    private func configureImageState() {
+        switch profileState {
+        case .loading:
+            view.addSubview(gradientView)
+            gradientView.isHidden = false
+        case .error:
+            break
+        case .finished(let image):
+            gradientView.animationLayers
+                .forEach {
+                    $0.removeAllAnimations()
+                    $0.removeFromSuperlayer()
+                }
+            gradientView.isHidden = true
+            configureUI(with: image)
+        }
+    }
+    
+    private func configureUI(with image: UIImage) {
+        portraitImage.image = image
+        nameLabel.text = profileInfo?.name
+        emailLabel.text = profileInfo?.loginName
+        helloLabel.text = profileInfo?.bio
+    }
+    
     private func updateAvatarImage(url: String?) {
+        profileState = .loading
         guard let avatarURLString = url,
             let url = URL(string: avatarURLString)
         else {
             return
         }
-        
-        portraitImage.kf.indicatorType = .activity
-        portraitImage.kf.setImage(
-            with: url,
-            placeholder: UIImage.person,
-            options: [.transition(.fade(0.5))]) { [weak self] result in
-                switch result {
-                case .success:
-                    self?.gradientView.animationLayers
-                        .forEach {
-                            $0.removeAllAnimations()
-                            $0.removeFromSuperlayer()
-                        }
-                case .failure:
-                    break
+        portraitImage.kf.setImage(with: url) { [weak self] result in
+            switch result {
+            case .success(let result):
+                self?.profileState = .finished(result.image)
+            case .failure:
+                self?.profileState = .error
             }
         }
+    }
+    
+    private func fetchProfile() {
+        profileService.fetchProfile { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let profile):
+                self.profileInfo = profile
+                self.fetchProfileImageUrl(username: profile.username)
+            case .failure:
+                self.profileState = .error
+            }
+        }
+    }
+    
+    private func fetchProfileImageUrl(username: String) {
+        profileImageService
+            .fetchProfileImageUrl(username: username) { [weak self] result in
+                guard case .failure = result else { return }
+                self?.profileState = .error
+            }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -139,9 +195,21 @@ final class ProfileViewController: UIViewController {
     }
     
     @objc private func exitButtonDidTapped() {
-        cleanWebViewSavedData()
-        cleanTokenFromKeyChain()
-        goToSplashViewController()
+        openAlert(
+            title: "Пока, пока!",
+            message: "Уверены что хотите выйти?",
+            alertStyle: .alert,
+            actionTitles: ["Нет", "Да"],
+            actionStyles: [.cancel, .default],
+            actions: [
+                { _ in },
+                { [weak self] _ in
+                    guard let self = self else { return}
+                    self.cleanWebViewSavedData()
+                    self.cleanTokenFromKeyChain()
+                    self.goToSplashViewController()
+                }
+            ] )
     }
     
     private func cleanWebViewSavedData() {
@@ -165,8 +233,6 @@ final class ProfileViewController: UIViewController {
         }
         let splashViewController = SplashViewController(
             oAuth2Service: OAuth2Service(),
-            profileService: ProfileService(),
-            profileImageService: ProfileImageService(),
             oAuth2TokenStorage: OAuth2TokenStorage()
         )
         window.rootViewController = splashViewController
@@ -185,16 +251,8 @@ extension ProfileViewController {
         view.addSubviews(portraitImage, exitButton)
         view.addSubview(verticalStackView)
         gradientView.translatesAutoresizingMaskIntoConstraints = false
-        gradientView.animationLayers.forEach { $0.animate(
-            .locations,
-            duration: 3,
-            fromValue: [-1.0, -0.5, 0.0],
-            toValue: [1.0, 1.5, 2.0],
-            forKey: .locationsChanged)
-        }
-        view.addSubview(gradientView)
     }
-    
+
     private func setConstraints() {
         NSLayoutConstraint.activate([
             // portraitImage
@@ -221,12 +279,5 @@ extension ProfileViewController {
             gradientView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             gradientView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
-    }
-    
-    private func configureUIWith(_ profile: Profile?) {
-        guard let profile = profile else { return }
-        nameLabel.text = profile.name.capitalized
-        emailLabel.text = profile.loginName
-        helloLabel.text = profile.bio
     }
 }

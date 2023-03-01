@@ -28,7 +28,7 @@ final class ProfileService: ProfileServiceProtocol {
                     username: profile.username,
                     name: profile.firstName + " " + profile.lastName,
                     loginName: "@" + profile.username,
-                    bio: profile.bio ?? "sfasfa"
+                    bio: profile.bio ?? ""
                 )))
             case .failure(let error):
                 completion(.failure(error))

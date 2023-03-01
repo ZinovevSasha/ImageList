@@ -19,20 +19,15 @@ final class SplashViewController: UIViewController {
 
     // MARK: - Dependency
     private let oAuth2Service: OAuth2ServiceProtocol
-    private let profileService: ProfileServiceProtocol
-    private let profileImageService: ProfileImageService
+       
     private var oAuth2TokenStorage: OAuth2TokenStorageProtocol
 
     // MARK: - Init (Dependency injection)
     init(
-        oAuth2Service: OAuth2ServiceProtocol,
-        profileService: ProfileServiceProtocol,
-        profileImageService: ProfileImageService,
+        oAuth2Service: OAuth2ServiceProtocol,        
         oAuth2TokenStorage: OAuth2TokenStorageProtocol
     ) {
         self.oAuth2Service = oAuth2Service
-        self.profileService = profileService
-        self.profileImageService = profileImageService
         self.oAuth2TokenStorage = oAuth2TokenStorage
         super.init(nibName: nil, bundle: nil)
     }
@@ -58,8 +53,7 @@ final class SplashViewController: UIViewController {
         super.viewDidAppear(animated)
         
         if oAuth2TokenStorage.token != nil {
-            UIBlockingProgressHUD.show()
-            fetchProfile(vc: nil)
+            switchToTabBarController()
         } else {
             let authViewController = AuthViewController(delegate: self)
             authViewController.modalPresentationStyle = .fullScreen
@@ -67,11 +61,11 @@ final class SplashViewController: UIViewController {
         }
     }
     
-    private func switchToTabBarController(with profile: Profile?) {
+    private func switchToTabBarController() {
         guard let window = UIApplication.shared.windows.first else {
             fatalError("Invalid Configuration")
         }
-        let tabBar = TabBarController(profileInfo: profile)
+        let tabBar = TabBarController()
         window.rootViewController = tabBar
     }
 }
@@ -91,9 +85,10 @@ extension SplashViewController: AuthViewControllerDelegate {
             guard let self = self else { return }
             switch result {
             case .success(let token):
+                UIBlockingProgressHUD.dismiss()
                 self.oAuth2TokenStorage.token = token
-                self.fetchProfile(vc: vc)
-            case .failure(let failure):
+                self.switchToTabBarController()
+            case .failure:
                 UIBlockingProgressHUD.dismiss()
                 vc.openAlert(
                     title: "Что то пошло не так(",
@@ -105,36 +100,5 @@ extension SplashViewController: AuthViewControllerDelegate {
                 )
             }
         }
-    }
-    
-    private func fetchProfile(vc: AuthViewController?) {
-        profileService.fetchProfile { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case .success(let profile):
-                self.fetchProfileImageUrl(username: profile.username)
-                self.switchToTabBarController(with: profile)
-            case .failure(let error):
-                print("fetchProfile", error)
-                UIBlockingProgressHUD.dismiss()
-                vc?.openAlert(
-                    title: "Что то пошло не так(",
-                    message: "Не удалось войти в систему",
-                    alertStyle: .alert,
-                    actionTitles: ["ОК"],
-                    actionStyles: [.cancel],
-                    actions: [nil]
-                )
-            }
-            UIBlockingProgressHUD.dismiss()
-        }
-    }
-    
-    private func fetchProfileImageUrl(username: String) {
-        profileImageService
-            .fetchProfileImageUrl(username: username) { result in
-                guard case .failure(let error) = result else { return }
-                print("fetchProfileImageUrl", error)
-            }
     }
 }

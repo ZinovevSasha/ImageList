@@ -1,14 +1,8 @@
 import UIKit
 
 final class TabBarController: UITabBarController {
-    // MARK: - Dependency
-    private let profileInfo: Profile?
-    
     // MARK: - Init (Dependency injection)
-    init(
-        profileInfo: Profile?
-    ) {
-        self.profileInfo = profileInfo
+    init() {
         super.init(nibName: nil, bundle: nil)
         self.delegate = self
     }
@@ -24,8 +18,8 @@ final class TabBarController: UITabBarController {
             imageListService: ImageListService()
         )
         let profileViewController = ProfileViewController(
-            profileInfo: profileInfo,
-            profileImageService: ProfileImageService.shared
+            profileImageService: ProfileImageService(),
+            profileService: ProfileService()
         )
         
         imagesListViewController.tabBarItem = UITabBarItem(
