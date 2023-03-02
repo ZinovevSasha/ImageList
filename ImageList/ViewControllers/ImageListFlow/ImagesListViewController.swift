@@ -28,12 +28,14 @@ final class ImagesListViewController: UIViewController {
     // Dependency
     private var imageListService: ImageListServiceProtocol
     
-    // MARK: - Init
+    // MARK: - Init (Dependency injection)
     init(
         imageListService: ImageListServiceProtocol
     ) {
         self.imageListService = imageListService
         super.init(nibName: nil, bundle: nil)
+        
+        imageListService.fetchPhotosNextPage()
     }
     
     required init?(coder: NSCoder) {
@@ -50,7 +52,6 @@ final class ImagesListViewController: UIViewController {
         
         createTableView()
         spinner.startAnimating()
-        imageListService.fetchPhotosNextPage()
     }
     
     private func createTableView() {
@@ -82,7 +83,7 @@ final class ImagesListViewController: UIViewController {
     
     private func subscribeToNotification() {
         imageListServiceObserver = NotificationCenter.default.addObserver(
-            forName: ImageListService.DidChangeNotification,
+            forName: ImageListService.didChangeNotification,
             object: nil,
             queue: .current) { [weak self] notification in
                 guard let self = self,
@@ -145,16 +146,23 @@ extension ImagesListViewController: ImageListTableViewCellDelegate {
     func imageListCellDidTapLikeButton(_ cell: ImageListTableViewCell) {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
         let photo = imageListService.photos[indexPath.row]
+        UIBlockingProgressHUD.show()
         imageListService.changeLike(
             photoId: photo.id,
             isLiked: photo.isLiked) { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success:
+                UIBlockingProgressHUD.dismiss()
                 let likeNoLike = self.imageListService.photos[indexPath.row].isLiked
                 cell.setLike(likeNoLike)
-            case .failure(let failure):
-                print(failure)
+            case .failure:
+                UIBlockingProgressHUD.dismiss()
+                self.showAlert(
+                    title: "Что то пошло не так(",
+                    message: "Попробуйте ещё раз!",
+                    actions: [ Action(title: "Ок", style: .default, handler: nil) ]
+                )
             }
         }
     }

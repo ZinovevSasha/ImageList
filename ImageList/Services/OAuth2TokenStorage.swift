@@ -17,16 +17,18 @@ final class OAuth2TokenStorage: OAuth2TokenStorageProtocol {
         case token
     }
     
+    private let keyChain = KeychainWrapper.standard
+    
     var token: String? {
         get {
-            KeychainWrapper.standard.string(forKey: Key.token.rawValue)
+            keyChain.string(forKey: Key.token.rawValue)
         }
         set {
-            guard let newValue = newValue else {
-                KeychainWrapper.standard.removeObject(forKey: Key.token.rawValue)
-                return
+            if let newValue {
+                keyChain.set(newValue, forKey: Key.token.rawValue)
+            } else {
+                keyChain.removeObject(forKey: Key.token.rawValue)
             }
-            KeychainWrapper.standard.set(newValue, forKey: Key.token.rawValue)
         }
     }
 }

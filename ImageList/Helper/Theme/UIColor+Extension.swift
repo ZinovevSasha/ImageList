@@ -25,19 +25,10 @@ extension UIColor {
     static var myWhite50: UIColor {
         UIColor(named: "myWhite50")!
     }
-    static var placeholderStartColor: UIColor {
+    static var shimmerColor: UIColor {
+        UIColor(white: 0.92, alpha: 1.0)
+    }
+    static var backgroundColorForShimmer: UIColor {
         UIColor(named: "placeholderStartColor")!
-    }
-    static var placeholderEndColor: UIColor {
-        UIColor(named: "placeholderEndColor")!
-    }
-    static var gray1: UIColor {
-        UIColor(red: 0.682, green: 0.686, blue: 0.706, alpha: 1)
-    }
-    static var gray2: UIColor {
-        UIColor(red: 0.531, green: 0.533, blue: 0.553, alpha: 1)
-    }
-    static var gray3: UIColor {
-        UIColor(red: 0.431, green: 0.433, blue: 0.453, alpha: 1)
     }
 }

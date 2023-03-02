@@ -16,14 +16,14 @@ protocol ProfileImageServiceProtocol {
 }
 
 final class ProfileImageService {
-    static let DidChangeNotification = Notification.Name("ProfileImageProviderDidChange")
+    static let didChangeNotification = Notification.Name("ProfileImageProviderDidChange")
     
     private(set) var avatarUrl: String?
        
     private func postNotification(about avatarUrl: String) {
         NotificationCenter.default
             .post(
-                name: ProfileImageService.DidChangeNotification,
+                name: ProfileImageService.didChangeNotification,
                 object: self,
                 userInfo: [UserInfo.url.rawValue: avatarUrl]
             )

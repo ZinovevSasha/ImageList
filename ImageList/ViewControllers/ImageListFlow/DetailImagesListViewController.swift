@@ -52,12 +52,18 @@ class DetailImagesListViewController: UIViewController {
         fetchImage(with: url)
     }
     
+    var imageState: DetailImageState = .loading {
+        didSet {
+            configureImageState()
+        }
+    }
+    
     private func fetchImage(with url: URL) {
         imageState = .loading
         KingfisherManager.shared.retrieveImage(with: url) { [weak self] result in
             guard let self = self else { return }
             switch result {
-            case .success(let result):                
+            case .success(let result):
                 self.imageState = .finished(result.image)
             case .failure:
                 self.imageState = .error(url)
@@ -71,34 +77,30 @@ class DetailImagesListViewController: UIViewController {
         case finished(UIImage)
     }
     
-    var imageState: DetailImageState = .loading {
-        didSet {
-            configureImageState()
-        }
-    }
-    
     private func configureImageState() {
         switch imageState {
         case .loading:
             spinner.startAnimating()
         case .error(let url):
             spinner.stopAnimating()
-            openAlert(
+            showAlert(
                 title: "Что то пошло не так(",
                 message: "Попробовать ещё раз?",
-                alertStyle: .alert,
-                actionTitles: ["Не надо", "Повторить"],
-                actionStyles: [.default, .default],
                 actions: [
-                    { _ in },
-                    { [weak self] _ in self?.fetchImage(with: url) }
-                ] )
+                    Action(title: "Не надо", style: .default, handler: nil),
+                    Action(
+                        title: "Повторить",
+                        style: .default,
+                        handler: { [weak self] _ in self?.fetchImage(with: url) }
+                    )
+                ]
+            )
         case .finished(let image):
             scribbleImageView.isHidden = true
             spinner.stopAnimating()
             photoImageView.image = image
             rescaleAndCenterImageInScrollView(image)
-            UIView.animate(withDuration: 1, delay: 0) {
+            UIView.animate(withDuration: 0.5, delay: 0) {
                 self.photoImageView.alpha = 1
             }
         }
@@ -154,9 +156,7 @@ class DetailImagesListViewController: UIViewController {
 
 // MARK: - UI
 private extension DetailImagesListViewController {
-    private func setSubviews() {
-        scrollView.addSubview(photoImageView)
-        view.addSubviews(scrollView, backButton, shareButton, spinner, scribbleImageView)
+    private func setSubviews() {        
         view.backgroundColor = .myBlack
         scrollView.delegate = self
         backButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
@@ -164,6 +164,9 @@ private extension DetailImagesListViewController {
     }
     
     private func setConstraint() {
+        scrollView.addSubview(photoImageView)
+        view.addSubviews(scrollView, backButton, shareButton, spinner, scribbleImageView)
+        
         NSLayoutConstraint.activate([
             // scrollView
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),

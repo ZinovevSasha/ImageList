@@ -54,7 +54,6 @@ extension URLSession {
                 fulfillCompletion(.failure(Errors.urlSessionError))
             }
         }
-        task.resume()
         return task
     }
 }

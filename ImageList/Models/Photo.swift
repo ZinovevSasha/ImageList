@@ -6,7 +6,7 @@
 //
 import Foundation
 
-struct Photos: Hashable, Equatable {
+struct Photo: Hashable, Equatable {
     let id: String
     let size: CGSize
     let createdAt: String
@@ -18,7 +18,7 @@ struct Photos: Hashable, Equatable {
     let full: String
     var isLiked: Bool
     
-    static func == (lhs: Photos, rhs: Photos) -> Bool {
+    static func == (lhs: Photo, rhs: Photo) -> Bool {
         return lhs.hashValue == rhs.hashValue
     }
     

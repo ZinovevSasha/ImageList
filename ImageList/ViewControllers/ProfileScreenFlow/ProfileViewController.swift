@@ -184,7 +184,7 @@ final class ProfileViewController: UIViewController {
     private func addObserver() {
         profileImageServiceObserver = NotificationCenter.default
             .addObserver(
-                forName: ProfileImageService.DidChangeNotification,
+                forName: ProfileImageService.didChangeNotification,
                 object: nil,
                 queue: .main) { [weak self] notification in
                     guard let self = self else { return }
@@ -195,21 +195,19 @@ final class ProfileViewController: UIViewController {
     }
     
     @objc private func exitButtonDidTapped() {
-        openAlert(
+        showAlert(
             title: "Пока, пока!",
             message: "Уверены что хотите выйти?",
-            alertStyle: .alert,
-            actionTitles: ["Нет", "Да"],
-            actionStyles: [.cancel, .default],
             actions: [
-                { _ in },
-                { [weak self] _ in
+                Action(title: "Нет", style: .cancel, handler: nil),
+                Action(title: "Да", style: .default, handler: { [weak self] _ in
                     guard let self = self else { return}
                     self.cleanWebViewSavedData()
                     self.cleanTokenFromKeyChain()
                     self.goToSplashViewController()
-                }
-            ] )
+                })
+            ]
+        )
     }
     
     private func cleanWebViewSavedData() {
@@ -243,17 +241,17 @@ final class ProfileViewController: UIViewController {
 extension ProfileViewController {
     private func setView() {
         view.backgroundColor = .myBlack
-        
-        exitButton.addTarget(self, action: #selector(exitButtonDidTapped), for: .touchUpInside)
-        
+        exitButton.addTarget(
+            self, action: #selector(exitButtonDidTapped), for: .touchUpInside)
+    }
+
+    private func setConstraints() {
         [nameLabel, emailLabel, helloLabel]
             .forEach { verticalStackView.addArrangedSubview($0) }
         view.addSubviews(portraitImage, exitButton)
         view.addSubview(verticalStackView)
         gradientView.translatesAutoresizingMaskIntoConstraints = false
-    }
-
-    private func setConstraints() {
+        
         NSLayoutConstraint.activate([
             // portraitImage
             portraitImage.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 32),

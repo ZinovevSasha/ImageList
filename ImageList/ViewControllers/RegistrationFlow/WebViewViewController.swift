@@ -54,12 +54,12 @@ final class WebViewViewController: UIViewController {
     
     override var preferredStatusBarStyle: UIStatusBarStyle { .darkContent }
     
-    // MARK: - Dependency
+    // MARK: Delegate
     weak var delegate: WebViewViewControllerDelegate?
     private var estimatedProgressObservation: NSKeyValueObservation?
     
-    // MARK: - Init (Dependency injection)
-    init(delegate: WebViewViewControllerDelegate) {
+    // MARK: - Init
+    init(delegate: WebViewViewControllerDelegate?) {
         self.delegate = delegate
         super.init(nibName: nil, bundle: nil)
     }
@@ -113,17 +113,18 @@ final class WebViewViewController: UIViewController {
 }
 
 // MARK: - UI
-extension WebViewViewController {
-    private func setView() {
-        view.backgroundColor = .white
-        view.addSubviews(webView, backButton, progressView)
+private extension WebViewViewController {
+    func setView() {
+        view.backgroundColor = .white        
         webView.backgroundColor = .white
         webView.navigationDelegate = self
         progressView.progress = 0.05
         backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
     }
     
-    private func addConstraints() {
+    func addConstraints() {
+        view.addSubviews(webView, backButton, progressView)
+        
         NSLayoutConstraint.activate([
             webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -172,4 +173,3 @@ extension WebViewViewController: WKNavigationDelegate {
         }
     }
 }
-// TODO: - DeleteCookies from web view

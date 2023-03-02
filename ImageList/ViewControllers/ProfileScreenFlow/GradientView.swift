@@ -17,28 +17,18 @@ class GradientView: UIView {
     private let helloLabel = UILabel()
     private let helloLabelLayer = CAGradientLayer()
     
-    var animationLayers = Set<CALayer>()
+    public var animationLayers = Set<CALayer>()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        portraitImage.cornerRadius = 35
-        nameLabel.cornerRadius = 9
-        emailLabel.cornerRadius = 9
-        helloLabel.cornerRadius = 9
-                
-        [portraitImage, nameLabel, emailLabel, helloLabel]
-            .forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
         
-        addSubviews(portraitImage, nameLabel, emailLabel, helloLabel)
+        setupView()
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        portraitImageLayer.frame = portraitImage.bounds
-        nameLabelLayer.frame = nameLabel.bounds
-        emailLabelLayer.frame = emailLabel.bounds
-        helloLabelLayer.frame = helloLabel.bounds
+        setupFrames()
         addConstraint()
         addGradientAndAnimate()
     }
@@ -47,7 +37,27 @@ class GradientView: UIView {
         fatalError("Unsupported")
     }
     
+    private func setupView() {
+        backgroundColor = .backgroundColorForShimmer
+        portraitImage.cornerRadius = 35
+        nameLabel.cornerRadius = 9
+        emailLabel.cornerRadius = 9
+        helloLabel.cornerRadius = 9                        
+    }
+    
+    private func setupFrames() {
+        portraitImageLayer.frame = portraitImage.bounds
+        nameLabelLayer.frame = nameLabel.bounds
+        emailLabelLayer.frame = emailLabel.bounds
+        helloLabelLayer.frame = helloLabel.bounds
+    }
+    
     private func addConstraint() {
+        [portraitImage, nameLabel, emailLabel, helloLabel]
+            .forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
+        
+        addSubviews(portraitImage, nameLabel, emailLabel, helloLabel)
+        
         NSLayoutConstraint.activate([
             portraitImage.topAnchor.constraint(equalTo: topAnchor),
             portraitImage.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -84,7 +94,7 @@ class GradientView: UIView {
             .forEach {
                 $0.1.addGradient(
                     with: layers[$0.0],
-                    colorSet: [ .gray1, .gray2, .gray3],
+                    colorSet: [ .shimmerColor, .backgroundColorForShimmer, .shimmerColor],
                     locations: [0, 0.5, 1],
                     startEndPoints: (
                         CGPoint(x: 0, y: 0.5),
@@ -94,11 +104,12 @@ class GradientView: UIView {
             }
         layers.forEach { $0.animate(
             .locations,
-            duration: 3,
+            duration: 1.5,
             fromValue: [-1.0, -0.5, 0.0],
             toValue: [1.0, 1.5, 2.0],
             forKey: .locationsChanged)
-            layers.forEach { animationLayers.insert($0) }
         }
+        
+        layers.forEach { animationLayers.insert($0) }
     }
 }

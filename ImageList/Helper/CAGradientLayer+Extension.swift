@@ -18,8 +18,7 @@ extension CALayer {
     
     func animate(_ property: Animatable, duration: CFTimeInterval, fromValue: Any?, toValue: Any?, forKey: Keys) {
         let animation = CABasicAnimation(keyPath: property.rawValue)
-        animation.duration = duration
-        animation.autoreverses = true
+        animation.duration = duration   
         animation.repeatCount = .infinity
         animation.fromValue = fromValue
         animation.toValue = toValue

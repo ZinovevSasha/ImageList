@@ -11,7 +11,6 @@ final class SplashViewController: UIViewController {
     private let imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = .launchScreen
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
     
@@ -19,12 +18,11 @@ final class SplashViewController: UIViewController {
 
     // MARK: - Dependency
     private let oAuth2Service: OAuth2ServiceProtocol
-       
     private var oAuth2TokenStorage: OAuth2TokenStorageProtocol
 
     // MARK: - Init (Dependency injection)
     init(
-        oAuth2Service: OAuth2ServiceProtocol,        
+        oAuth2Service: OAuth2ServiceProtocol,
         oAuth2TokenStorage: OAuth2TokenStorageProtocol
     ) {
         self.oAuth2Service = oAuth2Service
@@ -43,10 +41,10 @@ final class SplashViewController: UIViewController {
         setView()
     }
     
-    private func setView() {
-        imageView.center = view.center
+    private func setView() {        
         view.backgroundColor = .myBlack
         view.addSubview(imageView)
+        imageView.center = view.center
     }
             
     override func viewDidAppear(_ animated: Bool) {
@@ -90,13 +88,16 @@ extension SplashViewController: AuthViewControllerDelegate {
                 self.switchToTabBarController()
             case .failure:
                 UIBlockingProgressHUD.dismiss()
-                vc.openAlert(
+                
+                vc.showAlert(
                     title: "Что то пошло не так(",
                     message: "Не удалось войти в систему",
-                    alertStyle: .alert,
-                    actionTitles: ["ОК"],
-                    actionStyles: [.cancel],
-                    actions: [nil]
+                    actions: [
+                        Action(
+                            title: "Ok",
+                            style: .cancel,
+                            handler: nil)
+                    ]
                 )
             }
         }

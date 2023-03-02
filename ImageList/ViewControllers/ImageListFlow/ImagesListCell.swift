@@ -18,6 +18,7 @@ final class ImageListTableViewCell: UITableViewCell {
     
     private let likeButton: UIButton = {
         let button = UIButton()
+        button.adjustsImageWhenDisabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -59,7 +60,7 @@ final class ImageListTableViewCell: UITableViewCell {
     private var gradientLayer = CAGradientLayer()
 
     // MARK: Public
-    public func configure(with photoInfo: Photos) {
+    public func configure(with photoInfo: Photo) {
         imageState = .loading
         photoImageView.kf.setImage(with: URL(string: photoInfo.small)) { [weak self] result in
             guard let self = self else { return }
@@ -82,8 +83,7 @@ final class ImageListTableViewCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        setColors()
-        setSubviews()
+        setColors()        
         setConstraint()
         addGradientAndAnimate(true)
         likeButton.addTarget(
@@ -157,7 +157,7 @@ final class ImageListTableViewCell: UITableViewCell {
         }
     }
     
-    func createCellViewModel(image: UIImage, _ photo: Photos, gradient: CAGradientLayer) -> CellViewModel {
+    func createCellViewModel(image: UIImage, _ photo: Photo, gradient: CAGradientLayer) -> CellViewModel {
         let like = photo.isLiked ? UIImage.like : .noLike
         let date = photo.createdAt
         return CellViewModel(image: image, like: like, date: date, gradient: gradient)
@@ -171,7 +171,7 @@ private extension ImageListTableViewCell {
         photoContainer.backgroundColor = .white
     }
     
-    private func setSubviews() {
+    private func setConstraint() {
         photoContainer.addSubviews(
             photoImageView,
             likeButton,
@@ -179,9 +179,7 @@ private extension ImageListTableViewCell {
             dateLabel
         )
         contentView.addSubviews(photoContainer)
-    }
-    
-    private func setConstraint() {
+        
         NSLayoutConstraint.activate([
             // dateContainer
             gradientContainerView.leadingAnchor.constraint(equalTo: photoContainer.leadingAnchor),
@@ -229,7 +227,7 @@ private extension ImageListTableViewCell {
         if animate {
             photoContainer.addGradient(
                 with: gradientLayer,
-                colorSet: [ .gray1, .gray2, .gray3],
+                colorSet: [ .backgroundColorForShimmer, .shimmerColor, .backgroundColorForShimmer],
                 locations: [0, 0.5, 1],
                 startEndPoints: (
                     CGPoint(x: 0, y: 0.5),
@@ -238,7 +236,7 @@ private extension ImageListTableViewCell {
             )
             gradientLayer.animate(
                 .locations,
-                duration: 3,
+                duration: 1.5,
                 fromValue: [-1.0, -0.5, 0.0],
                 toValue: [1.0, 1.5, 2.0],
                 forKey: .locationsChanged
