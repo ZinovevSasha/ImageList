@@ -8,6 +8,13 @@
 import Foundation
 
 extension URLSession {
+    static let sharedDecoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        decoder.dateDecodingStrategy = .iso8601
+        return decoder
+    }()
+    
     private enum Errors: Error {
         case httpStatusCode(Int)
         case urlRequestError(Error)
@@ -32,10 +39,8 @@ extension URLSession {
                 let statusCode = (response as? HTTPURLResponse)?.statusCode
             {
                 if 200 ..< 300 ~= statusCode {
-                    let decoder = JSONDecoder()
-                    decoder.keyDecodingStrategy = .convertFromSnakeCase
                     do {
-                        let decodedData = try decoder.decode(type, from: data)
+                        let decodedData = try Self.sharedDecoder.decode(type, from: data)
                         fulfillCompletion(.success(decodedData))
                     } catch {
                         fulfillCompletion(.failure(Errors.decodingError(error)))
@@ -49,7 +54,6 @@ extension URLSession {
                 fulfillCompletion(.failure(Errors.urlSessionError))
             }
         }
-        task.resume()
         return task
     }
 }

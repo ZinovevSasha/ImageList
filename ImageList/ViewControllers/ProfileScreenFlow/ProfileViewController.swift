@@ -1,7 +1,10 @@
 import UIKit
 import Kingfisher
+import WebKit
 
 final class ProfileViewController: UIViewController {
+    override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
+    
     private let portraitImage: UIImageView = {
         let image = UIImageView()
         image.cornerRadius = 35
@@ -20,7 +23,6 @@ final class ProfileViewController: UIViewController {
         let label = UILabel()
         label.numberOfLines = 2
         label.textColor = .white
-        label.text = "Aleksandr Zinovev Aleksandrovich"
         label.font = .systemFont(ofSize: 23, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -29,7 +31,6 @@ final class ProfileViewController: UIViewController {
     private let emailLabel: UILabel = {
         let label = UILabel()
         label.textColor = .white
-        label.text = "blip@gmail.com"
         label.font = .systemFont(ofSize: 13, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -38,7 +39,6 @@ final class ProfileViewController: UIViewController {
     private let helloLabel: UILabel = {
         let label = UILabel()
         label.textColor = .white
-        label.text = "Hello, world! This is my favorite pictures. Take a look"
         label.font = .systemFont(ofSize: 13, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -55,14 +55,24 @@ final class ProfileViewController: UIViewController {
         return stackView
     }()
     
+    let gradientView = GradientView()
+    
     // MARK: - Dependency
-    private let profileInfo: Profile?
-    private var profileImageServerObserver: NSObjectProtocol?
+    private let profileImageService: ProfileImageServiceProtocol
+    private let profileService: ProfileServiceProtocol
+    private var profileImageServiceObserver: NSObjectProtocol?
 
+    private var profileInfo: Profile?
+    
     // MARK: - Init (Dependency injection)
-    init(profileInfo: Profile?) {
-        self.profileInfo = profileInfo
+    init(
+        profileImageService: ProfileImageServiceProtocol,
+        profileService: ProfileServiceProtocol
+    ) {
+        self.profileImageService = profileImageService
+        self.profileService = profileService
         super.init(nibName: nil, bundle: nil)
+        fetchProfile()
     }
     
     required init?(coder: NSCoder) {
@@ -74,8 +84,7 @@ final class ProfileViewController: UIViewController {
         super.viewDidLoad()
         
         setView()
-        configureUIWith(profileInfo)
-        updateAvatarImage(url: ProfileImageService.shared.avatarUrl)
+        updateAvatarImage(url: profileImageService.avatarUrl)
     }
     
     override func viewDidLayoutSubviews() {
@@ -84,19 +93,86 @@ final class ProfileViewController: UIViewController {
         setConstraints()
     }
     
+    enum ProfilePersonalDataState {
+        case loading
+        case error
+        case finished(UIImage)
+    }
+    
+    var profileState: ProfilePersonalDataState = .loading {
+        didSet {
+            configureImageState()
+        }
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if nameLabel.text == nil {
+            
+        }
+    }
+    
+    private func configureImageState() {
+        switch profileState {
+        case .loading:
+            view.addSubview(gradientView)
+            gradientView.isHidden = false
+        case .error:
+            break
+        case .finished(let image):
+            gradientView.animationLayers
+                .forEach {
+                    $0.removeAllAnimations()
+                    $0.removeFromSuperlayer()
+                }
+            gradientView.isHidden = true
+            configureUI(with: image)
+        }
+    }
+    
+    private func configureUI(with image: UIImage) {
+        portraitImage.image = image
+        nameLabel.text = profileInfo?.name
+        emailLabel.text = profileInfo?.loginName
+        helloLabel.text = profileInfo?.bio
+    }
+    
     private func updateAvatarImage(url: String?) {
-        guard let avatar = url,
-            let url = URL(string: avatar)
+        profileState = .loading
+        guard let avatarURLString = url,
+            let url = URL(string: avatarURLString)
         else {
             return
         }
-        
-        portraitImage.kf.indicatorType = .activity
-        portraitImage.kf.setImage(
-            with: url,
-            placeholder: UIImage.person,
-            options: [.transition(.fade(0.5))]
-        )
+        portraitImage.kf.setImage(with: url) { [weak self] result in
+            switch result {
+            case .success(let result):
+                self?.profileState = .finished(result.image)
+            case .failure:
+                self?.profileState = .error
+            }
+        }
+    }
+    
+    private func fetchProfile() {
+        profileService.fetchProfile { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let profile):
+                self.profileInfo = profile
+                self.fetchProfileImageUrl(username: profile.username)
+            case .failure:
+                self.profileState = .error
+            }
+        }
+    }
+    
+    private func fetchProfileImageUrl(username: String) {
+        profileImageService
+            .fetchProfileImageUrl(username: username) { [weak self] result in
+                guard case .failure = result else { return }
+                self?.profileState = .error
+            }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -106,46 +182,87 @@ final class ProfileViewController: UIViewController {
     }
     
     private func addObserver() {
-        profileImageServerObserver = NotificationCenter.default
+        profileImageServiceObserver = NotificationCenter.default
             .addObserver(
-                forName: ProfileImageService.DidChangeNotification,
+                forName: ProfileImageService.didChangeNotification,
                 object: nil,
                 queue: .main) { [weak self] notification in
                     guard let self = self else { return }
                     
-                    let url = notification.userInfo?["URL"] as? String
+                    let url = notification.userInfo?[UserInfo.url.rawValue] as? String
                     self.updateAvatarImage(url: url)
             }
     }
     
-    @objc private func exitButtonDidTapped() { }
+    @objc private func exitButtonDidTapped() {
+        showAlert(
+            title: "Пока, пока!",
+            message: "Уверены что хотите выйти?",
+            actions: [
+                Action(title: "Нет", style: .cancel, handler: nil),
+                Action(title: "Да", style: .default, handler: { [weak self] _ in
+                    guard let self = self else { return}
+                    self.cleanWebViewSavedData()
+                    self.cleanTokenFromKeyChain()
+                    self.goToSplashViewController()
+                })
+            ]
+        )
+    }
+    
+    private func cleanWebViewSavedData() {
+        HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
+        WKWebsiteDataStore.default().fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { records in
+            records.forEach { record in
+                WKWebsiteDataStore.default().removeData(
+                    ofTypes: record.dataTypes,
+                    for: [record]) {}
+            }
+        }
+    }
+    
+    private func cleanTokenFromKeyChain() {
+        OAuth2TokenStorage().token = nil
+    }
+    
+    private func goToSplashViewController() {
+        guard let window = UIApplication.shared.windows.first else {
+            fatalError("Wrong Configuration")
+        }
+        let splashViewController = SplashViewController(
+            oAuth2Service: OAuth2Service(),
+            oAuth2TokenStorage: OAuth2TokenStorage()
+        )
+        window.rootViewController = splashViewController
+    }
 }
 
 // MARK: - UI
 extension ProfileViewController {
     private func setView() {
         view.backgroundColor = .myBlack
-        
-        exitButton.addTarget(self, action: #selector(exitButtonDidTapped), for: .touchDragInside)
-        
+        exitButton.addTarget(
+            self, action: #selector(exitButtonDidTapped), for: .touchUpInside)
+    }
+
+    private func setConstraints() {
         [nameLabel, emailLabel, helloLabel]
             .forEach { verticalStackView.addArrangedSubview($0) }
         view.addSubviews(portraitImage, exitButton)
         view.addSubview(verticalStackView)
-    }
-    
-    private func setConstraints() {
+        gradientView.translatesAutoresizingMaskIntoConstraints = false
+        
         NSLayoutConstraint.activate([
             // portraitImage
             portraitImage.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 32),
             portraitImage.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             portraitImage.heightAnchor.constraint(equalToConstant: 70),
             portraitImage.widthAnchor.constraint(equalToConstant: 70),
-            
+
             // exitButton
             exitButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 56),
             exitButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -26),
-            
+
             // verticalStackView
             verticalStackView.topAnchor.constraint(
                 equalTo: portraitImage.bottomAnchor, constant: 8),
@@ -154,14 +271,11 @@ extension ProfileViewController {
                 constant: 16),
             verticalStackView.trailingAnchor.constraint(
                 equalTo: view.trailingAnchor,
-                constant: -24)
+                constant: -24),
+            
+            gradientView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 32),
+            gradientView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            gradientView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
-    }
-    
-    private func configureUIWith(_ profile: Profile?) {
-        guard let profile = profile else { return }
-        nameLabel.text = profile.name.capitalized
-        emailLabel.text = profile.loginName
-        helloLabel.text = profile.bio
     }
 }

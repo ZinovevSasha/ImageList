@@ -11,36 +11,27 @@ final class SplashViewController: UIViewController {
     private let imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = .launchScreen
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
+    
+    override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
 
     // MARK: - Dependency
     private let oAuth2Service: OAuth2ServiceProtocol
-    private let profileService: ProfileServiceProtocol
-    private let profileImageService: ProfileImageService
     private var oAuth2TokenStorage: OAuth2TokenStorageProtocol
 
     // MARK: - Init (Dependency injection)
     init(
         oAuth2Service: OAuth2ServiceProtocol,
-        profileService: ProfileServiceProtocol,
-        profileImageService: ProfileImageService,
         oAuth2TokenStorage: OAuth2TokenStorageProtocol
     ) {
         self.oAuth2Service = oAuth2Service
-        self.profileService = profileService
-        self.profileImageService = profileImageService
         self.oAuth2TokenStorage = oAuth2TokenStorage
         super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder: NSCoder) {
         fatalError("Unsupported")
-    }
-    
-    deinit {
-        print("deinit... \(String(describing: self))")
     }
     
     // MARK: - LifeCycle
@@ -50,18 +41,17 @@ final class SplashViewController: UIViewController {
         setView()
     }
     
-    private func setView() {
-        imageView.center = view.center
+    private func setView() {        
         view.backgroundColor = .myBlack
         view.addSubview(imageView)
+        imageView.center = view.center
     }
             
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        if let _ = oAuth2TokenStorage.token {
-            UIBlockingProgressHUD.show()
-            fetchProfile(vc: nil)
+        if oAuth2TokenStorage.token != nil {
+            switchToTabBarController()
         } else {
             let authViewController = AuthViewController(delegate: self)
             authViewController.modalPresentationStyle = .fullScreen
@@ -69,11 +59,11 @@ final class SplashViewController: UIViewController {
         }
     }
     
-    private func switchToTabBarController(with profile: Profile?) {
+    private func switchToTabBarController() {
         guard let window = UIApplication.shared.windows.first else {
             fatalError("Invalid Configuration")
         }
-        let tabBar = TabBarController(profileInfo: profile)
+        let tabBar = TabBarController()
         window.rootViewController = tabBar
     }
 }
@@ -93,43 +83,23 @@ extension SplashViewController: AuthViewControllerDelegate {
             guard let self = self else { return }
             switch result {
             case .success(let token):
-                self.oAuth2TokenStorage.token = token
-                self.fetchProfile(vc: vc)
-            case .failure(let failure):
                 UIBlockingProgressHUD.dismiss()
+                self.oAuth2TokenStorage.token = token
+                self.switchToTabBarController()
+            case .failure:
+                UIBlockingProgressHUD.dismiss()
+                
                 vc.showAlert(
                     title: "Что то пошло не так(",
                     message: "Не удалось войти в систему",
-                    actionTitle: "ОК"
+                    actions: [
+                        Action(
+                            title: "Ok",
+                            style: .cancel,
+                            handler: nil)
+                    ]
                 )
             }
         }
-    }
-    
-    private func fetchProfile(vc: AuthViewController?) {
-        profileService.fetchProfile { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case .success(let profile):
-                self.fetchProfileImageUrl(username: profile.username)
-                self.switchToTabBarController(with: profile)
-            case .failure(let error):
-                print("fetchProfile", error)
-            }        
-            UIBlockingProgressHUD.dismiss()
-            vc?.showAlert(
-                title: "Что то пошло не так(",
-                message: "Не удалось войти в систему",
-                actionTitle: "ОК"
-            )
-        }
-    }
-    
-    private func fetchProfileImageUrl(username: String) {
-        profileImageService
-            .fetchProfileImageUrl(username: username) { result in
-                guard case .failure(let error) = result else { return }
-                print("fetchProfileImageUrl", error)
-            }
     }
 }

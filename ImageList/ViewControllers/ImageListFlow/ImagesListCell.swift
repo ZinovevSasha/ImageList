@@ -1,19 +1,24 @@
 import UIKit
+import Kingfisher
 
-final class ImagesListCell: UITableViewCell {
-    static let identifier = String(describing: ImagesListCell.self)
-    private let gradientLayer = CAGradientLayer()
+protocol ImageListTableViewCellDelegate: AnyObject {
+    func imageListCellDidTapLikeButton(_ cell: ImageListTableViewCell)
+}
+
+final class ImageListTableViewCell: UITableViewCell {
+    static let reusableIdentifier = String(describing: ImageListTableViewCell.self)
+
+    var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
     
-    private let pictureImage: UIImageView = {
+    private let photoImageView: UIImageView = {
         let image = UIImageView()
-        image.contentMode = .scaleAspectFill
         image.translatesAutoresizingMaskIntoConstraints = false
         return image
     }()
     
-    private let heartButton: UIButton = {
-        let button = UIButton(type: .custom)
-        button.setImage(.noLike, for: .normal)
+    private let likeButton: UIButton = {
+        let button = UIButton()
+        button.adjustsImageWhenDisabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -26,140 +31,219 @@ final class ImagesListCell: UITableViewCell {
         return label
     }()
     
-    private let dateContainer: UIView = {
+    private let gradientContainerView: UIView = {
         let container = UIView()
         container.translatesAutoresizingMaskIntoConstraints = false
         return container
     }()
     
-    private let pictureImageContainer: UIView = {
+    private let photoContainer: UIView = {
         let container = UIView()
         container.layer.masksToBounds = true
         container.layer.cornerRadius = 16
+        container.backgroundColor = .white
         container.translatesAutoresizingMaskIntoConstraints = false
         return container
     }()
     
-    func setConstraint() {
-        NSLayoutConstraint.activate([
-            // dateContainer
-            dateContainer.leadingAnchor.constraint(
-                equalTo: pictureImageContainer.leadingAnchor),
-            dateContainer.bottomAnchor.constraint(
-                equalTo: pictureImageContainer.bottomAnchor),
-            dateContainer.trailingAnchor.constraint(
-                equalTo: pictureImageContainer.trailingAnchor),
-            dateContainer.heightAnchor.constraint(equalToConstant: 30),
-            
-            // dateLabel
-            dateLabel.leadingAnchor.constraint(
-                equalTo: dateContainer.leadingAnchor,
-                constant: 8),
-            dateLabel.bottomAnchor.constraint(
-                equalTo: dateContainer.bottomAnchor,
-                constant: -8),
-            dateLabel.trailingAnchor.constraint(
-                equalTo: dateContainer.trailingAnchor,
-                constant: -184),
-            dateLabel.topAnchor.constraint(
-                equalTo: dateContainer.topAnchor,
-                constant: 4),
-            
-            // button
-            heartButton.topAnchor.constraint(
-                equalTo: pictureImageContainer.topAnchor),
-            heartButton.trailingAnchor.constraint(
-                equalTo: pictureImageContainer.trailingAnchor),
-            heartButton.widthAnchor.constraint(equalToConstant: 42),
-            heartButton.heightAnchor.constraint(equalToConstant: 42),
-            
-            // pictureImage
-            pictureImage.leadingAnchor.constraint(
-                equalTo: pictureImageContainer.leadingAnchor),
-            pictureImage.topAnchor.constraint(
-                equalTo: pictureImageContainer.topAnchor),
-            pictureImage.trailingAnchor.constraint(
-                equalTo: pictureImageContainer.trailingAnchor),
-            pictureImage.bottomAnchor.constraint(
-                equalTo: pictureImageContainer.bottomAnchor),
-                        
-            // pictureImageContainer
-            pictureImageContainer.leadingAnchor.constraint(
-                equalTo: contentView.leadingAnchor,
-                constant: 16),
-            pictureImageContainer.topAnchor.constraint(
-                equalTo: contentView.topAnchor,
-                constant: 4),
-            pictureImageContainer.trailingAnchor.constraint(
-                equalTo: contentView.trailingAnchor,
-                constant: -16),
-            pictureImageContainer.bottomAnchor.constraint(
-                equalTo: contentView.bottomAnchor,
-                constant: -4)
-        ])
-    }
+    private var gradientForBottomOfPicture: CAGradientLayer = {
+        let layer = CAGradientLayer()
+        let startColor = UIColor.myGradientStart
+        let finishColor = UIColor.myGradientStop
+        layer.colors = [startColor.cgColor, finishColor.cgColor]
+        layer.startPoint = CGPoint.zero
+        layer.endPoint = CGPoint(x: 0, y: 1)
+        layer.masksToBounds = true
+        return layer
+    }()
     
-    // MARK: - Configure function
-    public func configure(model: ImageCell) {
-        pictureImage.image = UIImage(named: model.image)
-        dateLabel.text = model.date.dateString
-        dateContainer.addGradient(
-            with: gradientLayer,
-            colorSet: [.myGradientStart, .myGradientStop],
-            locations: [0.0, 1.0])
-    }
-    
-    
-    override func layoutSublayers(of layer: CALayer) {
-        super.layoutSublayers(of: self.layer)
-    
-        if gradientLayer.frame != dateContainer.bounds {
-            gradientLayer.frame = dateContainer.bounds
+    private var gradientLayer = CAGradientLayer()
+
+    // MARK: Public
+    public func configure(with photoInfo: Photo) {
+        imageState = .loading
+        photoImageView.kf.setImage(with: URL(string: photoInfo.small)) { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let result):
+                let cellViewModel = self.createCellViewModel(
+                    image: result.image, photoInfo, gradient: self.gradientForBottomOfPicture
+                )
+                self.imageState = .finished(cellViewModel)
+            case .failure:
+                self.imageState = .error
+            }
         }
     }
-
     
-    @objc private func heartButtonDidTapped() { }
-
+    // MARK: Dependency
+    weak var delegate: ImageListTableViewCellDelegate?
+    
+    // MARK: - Init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        contentView.backgroundColor = .clear
-        backgroundColor = .clear
-        selectionStyle = .none
-        
-        heartButton.addTarget(
-            self,
-            action: #selector(heartButtonDidTapped),
-            for: .touchUpInside)
-        
-        pictureImageContainer.addSubviews(pictureImage, heartButton, dateContainer)
-        dateContainer.addSubview(dateLabel)
-        contentView.addSubview(pictureImageContainer)
+        setColors()        
         setConstraint()
+        addGradientAndAnimate(true)
+        likeButton.addTarget(
+            self, action: #selector(likeButtonDidTapped), for: .touchDown)
     }
     
     required init?(coder: NSCoder) {
         fatalError("Unsupported")
     }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        if gradientForBottomOfPicture.frame != gradientContainerView.bounds {
+            gradientForBottomOfPicture.frame = gradientContainerView.bounds
+        }
+        if gradientLayer.frame != photoContainer.bounds {
+            gradientLayer.frame = photoContainer.bounds
+        }
+    }
+    
     override func prepareForReuse() {
         super.prepareForReuse()
-        pictureImage.image = nil
-        dateLabel.text = nil
+        
+        photoImageView.kf.cancelDownloadTask()
+        configurePropertiesOrNil(nil)
+        addGradientAndAnimate(false)
+    }
+    
+    @objc private func likeButtonDidTapped() {
+        delegate?.imageListCellDidTapLikeButton(self)
+    }
+    
+    public func setLike(_ isLiked: Bool) {
+        let likeNoLike = isLiked ? UIImage.like : .noLike
+        likeButton.setImage(likeNoLike, for: .normal)
+    }
+    
+    enum CellImageState {
+        case loading
+        case error
+        case finished(CellViewModel)
+    }
+    
+    var imageState: CellImageState = .loading {
+        didSet {
+            configureImageState()
+        }
+    }
+    
+    private func configureImageState() {
+        switch imageState {
+        case .loading:
+            addGradientAndAnimate(true)
+        case .error:
+            break
+        case .finished(let model):
+            addGradientAndAnimate(false)
+            configurePropertiesOrNil(model)
+        }
+    }
+        
+    func configurePropertiesOrNil(_ model: CellViewModel?) {
+        photoImageView.image = model?.image
+        dateLabel.text = model?.date
+        likeButton.setImage(model?.like, for: .normal)
+        if let gradient = model?.gradient {
+            gradientContainerView.layer.addSublayer(gradient)
+        } else {
+            gradientForBottomOfPicture.removeFromSuperlayer()
+        }
+    }
+    
+    func createCellViewModel(image: UIImage, _ photo: Photo, gradient: CAGradientLayer) -> CellViewModel {
+        let like = photo.isLiked ? UIImage.like : .noLike
+        let date = photo.createdAt
+        return CellViewModel(image: image, like: like, date: date, gradient: gradient)
     }
 }
 
-extension ImagesListCell {
-    // Set Gradient
-    private func setGradient() {
-        gradientLayer.frame = dateContainer.bounds.insetBy(
-            dx: -0.5 * dateContainer.bounds.size.width,
-            dy: -0.5 * dateContainer.bounds.size.height
+// MARK: - UI
+private extension ImageListTableViewCell {
+    private func setColors() {
+        contentView.backgroundColor = .myBlack
+        photoContainer.backgroundColor = .white
+    }
+    
+    private func setConstraint() {
+        photoContainer.addSubviews(
+            photoImageView,
+            likeButton,
+            gradientContainerView,
+            dateLabel
         )
-        dateContainer.addGradient(
-            with: gradientLayer,
-            colorSet: [.myGradientStart, .myGradientStop],
-            locations: [0.0, 1.0])
+        contentView.addSubviews(photoContainer)
+        
+        NSLayoutConstraint.activate([
+            // dateContainer
+            gradientContainerView.leadingAnchor.constraint(equalTo: photoContainer.leadingAnchor),
+            gradientContainerView.bottomAnchor.constraint(equalTo: photoContainer.bottomAnchor),
+            gradientContainerView.trailingAnchor.constraint( equalTo: photoContainer.trailingAnchor),
+            gradientContainerView.heightAnchor.constraint(equalToConstant: 30),
+            
+            // dateLabel
+            dateLabel.leadingAnchor.constraint(
+                equalTo: photoContainer.leadingAnchor,
+                constant: 8),
+            dateLabel.bottomAnchor.constraint(
+                equalTo: photoContainer.bottomAnchor,
+                constant: -8),
+            
+            // button
+            likeButton.topAnchor.constraint( equalTo: photoContainer.topAnchor),
+            likeButton.trailingAnchor.constraint(equalTo: photoContainer.trailingAnchor),
+            likeButton.widthAnchor.constraint(equalToConstant: 42),
+            likeButton.heightAnchor.constraint(equalToConstant: 42),
+            
+            // pictureImage
+            photoImageView.leadingAnchor.constraint(equalTo: photoContainer.leadingAnchor),
+            photoImageView.topAnchor.constraint( equalTo: photoContainer.topAnchor),
+            photoImageView.trailingAnchor.constraint(equalTo: photoContainer.trailingAnchor),
+            photoImageView.bottomAnchor.constraint( equalTo: photoContainer.bottomAnchor),
+            
+            // pictureImageContainer
+            photoContainer.leadingAnchor.constraint(
+                equalTo: contentView.leadingAnchor,
+                constant: 16),
+            photoContainer.topAnchor.constraint(
+                equalTo: contentView.topAnchor,
+                constant: 4),
+            photoContainer.trailingAnchor.constraint(
+                equalTo: contentView.trailingAnchor,
+                constant: -16),
+            photoContainer.bottomAnchor.constraint(
+                equalTo: contentView.bottomAnchor,
+                constant: -4)
+        ])
+    }
+    
+    private func addGradientAndAnimate(_ animate: Bool) {
+        if animate {
+            photoContainer.addGradient(
+                with: gradientLayer,
+                colorSet: [ .backgroundColorForShimmer, .shimmerColor, .backgroundColorForShimmer],
+                locations: [0, 0.5, 1],
+                startEndPoints: (
+                    CGPoint(x: 0, y: 0.5),
+                    CGPoint(x: 1, y: 0.5)),
+                insertAt: 1
+            )
+            gradientLayer.animate(
+                .locations,
+                duration: 1.5,
+                fromValue: [-1.0, -0.5, 0.0],
+                toValue: [1.0, 1.5, 2.0],
+                forKey: .locationsChanged
+            )
+        } else {
+            gradientLayer.removeAllAnimations()
+            gradientLayer.removeFromSuperlayer()
+        }
     }
 }

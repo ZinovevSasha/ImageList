@@ -13,19 +13,22 @@ protocol OAuth2TokenStorageProtocol {
 }
 
 final class OAuth2TokenStorage: OAuth2TokenStorageProtocol {
-    private let keyChain = KeychainWrapper.standard
-    
     private enum Key: String {
         case token
     }
+    
+    private let keyChain = KeychainWrapper.standard
     
     var token: String? {
         get {
             keyChain.string(forKey: Key.token.rawValue)
         }
         set {
-            guard let newValue = newValue else { return }
-            keyChain.set(newValue, forKey: Key.token.rawValue)
+            if let newValue {
+                keyChain.set(newValue, forKey: Key.token.rawValue)
+            } else {
+                keyChain.removeObject(forKey: Key.token.rawValue)
+            }
         }
     }
 }

@@ -10,7 +10,7 @@ import WebKit
 
 /*
 """
- WebViewViewController tell his delegate
+WebViewViewController tell his delegate
 (any who conform WebViewViewControllerDelegate)
 in our case AuthViewController that we catch code
 or failed to do that__
@@ -20,7 +20,7 @@ the user will be redirected to the redirect_uri,
 with the authorization code in the code query parameter.
 "
 """
- */
+*/
 
 protocol WebViewViewControllerDelegate: AnyObject {
     func webViewViewController(
@@ -52,12 +52,14 @@ final class WebViewViewController: UIViewController {
         return progressView
     }()
     
-    // MARK: - Dependency
+    override var preferredStatusBarStyle: UIStatusBarStyle { .darkContent }
+    
+    // MARK: Delegate
     weak var delegate: WebViewViewControllerDelegate?
     private var estimatedProgressObservation: NSKeyValueObservation?
     
-    // MARK: - Init (Dependency injection)
-    init(delegate: WebViewViewControllerDelegate) {
+    // MARK: - Init
+    init(delegate: WebViewViewControllerDelegate?) {
         self.delegate = delegate
         super.init(nibName: nil, bundle: nil)
     }
@@ -111,17 +113,18 @@ final class WebViewViewController: UIViewController {
 }
 
 // MARK: - UI
-extension WebViewViewController {
-    private func setView() {
-        view.backgroundColor = .white
-        view.addSubviews(webView, backButton, progressView)
+private extension WebViewViewController {
+    func setView() {
+        view.backgroundColor = .white        
         webView.backgroundColor = .white
         webView.navigationDelegate = self
         progressView.progress = 0.05
         backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
     }
     
-    private func addConstraints() {
+    func addConstraints() {
+        view.addSubviews(webView, backButton, progressView)
+        
         NSLayoutConstraint.activate([
             webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -159,13 +162,11 @@ extension WebViewViewController: WKNavigationDelegate {
     
     private func code(from url: URL?) -> String? {
         // navigationAction.navigationType == .formSubmitted
-        if
-            let url = url,
+        if let url = url,
             let urlComponents = URLComponents(string: url.absoluteString),
             urlComponents.path == "/oauth/authorize/native",
             let items = urlComponents.queryItems,
-            let codeItem = items.first(where: { $0.name == "code" }
-            ) {
+            let codeItem = items.first(where: { $0.name == "code" }) {
             return codeItem.value
         } else {
             return nil

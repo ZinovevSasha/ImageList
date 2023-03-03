@@ -8,10 +8,12 @@
 import Foundation
 
 enum UnsplashRequests {
+    case authentication
     case oAuthToken(code: String)
     case getMe
     case userPortfolio(username: String)
-    case authentication
+    case photos(page: Int)
+    case like(photoId: String, isLiked: Bool)
 }
 
 extension UnsplashRequests {
@@ -27,13 +29,13 @@ extension UnsplashRequests {
         case .getMe:
             var request = URLRequest.makeHTTPRequest(path: "/me")
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-            // "https://api.unsplash.com/me"
             return request
+            
         case .userPortfolio(let username):
             var request = URLRequest.makeHTTPRequest(path: "/users/\(username)")
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-            // "https://api.unsplash.com/users/\(username)"
             return request
+            
         case .oAuthToken(let code):
             return URLRequest.makeHTTPRequest(
                 host: "unsplash.com",
@@ -46,6 +48,7 @@ extension UnsplashRequests {
                     URLQueryItem(name: "grant_type", value: "authorization_code")
                 ],
                 httpMethod: "POST")
+            
         case .authentication:
             guard var urlComponents = URLComponents(string: "https://unsplash.com/oauth/authorize")
             else {
@@ -67,6 +70,30 @@ extension UnsplashRequests {
                 preconditionFailure("Unable to construct Url")
             }
             let request = URLRequest(url: url)
+            return request
+
+        case .photos(let pageNumber):
+            var request = URLRequest.makeHTTPRequest(
+                path: "/photos",
+                queryItems: [
+                    URLQueryItem(
+                        name: "client_id", value: accessKey),
+                    URLQueryItem(
+                        name: "page", value: "\(pageNumber)"),
+                    URLQueryItem(
+                        name: "per_page", value: "6"),
+                    URLQueryItem(
+                        name: "order_by", value: "latest")
+                ]
+            )
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            return request
+            
+        case let .like(photoId, isLiked):
+            var request = URLRequest.makeHTTPRequest(path: "/photos/\(photoId)/like")
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            let method = isLiked ? "DELETE" : "POST"
+            request.httpMethod = method
             return request
         }
     }

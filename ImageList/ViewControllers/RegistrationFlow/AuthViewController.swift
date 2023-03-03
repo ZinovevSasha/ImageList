@@ -11,7 +11,7 @@ the user will be redirected to the redirect_uri,
 with the authorization code in the code query parameter.
 "
 """
- */
+*/
 
 protocol AuthViewControllerDelegate: AnyObject {
     func authViewController(
@@ -39,11 +39,13 @@ final class AuthViewController: UIViewController {
         return image
     }()
     
-    // MARK: - Dependency
+    override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
+
+    // MARK: Delegate
     weak var delegate: AuthViewControllerDelegate?
     
-    // MARK: - Init (Dependency injection)
-    init(delegate: AuthViewControllerDelegate) {
+    // MARK: - Init
+    init(delegate: AuthViewControllerDelegate?) {
         self.delegate = delegate
         super.init(nibName: nil, bundle: nil)
     }
@@ -67,23 +69,24 @@ final class AuthViewController: UIViewController {
     
     // MARK: - Transition
     @objc private func enterButtonTapped() {
-        let webViewController = WebViewViewController(delegate: self)        
+        let webViewController = WebViewViewController(delegate: self)
         webViewController.modalPresentationStyle = .fullScreen
         present(webViewController, animated: true)
     }
 }
 
 // MARK: - UI
-extension AuthViewController {
-    private func setView() {
+private extension AuthViewController {
+    func setView() {
         image.center = view.center
         view.backgroundColor = .myBlack
-        
-        enterButton.addTarget(self, action: #selector(enterButtonTapped), for: .touchUpInside)
-        view.addSubviews(image, enterButton)
+        enterButton.addTarget(
+            self, action: #selector(enterButtonTapped), for: .touchUpInside)
     }
     
-    private func setConstraint() {
+    func setConstraint() {
+        view.addSubviews(image, enterButton)
+        
         NSLayoutConstraint.activate([
             // Image
             image.centerYAnchor.constraint(equalTo: view.centerYAnchor),
@@ -102,29 +105,6 @@ extension AuthViewController {
                 equalTo: view.safeAreaLayoutGuide.bottomAnchor,
                 constant: -90)
         ])
-    }
-    
-    public func showAlert(
-        title: String,
-        message: String,
-        actionTitle: String
-    ) {
-        let ac = UIAlertController(
-            title: title,
-            message: message,
-            preferredStyle: .alert
-        )
-        
-        let action = UIAlertAction(
-            title: actionTitle,
-            style: .cancel) { [weak self] _ in
-                UIView.animate(withDuration: 0.5) {
-                    self?.enterButton.backgroundColor = .white
-                }
-        }
-        
-        ac.addAction(action)
-        present(ac, animated: true)
     }
 }
 
