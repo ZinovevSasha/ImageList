@@ -76,6 +76,33 @@ final class ImageListTableViewCell: UITableViewCell {
         }
     }
     
+    public func addGradient() {
+        photoContainer.addGradient(
+            with: gradientLayer,
+            colorSet: [ .backgroundColorForShimmer, .shimmerColor, .backgroundColorForShimmer],
+            locations: [0, 0.5, 1],
+            startEndPoints: (
+                CGPoint(x: 0, y: 0.5),
+                CGPoint(x: 1, y: 0.5)),
+            insertAt: 1
+        )
+    }
+    
+    public func animateGradient() {
+        gradientLayer.animate(
+            .locations,
+            duration: 1.5,
+            fromValue: [-1.0, -0.5, 0.0],
+            toValue: [1.0, 1.5, 2.0],
+            forKey: .locationsChanged
+        )
+    }
+    
+    public func removeAnimation() {
+        gradientLayer.removeAllAnimations()
+        gradientLayer.removeFromSuperlayer()
+    }
+    
     // MARK: Dependency
     weak var delegate: ImageListTableViewCellDelegate?
     
@@ -85,7 +112,9 @@ final class ImageListTableViewCell: UITableViewCell {
         
         setColors()        
         setConstraint()
-        addGradientAndAnimate(true)
+        addGradient()
+        animateGradient()
+        
         likeButton.addTarget(
             self, action: #selector(likeButtonDidTapped), for: .touchDown)
     }
@@ -110,7 +139,7 @@ final class ImageListTableViewCell: UITableViewCell {
         
         photoImageView.kf.cancelDownloadTask()
         configurePropertiesOrNil(nil)
-        addGradientAndAnimate(false)
+        removeAnimation()
     }
     
     @objc private func likeButtonDidTapped() {
@@ -137,11 +166,12 @@ final class ImageListTableViewCell: UITableViewCell {
     private func configureImageState() {
         switch imageState {
         case .loading:
-            addGradientAndAnimate(true)
+            addGradient()
+            animateGradient()
         case .error:
-            break
+            removeAnimation()
         case .finished(let model):
-            addGradientAndAnimate(false)
+            removeAnimation()
             configurePropertiesOrNil(model)
         }
     }
@@ -221,29 +251,5 @@ private extension ImageListTableViewCell {
                 equalTo: contentView.bottomAnchor,
                 constant: -4)
         ])
-    }
-    
-    private func addGradientAndAnimate(_ animate: Bool) {
-        if animate {
-            photoContainer.addGradient(
-                with: gradientLayer,
-                colorSet: [ .backgroundColorForShimmer, .shimmerColor, .backgroundColorForShimmer],
-                locations: [0, 0.5, 1],
-                startEndPoints: (
-                    CGPoint(x: 0, y: 0.5),
-                    CGPoint(x: 1, y: 0.5)),
-                insertAt: 1
-            )
-            gradientLayer.animate(
-                .locations,
-                duration: 1.5,
-                fromValue: [-1.0, -0.5, 0.0],
-                toValue: [1.0, 1.5, 2.0],
-                forKey: .locationsChanged
-            )
-        } else {
-            gradientLayer.removeAllAnimations()
-            gradientLayer.removeFromSuperlayer()
-        }
     }
 }

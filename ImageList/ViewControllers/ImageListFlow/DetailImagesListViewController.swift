@@ -150,13 +150,15 @@ class DetailImagesListViewController: UIViewController {
             activityItems: [image],
             applicationActivities: nil
         )
-        self.present(activityController, animated: true, completion: nil)
+        present(activityController, animated: true, completion: nil)
     }
 }
 
 // MARK: - UI
 private extension DetailImagesListViewController {
-    private func setSubviews() {        
+    private func setSubviews() {
+        scrollView.addSubview(photoImageView)
+        view.addSubviews(scrollView, backButton, shareButton, spinner, scribbleImageView)        
         view.backgroundColor = .myBlack
         scrollView.delegate = self
         backButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
@@ -164,9 +166,6 @@ private extension DetailImagesListViewController {
     }
     
     private func setConstraint() {
-        scrollView.addSubview(photoImageView)
-        view.addSubviews(scrollView, backButton, shareButton, spinner, scribbleImageView)
-        
         NSLayoutConstraint.activate([
             // scrollView
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),

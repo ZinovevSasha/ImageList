@@ -19,6 +19,24 @@ class GradientView: UIView {
     
     public var animationLayers = Set<CALayer>()
     
+    func animate() {
+        animationLayers.forEach { $0.animate(
+            .locations,
+            duration: 1.5,
+            fromValue: [-1.0, -0.5, 0.0],
+            toValue: [1.0, 1.5, 2.0],
+            forKey: .locationsChanged)
+        }
+    }
+    
+    func stopAnimation() {
+        animationLayers
+            .forEach {
+                $0.removeAllAnimations()
+                $0.removeFromSuperlayer()
+            }
+    }
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -28,21 +46,21 @@ class GradientView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         
+        setupView()
         setupFrames()
         addConstraint()
-        addGradientAndAnimate()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("Unsupported")
+        addGradient()
     }
     
     private func setupView() {
+        [portraitImage, nameLabel, emailLabel, helloLabel]
+            .forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
+        addSubviews(portraitImage, nameLabel, emailLabel, helloLabel)
         backgroundColor = .backgroundColorForShimmer
         portraitImage.cornerRadius = 35
         nameLabel.cornerRadius = 9
         emailLabel.cornerRadius = 9
-        helloLabel.cornerRadius = 9                        
+        helloLabel.cornerRadius = 9
     }
     
     private func setupFrames() {
@@ -53,11 +71,6 @@ class GradientView: UIView {
     }
     
     private func addConstraint() {
-        [portraitImage, nameLabel, emailLabel, helloLabel]
-            .forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
-        
-        addSubviews(portraitImage, nameLabel, emailLabel, helloLabel)
-        
         NSLayoutConstraint.activate([
             portraitImage.topAnchor.constraint(equalTo: topAnchor),
             portraitImage.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -81,7 +94,7 @@ class GradientView: UIView {
         ])
     }
     
-    private func addGradientAndAnimate() {
+    private func addGradient() {
         let layers = [
             nameLabelLayer,
             emailLabelLayer,
@@ -102,14 +115,10 @@ class GradientView: UIView {
                     insertAt: 0
                 )
             }
-        layers.forEach { $0.animate(
-            .locations,
-            duration: 1.5,
-            fromValue: [-1.0, -0.5, 0.0],
-            toValue: [1.0, 1.5, 2.0],
-            forKey: .locationsChanged)
-        }
-        
         layers.forEach { animationLayers.insert($0) }
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("Unsupported")
     }
 }

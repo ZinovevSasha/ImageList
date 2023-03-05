@@ -108,23 +108,19 @@ final class ProfileViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         if nameLabel.text == nil {
-            
+            profileState = .loading
         }
     }
     
     private func configureImageState() {
         switch profileState {
         case .loading:
-            view.addSubview(gradientView)
             gradientView.isHidden = false
+            gradientView.animate()
         case .error:
-            break
+            gradientView.stopAnimation()
         case .finished(let image):
-            gradientView.animationLayers
-                .forEach {
-                    $0.removeAllAnimations()
-                    $0.removeFromSuperlayer()
-                }
+            gradientView.stopAnimation()
             gradientView.isHidden = true
             configureUI(with: image)
         }
@@ -241,17 +237,17 @@ final class ProfileViewController: UIViewController {
 extension ProfileViewController {
     private func setView() {
         view.backgroundColor = .myBlack
+        view.addSubviews(portraitImage, exitButton)
+        view.addSubview(verticalStackView)
+        view.addSubview(gradientView)
+        [nameLabel, emailLabel, helloLabel]
+            .forEach { verticalStackView.addArrangedSubview($0) }
+        gradientView.translatesAutoresizingMaskIntoConstraints = false
         exitButton.addTarget(
             self, action: #selector(exitButtonDidTapped), for: .touchUpInside)
     }
 
     private func setConstraints() {
-        [nameLabel, emailLabel, helloLabel]
-            .forEach { verticalStackView.addArrangedSubview($0) }
-        view.addSubviews(portraitImage, exitButton)
-        view.addSubview(verticalStackView)
-        gradientView.translatesAutoresizingMaskIntoConstraints = false
-        
         NSLayoutConstraint.activate([
             // portraitImage
             portraitImage.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 32),
