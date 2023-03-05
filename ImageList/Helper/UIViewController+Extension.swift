@@ -7,24 +7,34 @@
 
 import UIKit
 
+extension UIViewController{
+    func showAlert(title: String, message: String, actions: [Action]) {
+        // Create alert controller
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+
+        // Crate actions array
+        let actions = actions.map { $0.toConvertToAlertAction() }
+        
+        // Add actions to alert controller
+        actions.forEach { alertController.addAction($0) }
+        
+        // Present alert controller
+        present(alertController, animated: true, completion: nil)
+    }
+}
+
 struct Action {
     let title: String
     let style: UIAlertAction.Style
     let handler: ((UIAlertAction) -> Void)?
 }
 
-extension UIViewController{
-    func showAlert(title: String, message: String, actions: [Action]) {
-        // Create alert controller
-        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        
-        // Add actions to alert controller
-        for action in actions {
-            let alertAction = UIAlertAction(title: action.title, style: action.style, handler: action.handler)
-            alertController.addAction(alertAction)
-        }
-        
-        // Present alert controller
-        present(alertController, animated: true, completion: nil)
+private extension Action {
+    func toConvertToAlertAction() -> UIAlertAction {
+        return UIAlertAction(
+            title: self.title,
+            style: self.style,
+            handler: self.handler
+        )
     }
 }
