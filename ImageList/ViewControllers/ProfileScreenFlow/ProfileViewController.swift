@@ -225,10 +225,7 @@ final class ProfileViewController: UIViewController {
         guard let window = UIApplication.shared.windows.first else {
             fatalError("Wrong Configuration")
         }
-        let splashViewController = SplashViewController(
-            oAuth2Service: OAuth2Service(),
-            oAuth2TokenStorage: OAuth2TokenStorage()
-        )
+        let splashViewController = SplashViewController()
         window.rootViewController = splashViewController
     }
 }

@@ -14,11 +14,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         let window = UIWindow(windowScene: windowScene)
-        window.rootViewController =
-        SplashViewController(
-            oAuth2Service: OAuth2Service(),   
-            oAuth2TokenStorage: OAuth2TokenStorage()
-        )
+        window.rootViewController = SplashViewController()
         window.makeKeyAndVisible()
         self.window = window
         // po NSHomeDirectory()

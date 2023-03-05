@@ -21,6 +21,8 @@ protocol AuthViewControllerDelegate: AnyObject {
 }
 
 final class AuthViewController: UIViewController {
+    override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
+    
     private var enterButton: UIButton = {
         let button = UIButton()
         button.cornerRadius = 16
@@ -38,8 +40,6 @@ final class AuthViewController: UIViewController {
         image.translatesAutoresizingMaskIntoConstraints = false
         return image
     }()
-    
-    override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
 
     // MARK: Delegate
     weak var delegate: AuthViewControllerDelegate?
@@ -48,10 +48,6 @@ final class AuthViewController: UIViewController {
     init(delegate: AuthViewControllerDelegate?) {
         self.delegate = delegate
         super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("Unsupported")
     }
     
     // MARK: - LifeCycle
@@ -73,20 +69,23 @@ final class AuthViewController: UIViewController {
         webViewController.modalPresentationStyle = .fullScreen
         present(webViewController, animated: true)
     }
+    
+    required init?(coder: NSCoder) {
+        fatalError("Unsupported")
+    }
 }
 
 // MARK: - UI
 private extension AuthViewController {
     func setView() {
-        image.center = view.center
+        view.addSubviews(image, enterButton)
         view.backgroundColor = .myBlack
+        image.center = view.center
         enterButton.addTarget(
             self, action: #selector(enterButtonTapped), for: .touchUpInside)
     }
     
     func setConstraint() {
-        view.addSubviews(image, enterButton)
-        
         NSLayoutConstraint.activate([
             // Image
             image.centerYAnchor.constraint(equalTo: view.centerYAnchor),
