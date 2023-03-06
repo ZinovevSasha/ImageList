@@ -9,14 +9,14 @@ import Foundation
 
 extension URLRequest {
     static func makeHTTPRequest(
-        scheme: String = "https",
-        host: String,
+        host: String = baseURL,
         path: String,
         queryItems: [URLQueryItem]? = nil,
         httpMethod: HTTPMethod = .get
     ) -> URLRequest {
+        
         var components = URLComponents()
-        components.scheme = scheme
+        components.scheme = "https"
         components.host = host
         components.path = path
         components.queryItems = queryItems

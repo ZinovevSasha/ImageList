@@ -16,14 +16,10 @@ protocol WebViewViewControllerProtocol: AnyObject {
 
 final class WebViewViewPresenter {
     weak var view: WebViewViewControllerProtocol?
-    private let authHelper: UnsplashAuthHelperProtocol
+    private var authRequest: UnsplashRequests = .authentication
     
-    init(
-        view: WebViewViewControllerProtocol?,
-        authHelper: UnsplashAuthHelperProtocol
-    ) {
+    init(view: WebViewViewControllerProtocol?) {
         self.view = view
-        self.authHelper = authHelper
     }
     
     private func shouldHideProgress(for value: Double) -> Bool {
@@ -33,7 +29,7 @@ final class WebViewViewPresenter {
 
 extension WebViewViewPresenter: WebViewViewPresenterProtocol {
     func viewDidLoad() {
-        view?.load(request: authHelper.authRequest())
+        view?.load(request: authRequest.request)
         didUpdateProgressValue(0.05)
     }
     
@@ -44,6 +40,15 @@ extension WebViewViewPresenter: WebViewViewPresenterProtocol {
     }
     
     func code(from url: URL?) -> String? {
-        authHelper.code(from: url)
+        // navigationAction.navigationType == .formSubmitted
+        if let url = url,
+            let urlComponents = URLComponents(string: url.absoluteString),
+            urlComponents.path == "/oauth/authorize/native",
+            let items = urlComponents.queryItems,
+            let codeItem = items.first(where: { $0.name == "code" }) {
+            return codeItem.value
+        } else {
+            return nil
+        }
     }
 }

@@ -14,18 +14,10 @@ protocol ProfileServiceProtocol {
 }
 
 final class ProfileService: ProfileServiceProtocol {
-    // MARK: - Dependency
-    private let requests: UnsplashRequestProtocol
-    
-    // MARK: - Init (Dependency injection)
-    init(requests: UnsplashRequestProtocol) {
-        self.requests = requests
-    }
-    
     func fetchProfile(
         completion: @escaping (Result<Profile, Error>) -> Void
     ) {
-        let request = requests.getMe()
+        let request = UnsplashRequests.getMe.request
         let task = URLSession.shared.object(
             for: request,
             expectedType: ProfileResult.self
