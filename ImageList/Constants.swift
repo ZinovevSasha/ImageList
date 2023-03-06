@@ -10,3 +10,7 @@ let secretKey = "0xgcQI41BRbflXzVQ8oIAmKQd--Dk-cYJ-TV44d5d3k"
 let redirectURI = "urn:ietf:wg:oauth:2.0:oob"
 let accessScope = "public+read_user+write_likes"
 let baseURL = "api.unsplash.com"
+
+struct AuthConfiguration {
+    
+}

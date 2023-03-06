@@ -12,8 +12,9 @@ extension URLRequest {
         host: String = baseURL,
         path: String,
         queryItems: [URLQueryItem]? = nil,
-        httpMethod: String = "GET"
+        httpMethod: HTTPMethod = .get
     ) -> URLRequest {
+        
         var components = URLComponents()
         components.scheme = "https"
         components.host = host
@@ -25,7 +26,7 @@ extension URLRequest {
         }
         
         var request = URLRequest(url: url)
-        request.httpMethod = httpMethod
+        request.httpMethod = httpMethod.rawValue
         request.timeoutInterval = 30
         return request
     }

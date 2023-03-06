@@ -18,10 +18,11 @@ enum UnsplashRequests {
 
 extension UnsplashRequests {
     private var token: String {
-        guard let token = OAuth2TokenStorage().token else {
-            return "No Token"
+        if let token = OAuth2TokenStorage().token {
+            return token
+        } else {
+            return "No token"
         }
-        return token
     }
     
     var request: URLRequest {
@@ -47,31 +48,25 @@ extension UnsplashRequests {
                     URLQueryItem(name: "code", value: code),
                     URLQueryItem(name: "grant_type", value: "authorization_code")
                 ],
-                httpMethod: "POST")
+                httpMethod: .post)
             
-        case .authentication:
-            guard var urlComponents = URLComponents(string: "https://unsplash.com/oauth/authorize")
-            else {
-                preconditionFailure("Unable to construct url")
-            }
+        case .authentication:            
+            return URLRequest.makeHTTPRequest(
+                host: "unsplash.com",
+                path: "/oauth/authorize",
+                queryItems: [
+                    URLQueryItem(
+                        name: "client_id", value: accessKey),
+                    URLQueryItem(
+                        name: "redirect_uri", value: redirectURI),
+                    URLQueryItem(
+                        name: "response_type", value: "code"),
+                    URLQueryItem(
+                        name: "scope", value: accessScope)
+                ]
+            )
+               
             
-            urlComponents.queryItems = [
-                URLQueryItem(
-                    name: "client_id", value: accessKey),
-                URLQueryItem(
-                    name: "redirect_uri", value: redirectURI),
-                URLQueryItem(
-                    name: "response_type", value: "code"),
-                URLQueryItem(
-                    name: "scope", value: accessScope)
-            ]
-            
-            guard let url = urlComponents.url else {
-                preconditionFailure("Unable to construct Url")
-            }
-            let request = URLRequest(url: url)
-            return request
-
         case .photos(let pageNumber):
             var request = URLRequest.makeHTTPRequest(
                 path: "/photos",
@@ -92,8 +87,8 @@ extension UnsplashRequests {
         case let .like(photoId, isLiked):
             var request = URLRequest.makeHTTPRequest(path: "/photos/\(photoId)/like")
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-            let method = isLiked ? "DELETE" : "POST"
-            request.httpMethod = method
+            let method = isLiked ? HTTPMethod.delete : .post
+            request.httpMethod = method.rawValue
             return request
         }
     }

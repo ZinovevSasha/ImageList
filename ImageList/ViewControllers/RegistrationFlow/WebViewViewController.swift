@@ -30,7 +30,16 @@ protocol WebViewViewControllerDelegate: AnyObject {
     func webViewViewControllerDidCancel(_ vc: WebViewViewController)
 }
 
+protocol WebViewViewPresenterProtocol {
+    var view: WebViewViewControllerProtocol? { get }
+    func viewDidLoad()
+    func code(from url: URL?) -> String?
+    func didUpdateProgressValue(_ newValue: Double)
+}
+
 final class WebViewViewController: UIViewController {
+    override var preferredStatusBarStyle: UIStatusBarStyle { .darkContent }
+    
     @objc private var webView: WKWebView = {
         let webView = WKWebView()
         webView.translatesAutoresizingMaskIntoConstraints = false
@@ -48,24 +57,22 @@ final class WebViewViewController: UIViewController {
         let progressView = UIProgressView()
         progressView.translatesAutoresizingMaskIntoConstraints = false
         progressView.progressViewStyle = .default
+//        progressView.progress = 0.05
         progressView.tintColor = .myBackground
         return progressView
     }()
-    
-    override var preferredStatusBarStyle: UIStatusBarStyle { .darkContent }
     
     // MARK: Delegate
     weak var delegate: WebViewViewControllerDelegate?
     private var estimatedProgressObservation: NSKeyValueObservation?
     
+    // MARK: Presenter
+    lazy var presenter: WebViewViewPresenterProtocol = WebViewViewPresenter(view: self)
+    
     // MARK: - Init
     init(delegate: WebViewViewControllerDelegate?) {
         self.delegate = delegate
         super.init(nibName: nil, bundle: nil)
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("Unsupported")
     }
     
     // MARK: - LifeCycle
@@ -73,7 +80,7 @@ final class WebViewViewController: UIViewController {
         super.viewDidLoad()
         
         setView()
-        webView.load(authScreen())
+        presenter.viewDidLoad()
     }
     
     override func viewDidLayoutSubviews() {
@@ -88,43 +95,52 @@ final class WebViewViewController: UIViewController {
         addObserver()
     }
     
-    func authScreen(_ auth: UnsplashRequests = .authentication) -> URLRequest {
-        auth.request
-    }
-    
     func addObserver() {
         estimatedProgressObservation = webView.observe(
             \.estimatedProgress,
             options: [.new]) { [weak self] _, change in
-                guard let self = self else { return }
-                guard let value = change.newValue else { return }
-                self.updateProgress(estimatedProgress: value)
+                guard let self = self,
+                    let newValue = change.newValue
+                else {
+                    return
+                }
+                self.presenter.didUpdateProgressValue(newValue)
         }
-    }
-    
-    private func updateProgress(estimatedProgress: Double) {
-        progressView.progress = Float(estimatedProgress)
-        progressView.isHidden = (webView.estimatedProgress - 0.745) >= 0.0001
     }
     
     @objc private func backButtonTapped() {
         delegate?.webViewViewControllerDidCancel(self)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("Unsupported")
+    }
+}
+extension WebViewViewController: WebViewViewControllerProtocol {
+    func load(request: URLRequest) {
+        webView.load(request)
+    }
+    
+    func setProgressValue(_ newValue: Float) {
+        progressView.progress = newValue
+    }
+    
+    func setProgressHidden(_ isHiden: Bool) {
+        progressView.isHidden = isHiden
     }
 }
 
 // MARK: - UI
 private extension WebViewViewController {
     func setView() {
-        view.backgroundColor = .white        
+        view.addSubviews(webView, backButton, progressView)
+        view.backgroundColor = .white
         webView.backgroundColor = .white
         webView.navigationDelegate = self
-        progressView.progress = 0.05
         backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
     }
     
     func addConstraints() {
-        view.addSubviews(webView, backButton, progressView)
-        
         NSLayoutConstraint.activate([
             webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -150,24 +166,17 @@ extension WebViewViewController: WKNavigationDelegate {
         decidePolicyFor navigationAction: WKNavigationAction,
         decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
     ) {
-        if let code = code(from: navigationAction.request.url) {
+        if let code = code(from: navigationAction) {
             delegate?.webViewViewController(self, didAuthenticateWithCode: code)
             decisionHandler(.cancel)
         } else {
-            // If code is nil what to do?
-            // Or no internet connection?
             decisionHandler(.allow)
         }
     }
     
-    private func code(from url: URL?) -> String? {
-        // navigationAction.navigationType == .formSubmitted
-        if let url = url,
-            let urlComponents = URLComponents(string: url.absoluteString),
-            urlComponents.path == "/oauth/authorize/native",
-            let items = urlComponents.queryItems,
-            let codeItem = items.first(where: { $0.name == "code" }) {
-            return codeItem.value
+    private func code(from navigationAction: WKNavigationAction) -> String? {
+        if let url = navigationAction.request.url {
+            return presenter.code(from: url)
         } else {
             return nil
         }

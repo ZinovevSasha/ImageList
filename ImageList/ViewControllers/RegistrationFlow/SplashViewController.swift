@@ -22,7 +22,8 @@ final class SplashViewController: UIViewController {
     }()
     
     // MARK: - Presenter (will be initialized at first call)
-    lazy private var presenter = SplashViewControllerPresenter(
+    lazy private var presenter: SplashViewControllerPresenterProtocol =
+    SplashViewControllerPresenter(
         view: self,
         oAuth2Service: OAuth2Service(),
         oAuth2TokenStorage: OAuth2TokenStorage()
