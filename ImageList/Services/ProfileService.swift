@@ -14,9 +14,10 @@ protocol ProfileServiceProtocol {
 }
 
 final class ProfileService: ProfileServiceProtocol {
-    
+    // MARK: - Dependency
     private let requests: UnsplashRequestProtocol
     
+    // MARK: - Init (Dependency injection)
     init(requests: UnsplashRequestProtocol) {
         self.requests = requests
     }

@@ -48,7 +48,7 @@ extension SplashViewControllerPresenter: SplashViewControllerPresenterProtocol {
             case .success(let token):
                 self.oAuth2TokenStorage.token = token
                 self.view?.switchToTabBarController()
-            case .failure:
+            case .failure(let failure):
                 vc.showAlert(
                     title: "Что то пошло не так(",
                     message: "Не удалось войти в систему",
@@ -56,7 +56,10 @@ extension SplashViewControllerPresenter: SplashViewControllerPresenterProtocol {
                         Action(
                             title: "Ok",
                             style: .cancel,
-                            handler: nil)
+                            handler: { _ in
+                                vc.makeEnterButtonWhite()
+                            }
+                        )
                     ]
                 )
             }

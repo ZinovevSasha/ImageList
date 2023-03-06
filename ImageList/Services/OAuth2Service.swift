@@ -15,15 +15,17 @@ protocol OAuth2ServiceProtocol {
 }
 
 final class OAuth2Service: OAuth2ServiceProtocol {
-    private let urlSession = URLSession.shared
-    private var task: URLSessionTask?
-    private var lastCode: String?
-    
+    // MARK: - Dependency
     private let authHelper: UnsplashAuthTokenRequestProtocol
     
+    // MARK: - Init (Dependency injection)
     init(authHelper: UnsplashAuthTokenRequestProtocol) {
         self.authHelper = authHelper
     }
+    
+    private let urlSession = URLSession.shared
+    private var task: URLSessionTask?
+    private var lastCode: String?
     
     func fetchOAuthToken(
         withCode code: String,

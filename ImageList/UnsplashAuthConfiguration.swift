@@ -6,8 +6,8 @@ extension UnsplashAuthConfiguration {
             redirectURI: RedirectURI,
             accessScope: AccessScope,
             defaultBaseHost: DefaultBaseHost,
-            authRequestHostAndPath: AuthRequestHostAndPath,
-            authTokenHostAndPath: AuthTokenHostAndPath
+            authorizeURLString: UnsplashAuthorizeURLString,
+            tokenURLString: UnsplashTokenURLString
         )
     }
 }
@@ -18,32 +18,32 @@ struct UnsplashAuthConfiguration {
     let redirectURI: String
     let accessScope: String
     let defaultBaseHost: String
-    let authRequestHostAndPath: String
-    let authTokenHostAndPath: String
+    let authorizeURLString: String
+    let tokenURLString: String
     
     init(
         accessKey: String,
         secretKey: String,
         redirectURI: String,
-        accessScope: String,
+        accessScope: [Scope],
         defaultBaseHost: String,
-        authRequestHostAndPath: String,
-        authTokenHostAndPath: String
+        authorizeURLString: String,
+        tokenURLString: String
     ) {
         self.accessKey = accessKey
         self.secretKey = secretKey
         self.redirectURI = redirectURI
-        self.accessScope = accessScope
+        self.accessScope = accessScope.map { $0.string }.joined(separator: "+")
         self.defaultBaseHost = defaultBaseHost
-        self.authRequestHostAndPath = authRequestHostAndPath
-        self.authTokenHostAndPath = authTokenHostAndPath
+        self.authorizeURLString = authorizeURLString
+        self.tokenURLString = tokenURLString
     }
 }
 
 let AccessKey = "SS4lXp7vzIwOgPt0F2sOiUW-jsD6--h2Red2jA82kbQ"
 let SecretKey = "0xgcQI41BRbflXzVQ8oIAmKQd--Dk-cYJ-TV44d5d3k"
 let RedirectURI = "urn:ietf:wg:oauth:2.0:oob"
-let AccessScope = "public+read_user+write_likes"
+let AccessScope: [Scope] = [.public, .readUser, .writeLikes]
 let DefaultBaseHost = "api.unsplash.com"
-let AuthRequestHostAndPath = "unsplash.com/oauth/authorize"
-let AuthTokenHostAndPath = "unsplash.com/oauth/token"
+let UnsplashAuthorizeURLString = "https://unsplash.com/oauth/authorize"
+let UnsplashTokenURLString = "https://unsplash.com/oauth/token"

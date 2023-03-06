@@ -14,7 +14,7 @@ extension URLRequest {
         path: String,
         queryItems: [URLQueryItem]? = nil,
         httpMethod: HTTPMethod = .get
-    ) -> URLRequest {   
+    ) -> URLRequest {
         var components = URLComponents()
         components.scheme = scheme
         components.host = host

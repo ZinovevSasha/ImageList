@@ -15,14 +15,16 @@ protocol ImageListServiceProtocol {
 
 final class ImageListService {
     static let didChangeNotification = Notification.Name("ImageListService")
-    private let session = URLSession.shared
-    private var task: URLSessionTask?
-    
+    // MARK: - Dependency
     private let requests: UnsplashRequestProtocol
     
+    // MARK: - Init (Dependency injection)
     init(requests: UnsplashRequestProtocol) {
         self.requests = requests
     }
+    
+    private var task: URLSessionTask?
+    private let session = URLSession.shared
     
     private var lastLoadedPage: Int?
     private(set) var photos: [Photo] = []

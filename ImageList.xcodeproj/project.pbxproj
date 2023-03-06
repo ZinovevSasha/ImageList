@@ -40,6 +40,7 @@
 		F99FCCD829B497F700F5D691 /* HTTPMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = F99FCCD729B497F700F5D691 /* HTTPMethod.swift */; };
 		F99FCCDC29B5E8BF00F5D691 /* UnsplashAuthHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F99FCCDB29B5E8BF00F5D691 /* UnsplashAuthHelper.swift */; };
 		F99FCCDE29B6384300F5D691 /* UnsplashRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F99FCCDD29B6384300F5D691 /* UnsplashRequest.swift */; };
+		F99FCCE029B6654300F5D691 /* Scopes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F99FCCDF29B6654300F5D691 /* Scopes.swift */; };
 		F9A541CA299A684800F4A21C /* ProfileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9A541C9299A684800F4A21C /* ProfileService.swift */; };
 		F9A541CC299A69A600F4A21C /* OAuth2Service.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9A541CB299A69A600F4A21C /* OAuth2Service.swift */; };
 		F9A541EE299BC2A100F4A21C /* Array+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9A541ED299BC2A100F4A21C /* Array+Extensions.swift */; };
@@ -97,6 +98,7 @@
 		F99FCCD729B497F700F5D691 /* HTTPMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPMethod.swift; sourceTree = "<group>"; };
 		F99FCCDB29B5E8BF00F5D691 /* UnsplashAuthHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnsplashAuthHelper.swift; sourceTree = "<group>"; };
 		F99FCCDD29B6384300F5D691 /* UnsplashRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnsplashRequest.swift; sourceTree = "<group>"; };
+		F99FCCDF29B6654300F5D691 /* Scopes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scopes.swift; sourceTree = "<group>"; };
 		F9A541C9299A684800F4A21C /* ProfileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileService.swift; sourceTree = "<group>"; };
 		F9A541CB299A69A600F4A21C /* OAuth2Service.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OAuth2Service.swift; sourceTree = "<group>"; };
 		F9A541ED299BC2A100F4A21C /* Array+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Extensions.swift"; sourceTree = "<group>"; };
@@ -259,6 +261,7 @@
 				F91A335E298966B500EE71A1 /* URLRequest.swift */,
 				F91A335C2989664A00EE71A1 /* NetworkConnection.swift */,
 				F99FCCD729B497F700F5D691 /* HTTPMethod.swift */,
+				F99FCCDF29B6654300F5D691 /* Scopes.swift */,
 			);
 			path = APIClient;
 			sourceTree = "<group>";
@@ -427,6 +430,7 @@
 				F99FCCDC29B5E8BF00F5D691 /* UnsplashAuthHelper.swift in Sources */,
 				F91E95F329884C5200C9F073 /* SplashViewController.swift in Sources */,
 				F99FCCD229B4792E00F5D691 /* SplashViewControllerPresenter.swift in Sources */,
+				F99FCCE029B6654300F5D691 /* Scopes.swift in Sources */,
 				F91B9AF329A6086400CAC368 /* Data+Extension.swift in Sources */,
 				F9843F1A295861CF00EB2CF4 /* ProfileViewController.swift in Sources */,
 				F95633FF29AD4222003A7CCF /* CellViewModel.swift in Sources */,

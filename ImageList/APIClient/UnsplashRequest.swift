@@ -15,8 +15,10 @@ protocol UnsplashRequestProtocol {
 }
 
 struct UnsplashRequest {
+    // MARK: - Dependency
     private let authTokenStorage: OAuth2TokenStorage
     
+    // MARK: - Init (Dependency injection)
     init(authTokenStorage: OAuth2TokenStorage) {
         self.authTokenStorage = authTokenStorage
     }

@@ -16,37 +16,30 @@ protocol UnsplashAuthTokenRequestProtocol {
     func oAuthToken(code: String) -> URLRequest
 }
 
-final class UnsplashAuthHelper {
-    let configuration: UnsplashAuthConfiguration
+struct UnsplashAuthHelper {
+    // MARK: - Dependency
+    private let configuration: UnsplashAuthConfiguration
     
+    // MARK: - Init (Dependency injection)
     init(_ configuration: UnsplashAuthConfiguration) {
         self.configuration = configuration
     }
     
-    var components: [String] {
-        let authString = configuration.authRequestHostAndPath
-        return authString.components(separatedBy: "/")
-    }
-    
-    var host: String {
-        // Extract the host (first component)
-        if let host = components.first {
-            return host
-        }
-        preconditionFailure("No host")
-    }
-    
-    var path: String {
-        // Extract the path (all components except the first with a preceding "/" character)
-        let path = "/" + components
+    private func getHostAndPath(from urlString: String) -> (host: String, path: String) {
+        let parts = urlString.components(separatedBy: "//")
+        let host = parts.count > 1 ? parts[1]
+            .components(separatedBy: "/")[0] : ""
+        let path = parts.count > 1 ? "/" + parts[1]
+            .components(separatedBy: "/")
             .dropFirst()
-            .joined(separator: "/")
-        return path
+            .joined(separator: "/") : ""
+        return (host, path)
     }
 }
-    
+
 extension UnsplashAuthHelper: UnsplashAuthHelperProtocol {
     func authRequest() -> URLRequest {
+        let (host, path) = getHostAndPath(from: configuration.authorizeURLString)
         return URLRequest.makeHTTPRequest(
             host: host,
             path: path,
@@ -66,7 +59,7 @@ extension UnsplashAuthHelper: UnsplashAuthHelperProtocol {
     func code(from url: URL?) -> String? {
         if let url = url,
             let urlComponents = URLComponents(string: url.absoluteString),
-            urlComponents.path == path + "/native",
+            urlComponents.path == "/oauth/authorize/native",
             let items = urlComponents.queryItems,
             let codeItem = items.first(where: { $0.name == "code" }) {
             return codeItem.value
@@ -78,9 +71,10 @@ extension UnsplashAuthHelper: UnsplashAuthHelperProtocol {
 
 extension UnsplashAuthHelper: UnsplashAuthTokenRequestProtocol {
     func oAuthToken(code: String) -> URLRequest {
-        return URLRequest.makeHTTPRequest(
+        let (host, path) = getHostAndPath(from: configuration.tokenURLString)
+        let request = URLRequest.makeHTTPRequest(
             host: host,
-            path: "/oauth/token",
+            path: path,
             queryItems: [
                 URLQueryItem(name: "client_id", value: configuration.accessKey),
                 URLQueryItem(name: "client_secret", value: configuration.secretKey),
@@ -89,5 +83,6 @@ extension UnsplashAuthHelper: UnsplashAuthTokenRequestProtocol {
                 URLQueryItem(name: "grant_type", value: "authorization_code")
             ],
             httpMethod: .post)
+        return request
     }
 }

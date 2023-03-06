@@ -70,6 +70,14 @@ final class AuthViewController: UIViewController {
         present(webViewController, animated: true)
     }
     
+    func makeEnterButtonWhite() {
+        enterButton.backgroundColor = .white
+    }
+    
+    func makeEnterButtonDarkened() {
+        enterButton.backgroundColor = .myWhite50
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("Unsupported")
     }
@@ -114,7 +122,7 @@ extension AuthViewController: WebViewViewControllerDelegate {
         didAuthenticateWithCode code: String
     ) {
         delegate?.authViewController(self, didAuthenticateWithCode: code)
-        enterButton.backgroundColor = .myWhite50
+        makeEnterButtonDarkened()
         vc.dismiss(animated: true)
     }
     

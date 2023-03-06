@@ -17,9 +17,10 @@ protocol ProfileImageServiceProtocol {
 
 final class ProfileImageService {
     static let didChangeNotification = Notification.Name("ProfileImageProviderDidChange")
-    
+    // MARK: - Dependency
     private let requests: UnsplashRequestProtocol
     
+    // MARK: - Init (Dependency injection)
     init(requests: UnsplashRequestProtocol) {
         self.requests = requests
     }
