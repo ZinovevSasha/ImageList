@@ -18,6 +18,12 @@ protocol ProfileImageServiceProtocol {
 final class ProfileImageService {
     static let didChangeNotification = Notification.Name("ProfileImageProviderDidChange")
     
+    private let requests: UnsplashRequestProtocol
+    
+    init(requests: UnsplashRequestProtocol) {
+        self.requests = requests
+    }
+    
     private(set) var avatarUrl: String?
        
     private func postNotification(about avatarUrl: String) {
@@ -35,7 +41,7 @@ extension ProfileImageService: ProfileImageServiceProtocol {
         username: String,
         completion: @escaping (Result<String, Error>) -> Void
     ) {
-        let request = UnsplashRequests.userPortfolio(username: username).request
+        let request = requests.userPortfolio(username: username)
         let task = URLSession.shared.object(
             for: request,
             expectedType: UserResult.self

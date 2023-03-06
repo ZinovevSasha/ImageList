@@ -19,6 +19,11 @@ final class OAuth2Service: OAuth2ServiceProtocol {
     private var task: URLSessionTask?
     private var lastCode: String?
     
+    private let authHelper: UnsplashAuthTokenRequestProtocol
+    
+    init(authHelper: UnsplashAuthTokenRequestProtocol) {
+        self.authHelper = authHelper
+    }
     
     func fetchOAuthToken(
         withCode code: String,
@@ -29,7 +34,7 @@ final class OAuth2Service: OAuth2ServiceProtocol {
         task?.cancel()
         lastCode = code
         
-        let request = UnsplashRequests.oAuthToken(code: code).request
+        let request = authHelper.oAuthToken(code: code)
         let task = urlSession.object(
             for: request,
             expectedType: OAuthTokenResponseBody.self
