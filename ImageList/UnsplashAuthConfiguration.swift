@@ -40,6 +40,7 @@ struct UnsplashAuthConfiguration {
     }
 }
 
+
 let AccessKey = "SS4lXp7vzIwOgPt0F2sOiUW-jsD6--h2Red2jA82kbQ"
 let SecretKey = "0xgcQI41BRbflXzVQ8oIAmKQd--Dk-cYJ-TV44d5d3k"
 let RedirectURI = "urn:ietf:wg:oauth:2.0:oob"
