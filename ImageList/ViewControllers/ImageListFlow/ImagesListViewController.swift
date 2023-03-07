@@ -2,6 +2,8 @@ import UIKit
 import Kingfisher
 
 final class ImagesListViewController: UIViewController {
+    override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
+    
     private var tableView: UITableView = {
         let tableView = UITableView()
         tableView.backgroundColor = .myBlack
@@ -20,8 +22,6 @@ final class ImagesListViewController: UIViewController {
         spinner.hidesWhenStopped = true
         return spinner
     }()
-    
-    override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
     
     private var imageListServiceObserver: NSObjectProtocol?
     

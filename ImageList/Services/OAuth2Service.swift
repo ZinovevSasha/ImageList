@@ -36,7 +36,7 @@ final class OAuth2Service: OAuth2ServiceProtocol {
         task?.cancel()
         lastCode = code
         
-        let request = authHelper.oAuthToken(code: code)
+        let request = authHelper.oAuthTokenRequest(code: code)
         let task = urlSession.object(
             for: request,
             expectedType: OAuthTokenResponseBody.self

@@ -6,7 +6,7 @@ protocol UnsplashAuthHelperProtocol {
 }
 
 protocol UnsplashAuthTokenRequestProtocol {
-    func oAuthToken(code: String) -> URLRequest
+    func oAuthTokenRequest(code: String) -> URLRequest
 }
 
 struct UnsplashAuthHelper {
@@ -20,12 +20,15 @@ struct UnsplashAuthHelper {
     
     private func getHostAndPath(from urlString: String) -> (host: String, path: String) {
         let parts = urlString.components(separatedBy: "//")
+        
         let host = parts.count > 1 ? parts[1]
             .components(separatedBy: "/")[0] : ""
+        
         let path = parts.count > 1 ? "/" + parts[1]
             .components(separatedBy: "/")
             .dropFirst()
             .joined(separator: "/") : ""
+        
         return (host, path)
     }
 }
@@ -33,6 +36,7 @@ struct UnsplashAuthHelper {
 extension UnsplashAuthHelper: UnsplashAuthHelperProtocol {
     func authRequest() -> URLRequest {
         let (host, path) = getHostAndPath(from: configuration.authorizeURLString)
+        
         return URLRequest.makeHTTPRequest(
             host: host,
             path: path,
@@ -63,7 +67,7 @@ extension UnsplashAuthHelper: UnsplashAuthHelperProtocol {
 }
 
 extension UnsplashAuthHelper: UnsplashAuthTokenRequestProtocol {
-    func oAuthToken(code: String) -> URLRequest {
+    func oAuthTokenRequest(code: String) -> URLRequest {
         let (host, path) = getHostAndPath(from: configuration.tokenURLString)
         let request = URLRequest.makeHTTPRequest(
             host: host,

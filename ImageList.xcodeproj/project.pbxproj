@@ -256,12 +256,12 @@
 		F9EA433F2982E301007E1F20 /* APIClient */ = {
 			isa = PBXGroup;
 			children = (
-				F9C3F98129994B8300133F25 /* UnsplashRequest.swift */,
-				F97CF38429B711DC003B65B7 /* Scope.swift */,
-				F960DE3029B7126400DEC97C /* UnsplashAuthHelper.swift */,
 				F91A335E298966B500EE71A1 /* URLRequest.swift */,
-				F91A335C2989664A00EE71A1 /* NetworkConnection.swift */,
 				F99FCCD729B497F700F5D691 /* HTTPMethod.swift */,
+				F97CF38429B711DC003B65B7 /* Scope.swift */,
+				F91A335C2989664A00EE71A1 /* NetworkConnection.swift */,
+				F9C3F98129994B8300133F25 /* UnsplashRequest.swift */,
+				F960DE3029B7126400DEC97C /* UnsplashAuthHelper.swift */,
 			);
 			path = APIClient;
 			sourceTree = "<group>";

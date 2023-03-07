@@ -1,6 +1,3 @@
-
-import Foundation
-
 enum Scope {
     case `public`
     case readUser

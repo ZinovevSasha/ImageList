@@ -63,12 +63,13 @@ final class WebViewViewController: UIViewController {
     
     // MARK: Delegate
     weak var delegate: WebViewViewControllerDelegate?
-    private var estimatedProgressObservation: NSKeyValueObservation?
     
     // MARK: Presenter
     lazy var presenter: WebViewViewPresenterProtocol = WebViewViewPresenter(
         view: self, authHelper: UnsplashAuthHelper(UnsplashAuthConfiguration.standard)
     )
+    
+    private var estimatedProgressObservation: NSKeyValueObservation?
     
     // MARK: - Init
     init(delegate: WebViewViewControllerDelegate?) {

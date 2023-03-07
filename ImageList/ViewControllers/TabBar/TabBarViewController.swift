@@ -16,15 +16,24 @@ final class TabBarController: UITabBarController {
         
         let imagesListViewController = ImagesListViewController(
             imageListService: ImageListService(
-                requests: UnsplashRequest(authTokenStorage: OAuth2TokenStorage()))
+                requests: UnsplashRequest(
+                    configuration: UnsplashAuthConfiguration.standard,
+                    authTokenStorage: OAuth2TokenStorage())
+            )
         )
         let profileViewController = ProfileViewController(
             profileImageService: ProfileImageService(
                 requests: UnsplashRequest(
-                    authTokenStorage: OAuth2TokenStorage())),
+                    configuration: UnsplashAuthConfiguration.standard,
+                    authTokenStorage: OAuth2TokenStorage()
+                )
+            ),
             profileService: ProfileService(
                 requests: UnsplashRequest(
-                    authTokenStorage: OAuth2TokenStorage()))
+                    configuration: UnsplashAuthConfiguration.standard,
+                    authTokenStorage: OAuth2TokenStorage()
+                )
+            )
         )
         
         imagesListViewController.tabBarItem = UITabBarItem(
