@@ -15,8 +15,16 @@ protocol ImageListServiceProtocol {
 
 final class ImageListService {
     static let didChangeNotification = Notification.Name("ImageListService")
-    private let session = URLSession.shared
+    // MARK: - Dependency
+    private let requests: UnsplashRequestProtocol
+    
+    // MARK: - Init (Dependency injection)
+    init(requests: UnsplashRequestProtocol) {
+        self.requests = requests
+    }
+    
     private var task: URLSessionTask?
+    private let session = URLSession.shared
     
     private var lastLoadedPage: Int?
     private(set) var photos: [Photo] = []
@@ -41,7 +49,8 @@ extension ImageListService: ImageListServiceProtocol {
         completion: @escaping (Result<Void, Error>) -> Void
     ) {
         guard task == nil else { return }
-        let request = UnsplashRequests.like(photoId: photoId, isLiked: isLiked).request
+        
+        let request = requests.like(photoId: photoId, isLiked: isLiked)
         let task = session.object(
             for: request,
             expectedType: LikeResult.self) { [weak self] result in
@@ -67,7 +76,7 @@ extension ImageListService: ImageListServiceProtocol {
         let nextPage = lastLoadedPage == nil ? 1 : lastLoadedPage! + 1
         lastLoadedPage = nextPage
 
-        let request = UnsplashRequests.photos(page: nextPage).request
+        let request = requests.photos(page: nextPage)
         let task = session.object(
             for: request,
             expectedType: [PhotoResult].self) { [weak self] result in

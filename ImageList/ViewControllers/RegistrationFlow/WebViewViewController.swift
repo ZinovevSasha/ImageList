@@ -57,7 +57,6 @@ final class WebViewViewController: UIViewController {
         let progressView = UIProgressView()
         progressView.translatesAutoresizingMaskIntoConstraints = false
         progressView.progressViewStyle = .default
-//        progressView.progress = 0.05
         progressView.tintColor = .myBackground
         return progressView
     }()
@@ -67,7 +66,9 @@ final class WebViewViewController: UIViewController {
     private var estimatedProgressObservation: NSKeyValueObservation?
     
     // MARK: Presenter
-    lazy var presenter: WebViewViewPresenterProtocol = WebViewViewPresenter(view: self)
+    lazy var presenter: WebViewViewPresenterProtocol = WebViewViewPresenter(
+        view: self, authHelper: UnsplashAuthHelper(UnsplashAuthConfiguration.standard)
+    )
     
     // MARK: - Init
     init(delegate: WebViewViewControllerDelegate?) {
