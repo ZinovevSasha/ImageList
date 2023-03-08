@@ -12,7 +12,7 @@ extension UnsplashAuthConfiguration {
     }
 }
 
-protocol UnsplashAuthConfigurationProtocol {
+protocol AuthConfigurationProtocol {
     var accessKey: String { get }
     var secretKey: String { get }
     var redirectURI: String { get }
@@ -22,7 +22,7 @@ protocol UnsplashAuthConfigurationProtocol {
     var tokenURLString: String { get }
 }
 
-struct UnsplashAuthConfiguration: UnsplashAuthConfigurationProtocol {
+struct UnsplashAuthConfiguration: AuthConfigurationProtocol {
     let accessKey: String
     let secretKey: String
     let redirectURI: String

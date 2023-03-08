@@ -16,25 +16,26 @@ protocol WebViewViewControllerProtocol: AnyObject {
 
 final class WebViewViewPresenter {
     weak var view: WebViewViewControllerProtocol?
-    private let authHelper: UnsplashAuthHelperProtocol
+    private let authHelper: AuthHelperProtocol
     
     init(
         view: WebViewViewControllerProtocol?,
-        authHelper: UnsplashAuthHelperProtocol
+        authHelper: AuthHelperProtocol
     ) {
         self.view = view
         self.authHelper = authHelper
     }
     
     private func shouldHideProgress(for value: Double) -> Bool {
-        (value - 0.745) >= 0.0001
+        (value - 0.745) >= 0.0
     }
 }
 
 extension WebViewViewPresenter: WebViewViewPresenterProtocol {
     func viewDidLoad() {
-        view?.load(request: authHelper.authRequest())
         didUpdateProgressValue(0.05)
+        guard let authRequest = authHelper.authRequest() else { return }
+        view?.load(request: authRequest)
     }
     
     func didUpdateProgressValue(_ newValue: Double) {

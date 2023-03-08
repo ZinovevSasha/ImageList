@@ -48,7 +48,7 @@ extension SplashViewControllerPresenter: SplashViewControllerPresenterProtocol {
             case .success(let token):
                 self.oAuth2TokenStorage.token = token
                 self.view?.switchToTabBarController()
-            case .failure(let failure):
+            case .failure:
                 vc.showAlert(
                     title: "Что то пошло не так(",
                     message: "Не удалось войти в систему",

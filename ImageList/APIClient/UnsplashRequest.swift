@@ -17,11 +17,11 @@ protocol UnsplashRequestProtocol {
 struct UnsplashRequest {
     // MARK: - Dependency
     private let authTokenStorage: OAuth2TokenStorage
-    private let configuration: UnsplashAuthConfigurationProtocol
+    private let configuration: AuthConfigurationProtocol
     
     // MARK: - Init (Dependency injection)
     init(
-        configuration: UnsplashAuthConfigurationProtocol,
+        configuration: AuthConfigurationProtocol,
         authTokenStorage: OAuth2TokenStorage
     ) {
         self.configuration = configuration

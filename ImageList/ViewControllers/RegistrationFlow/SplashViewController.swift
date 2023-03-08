@@ -25,7 +25,8 @@ final class SplashViewController: UIViewController {
     lazy private var presenter: SplashViewControllerPresenterProtocol = SplashViewControllerPresenter(
         view: self,
         oAuth2Service: OAuth2Service(
-            authHelper: UnsplashAuthHelper(UnsplashAuthConfiguration.standard)),
+            
+            authHelper: AuthHelper(UnsplashAuthConfiguration.standard)),
         oAuth2TokenStorage: OAuth2TokenStorage()
     )
     
