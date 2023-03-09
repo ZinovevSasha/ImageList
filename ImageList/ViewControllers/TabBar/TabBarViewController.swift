@@ -14,24 +14,21 @@ final class TabBarController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let imagesListViewController = ImagesListViewController(
-            imageListService: ImageListService(
-                requests: UnsplashRequest(
-                    configuration: UnsplashAuthConfiguration.standard,
-                    authTokenStorage: OAuth2TokenStorage())
-            )
-        )
+        let imagesListViewController = ImagesListViewController()
+        
         let profileViewController = ProfileViewController(
             profileImageService: ProfileImageService(
                 requests: UnsplashRequest(
                     configuration: UnsplashAuthConfiguration.standard,
-                    authTokenStorage: OAuth2TokenStorage()
+                    authTokenStorage: OAuth2TokenStorage(),
+                    requestBuilder: RequestBuilder()
                 )
             ),
             profileService: ProfileService(
                 requests: UnsplashRequest(
                     configuration: UnsplashAuthConfiguration.standard,
-                    authTokenStorage: OAuth2TokenStorage()
+                    authTokenStorage: OAuth2TokenStorage(),
+                    requestBuilder: RequestBuilder()
                 )
             )
         )

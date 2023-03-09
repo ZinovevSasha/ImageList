@@ -26,6 +26,7 @@ final class WebViewViewPresenter {
         self.authHelper = authHelper
     }
     
+    // Helper function
     private func shouldHideProgress(for value: Double) -> Bool {
         (value - 0.745) >= 0.0
     }

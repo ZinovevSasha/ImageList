@@ -24,7 +24,7 @@ final class AuthHelperTests: XCTestCase {
     func testAuthHelperGiveCorrectAuthURL() {
         // Given
         let configuration = UnsplashAuthConfiguration.standard
-        let authHelper = AuthHelper(configuration)
+        let authHelper = AuthHelper(configuration, requestBuilder: RequestBuilder())
         
         // When
         
@@ -44,7 +44,7 @@ final class AuthHelperTests: XCTestCase {
     func testAuthHelperGiveCorrectTokenURL() {
         // Given
         let configuration = UnsplashAuthConfiguration.standard
-        let authHelper = AuthHelper(configuration)
+        let authHelper = AuthHelper(configuration, requestBuilder: RequestBuilder())
         
         // When
         let request = authHelper.oAuthTokenRequest(code: "code")
@@ -62,7 +62,7 @@ final class AuthHelperTests: XCTestCase {
     
     func testCodeFromURL() {
         // Given
-        let authHelper = AuthHelper(UnsplashAuthConfiguration.standard)
+        let authHelper = AuthHelper(UnsplashAuthConfiguration.standard, requestBuilder: RequestBuilder())
         var urlComponents = URLComponents(string: "https://unsplash.com/oauth/authorize/native")
         urlComponents?.queryItems = [
             URLQueryItem(name: "code", value: "lastCode")
@@ -78,7 +78,7 @@ final class AuthHelperTests: XCTestCase {
     func testGetHostAndPathFunctionForCorrectHostAndPath() {
         // Given
         let configuration = UnsplashAuthConfiguration.standard
-        let authHelper = AuthHelper(configuration)
+        let authHelper = AuthHelper(configuration, requestBuilder: RequestBuilder())
         
         // When
         guard let request = authHelper.authRequest() else { return }
@@ -93,7 +93,7 @@ final class AuthHelperTests: XCTestCase {
     func testGetHostAndPathFunctionIfNoURL() {
         // Given
         let configuration = UnsplashConfigurationMockEmpty()
-        let authHelper = AuthHelper(configuration)
+        let authHelper = AuthHelper(configuration, requestBuilder: RequestBuilder())
         
         // When
         let request = authHelper.authRequest()

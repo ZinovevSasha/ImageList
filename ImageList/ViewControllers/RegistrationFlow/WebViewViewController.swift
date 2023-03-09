@@ -66,7 +66,11 @@ final class WebViewViewController: UIViewController {
     
     // MARK: Presenter
     lazy var presenter: WebViewViewPresenterProtocol = WebViewViewPresenter(
-        view: self, authHelper: AuthHelper(UnsplashAuthConfiguration.standard)
+        view: self,
+        authHelper: AuthHelper(
+            UnsplashAuthConfiguration.standard,
+            requestBuilder: RequestBuilder()
+        )
     )
     
     private var estimatedProgressObservation: NSKeyValueObservation?

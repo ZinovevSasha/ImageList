@@ -12,10 +12,15 @@ protocol AuthTokenRequestProtocol {
 struct AuthHelper {
     // MARK: - Dependency
     private let configuration: AuthConfigurationProtocol
+    private let requestBuilder: RequestBuilding
     
     // MARK: - Init (Dependency injection)
-    init(_ configuration: AuthConfigurationProtocol) {
+    init(
+        _ configuration: AuthConfigurationProtocol = UnsplashAuthConfiguration.standard,
+        requestBuilder: RequestBuilding
+    ) {
         self.configuration = configuration
+        self.requestBuilder = requestBuilder
     }
     
     private func getHostAndPath(from urlString: String) -> (host: String, path: String)? {
@@ -44,7 +49,7 @@ extension AuthHelper: AuthHelperProtocol {
             return nil
         }
         
-        return URLRequest.makeHTTPRequest(
+        return requestBuilder.makeHTTPRequest(
             host: url.host,
             path: url.path,
             queryItems: [
@@ -77,7 +82,7 @@ extension AuthHelper: AuthTokenRequestProtocol {
         else {
             return nil
         }
-        let request = URLRequest.makeHTTPRequest(
+        let request = requestBuilder.makeHTTPRequest(
             host: url.host,
             path: url.path,
             queryItems: [

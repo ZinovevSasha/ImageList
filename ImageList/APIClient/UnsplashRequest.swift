@@ -18,14 +18,17 @@ struct UnsplashRequest {
     // MARK: - Dependency
     private let authTokenStorage: OAuth2TokenStorage
     private let configuration: AuthConfigurationProtocol
+    private let requestBuilder: RequestBuilding
     
     // MARK: - Init (Dependency injection)
     init(
         configuration: AuthConfigurationProtocol,
-        authTokenStorage: OAuth2TokenStorage
+        authTokenStorage: OAuth2TokenStorage,
+        requestBuilder: RequestBuilding
     ) {
         self.configuration = configuration
         self.authTokenStorage = authTokenStorage
+        self.requestBuilder = requestBuilder
     }
     
     private var token: String {
@@ -41,7 +44,7 @@ struct UnsplashRequest {
         queryItems: [URLQueryItem]? = nil,
         httpMethod: HTTPMethod = .get
     ) -> URLRequest {
-        var request = URLRequest.makeHTTPRequest(
+        var request = requestBuilder.makeHTTPRequest(
             host: configuration.defaultBaseHost,
             path: path,
             queryItems: queryItems,

@@ -1,5 +1,15 @@
 import UIKit
-import Kingfisher
+
+protocol ImageListViewControllerProtocol: AnyObject {
+    var presenter: ImageListPresenterProtocol! { get }
+    func stopSpinner()
+    func startSpinner()
+    func updateTableViewAnimated(at indexPath: [IndexPath])
+    func showProgress()
+    func hideProgress()
+    func cellToggle(like: Bool, for cell: ImageListTableViewCell)
+    func showAlert()    
+}
 
 final class ImagesListViewController: UIViewController {
     override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
@@ -23,35 +33,24 @@ final class ImagesListViewController: UIViewController {
         return spinner
     }()
     
-    private var imageListServiceObserver: NSObjectProtocol?
-    
-    // Dependency
-    private var imageListService: ImageListServiceProtocol
-    
-    // MARK: - Init (Dependency injection)
-    init(
-        imageListService: ImageListServiceProtocol
-    ) {
-        self.imageListService = imageListService
-        super.init(nibName: nil, bundle: nil)
-        
-        imageListService.fetchPhotosNextPage()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("Unsupported")
-    }
-    
+    var presenter: ImageListPresenterProtocol!
     // MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let cache = ImageCache.default
-        cache.clearDiskCache()
-        cache.clearMemoryCache()
+        presenter = ImageListPresenter(
+            view: self,
+            imageListService: ImageListService(
+                requests: UnsplashRequest(
+                    configuration: UnsplashAuthConfiguration.standard,
+                    authTokenStorage: OAuth2TokenStorage(),
+                    requestBuilder: RequestBuilder()
+                )
+            )
+        )
         
         createTableView()
-        spinner.startAnimating()
+        presenter.viewDidLoad()
     }
     
     private func createTableView() {
@@ -60,57 +59,59 @@ final class ImagesListViewController: UIViewController {
         tableView.dataSource = self
         tableView.delegate = self
         view.addSubviews(tableView, spinner)
-        subscribeToNotification()
-    }
-    
-    private func heightForCell(_ imageSize: CGSize, tableView: UITableView) -> CGFloat {
-        let imageInsets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
-        let imageViewWidth = tableView.bounds.width - imageInsets.left - imageInsets.right
-        let imageWidth = imageSize.width
-        let imageHeight = imageSize.height
-        let scale = imageViewWidth / imageWidth
-        let cellHeight = (imageHeight * scale) + imageInsets.top + imageInsets.bottom
-        return cellHeight
     }
     
     private func presentDetailImagesListViewController(with indexPath: IndexPath) {
         let vcDetail = DetailImagesListViewController()
         vcDetail.modalPresentationStyle = .fullScreen
-        let stringURL = imageListService.photos[indexPath.row].full
+        let stringURL = presenter.getImageURL(at: indexPath.row)
         vcDetail.configure(with: stringURL)
         self.present(vcDetail, animated: true)
     }
-    
-    private func subscribeToNotification() {
-        imageListServiceObserver = NotificationCenter.default.addObserver(
-            forName: ImageListService.didChangeNotification,
-            object: nil,
-            queue: .current) { [weak self] notification in
-                guard let self = self,
-                    let numberOfPictures = notification
-                    .userInfo?[UserInfo.numberOfPictures.rawValue] as? Int
-                else {
-                    return
-            }
-            self.spinner.stopAnimating()
-            self.updateTableViewAnimated(with: numberOfPictures)
-        }
+}
+
+extension ImagesListViewController: ImageListViewControllerProtocol {
+    func startSpinner() {
+        spinner.startAnimating()
     }
     
-    private func updateTableViewAnimated(with numberOfPicturesReceived: Int) {
-        let oldCount = imageListService.photos.count - numberOfPicturesReceived
-        let newCount = imageListService.photos.count
-        let indexPath = (oldCount..<newCount).map { IndexPath(row: $0, section: .zero) }
+    func updateTableViewAnimated(at indexPath: [IndexPath]) {
         tableView.performBatchUpdates {
             tableView.insertRows(at: indexPath, with: .automatic)
         }
+    }
+    
+    func stopSpinner() {
+        spinner.stopAnimating()
+    }
+    
+    func showProgress() {
+        UIBlockingProgressHUD.show()
+    }
+    
+    func hideProgress() {
+        UIBlockingProgressHUD.dismiss()
+    }
+    
+    func cellToggle(like: Bool, for cell: ImageListTableViewCell) {
+        cell.setLike(like)
+    }
+    
+    func showAlert() {
+        showAlert(
+            title: "Что то пошло не так(",
+            message: "Попробуйте ещё раз!",
+            actions: [ Action(title: "Ок", style: .default, handler: nil) ]
+        )
     }
 }
 
 extension ImagesListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        let imageSize = imageListService.photos[indexPath.row].size
-        return heightForCell(imageSize, tableView: tableView)
+        let size = presenter.heightForCell(
+            at: indexPath.row, widthOfScreen: tableView.frame.width
+        )
+        return size
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -118,15 +119,13 @@ extension ImagesListViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if indexPath.row + 2 == imageListService.photos.count {
-            imageListService.fetchPhotosNextPage()
-        }
+        presenter.fetchNextPhotosIfNeeded(index: indexPath.row)
     }
 }
 
 extension ImagesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return imageListService.photos.count
+        return presenter.getTotalNumberOfImages()
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -135,9 +134,9 @@ extension ImagesListViewController: UITableViewDataSource {
             for: indexPath) as? ImageListTableViewCell else {
             return UITableViewCell()
         }
-        
+        let photo = presenter.getPhoto(at: indexPath.row)
         cell.delegate = self
-        cell.configure(with: imageListService.photos[indexPath.row])
+        cell.configure(with: photo)
         return cell
     }
 }
@@ -145,25 +144,6 @@ extension ImagesListViewController: UITableViewDataSource {
 extension ImagesListViewController: ImageListTableViewCellDelegate {
     func imageListCellDidTapLikeButton(_ cell: ImageListTableViewCell) {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
-        let photo = imageListService.photos[indexPath.row]
-        UIBlockingProgressHUD.show()
-        imageListService.changeLike(
-            photoId: photo.id,
-            isLiked: photo.isLiked) { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case .success:
-                UIBlockingProgressHUD.dismiss()
-                let likeNoLike = self.imageListService.photos[indexPath.row].isLiked
-                cell.setLike(likeNoLike)
-            case .failure:
-                UIBlockingProgressHUD.dismiss()
-                self.showAlert(
-                    title: "Что то пошло не так(",
-                    message: "Попробуйте ещё раз!",
-                    actions: [ Action(title: "Ок", style: .default, handler: nil) ]
-                )
-            }
-        }
+        presenter.setLikeForPhotoAtIndex(index: indexPath.row, for: cell)
     }
 }

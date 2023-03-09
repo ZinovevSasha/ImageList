@@ -76,7 +76,7 @@ final class ImageListTableViewCell: UITableViewCell {
         }
     }
     
-    public func addGradient() {
+    func addGradient() {
         photoContainer.addGradient(
             with: gradientLayer,
             colorSet: [ .backgroundColorForShimmer, .shimmerColor, .backgroundColorForShimmer],
@@ -88,7 +88,7 @@ final class ImageListTableViewCell: UITableViewCell {
         )
     }
     
-    public func animateGradient() {
+    func animateGradient() {
         gradientLayer.animate(
             .locations,
             duration: 1.5,
@@ -98,7 +98,7 @@ final class ImageListTableViewCell: UITableViewCell {
         )
     }
     
-    public func removeAnimation() {
+    func removeAnimation() {
         gradientLayer.removeAllAnimations()
         gradientLayer.removeFromSuperlayer()
     }

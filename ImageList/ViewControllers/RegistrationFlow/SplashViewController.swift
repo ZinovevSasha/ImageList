@@ -26,9 +26,10 @@ final class SplashViewController: UIViewController {
         view: self,
         oAuth2Service: OAuth2Service(
             
-            authHelper: AuthHelper(UnsplashAuthConfiguration.standard)),
-        oAuth2TokenStorage: OAuth2TokenStorage()
-    )
+            authHelper: AuthHelper(
+                UnsplashAuthConfiguration.standard,
+                requestBuilder: RequestBuilder())
+        ), oAuth2TokenStorage: OAuth2TokenStorage())
     
     // MARK: - LifeCycle
     override func viewDidLoad() {
