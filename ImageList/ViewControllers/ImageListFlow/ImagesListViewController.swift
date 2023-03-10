@@ -38,6 +38,7 @@ final class ImagesListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        createTableView()
         presenter = ImageListPresenter(
             view: self,
             imageListService: ImageListService(
@@ -48,8 +49,6 @@ final class ImagesListViewController: UIViewController {
                 )
             )
         )
-        
-        createTableView()
         presenter.viewDidLoad()
     }
     

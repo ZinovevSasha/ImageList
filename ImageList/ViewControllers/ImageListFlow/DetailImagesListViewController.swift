@@ -4,12 +4,9 @@ protocol DetailImageListViewControllerProtocol: AnyObject {
     var presenter: DetailImageListPresenterProtocol { get }
     func startSpinner()
     func stopSpinner()
-    func showAlert(url: URL)
+    func showAlertAndMaybeTryAgainWith(url: URL)
     func hideScribble()
-    func didReceiveImageData(_ imageData: UIImage)
-    func scrollViewSetScale(_ scale: CGFloat)
-    func scrollViewLayoutIfNeeded() -> CGSize
-    func scrollViewSetContentOffset(offset: CGPoint)
+    func didReceiveImage(_ image: UIImage)
 }
 
 final class DetailImagesListViewController: UIViewController {
@@ -43,14 +40,6 @@ final class DetailImagesListViewController: UIViewController {
         return shareButton
     }()
     
-    private let scrollView: UIScrollView = {
-        let scrollView = UIScrollView()
-        scrollView.minimumZoomScale = 0.1
-        scrollView.maximumZoomScale = 0.7
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        return scrollView
-    }()
-    
     private let spinner: UIActivityIndicatorView = {
         let spinner = UIActivityIndicatorView(style: .large)
         spinner.hidesWhenStopped = true
@@ -58,12 +47,13 @@ final class DetailImagesListViewController: UIViewController {
         return spinner
     }()
     
-    lazy var presenter: DetailImageListPresenterProtocol = DetailImageListPresenter(view: self
+    private var scrollView = DetailScrollView()
+    lazy var presenter: DetailImageListPresenterProtocol = DetailImageListPresenter(
+        view: self
     )
     // MARK: - Public
     public func configure(with stringURL: String) {
         guard let url = URL(string: stringURL) else { return }
-        
         presenter.fetchImage(with: url)
     }
     
@@ -92,58 +82,19 @@ final class DetailImagesListViewController: UIViewController {
         )
         present(activityController, animated: true, completion: nil)
     }
-    
-    @objc func doubleTapAction(_ recognizer: UITapGestureRecognizer) {
-        let imageViewSize = photoImageView.frame.size
-        let scale: CGFloat = 1.5
-        let point = recognizer.location(in: photoImageView)
-        let zoomRect = CGRect(
-            x: point.x - imageViewSize.width / (2 * scale),
-            y: point.y - imageViewSize.height / (2 * scale),
-            width: imageViewSize.width / scale,
-            height: imageViewSize.height / scale
-        )
-        print(zoomRect.minX, imageViewSize.width)
-        print(zoomRect.minY, imageViewSize.height)
-        print(zoomRect)
-        scrollView.zoom(to: zoomRect, animated: true)
-    }
-    
-    func centerImageAfterZooming(_ scrollViewBoundsSize: UIScrollView, _ imageViewSize: CGSize) {
-        let scrollViewSize = scrollView.bounds.size
-        let imageSize = imageViewSize
-        
-        let horizontalPadding = imageSize.width < scrollViewSize.width ? (scrollViewSize.width - imageSize.width) / 2 : 0
-        let verticalPadding = imageSize.height < scrollViewSize.height ? (scrollViewSize.height - imageSize.height) / 2 : 0
-        scrollView.contentInset = UIEdgeInsets(
-            top: verticalPadding,
-            left: horizontalPadding,
-            bottom: verticalPadding,
-            right: horizontalPadding
-        )
-    }
 }
 
 // MARK: - UI
 private extension DetailImagesListViewController {
-    private func setSubviews() {
+    func setSubviews() {
         view.backgroundColor = .myBlack
-        scrollView.addSubview(photoImageView)
+        scrollView.setImageView(photoImageView)
         view.addSubviews(scrollView, backButton, shareButton, spinner, scribbleImageView)
-        scrollView.delegate = self
         backButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
         shareButton.addTarget(self, action: #selector(share), for: .touchUpInside)
-        addDoubleTapGestureToPhotoImageView()
     }
     
-    func addDoubleTapGestureToPhotoImageView() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(doubleTapAction(_:)))
-        tapGesture.numberOfTapsRequired = 2
-        photoImageView.addGestureRecognizer(tapGesture)
-        photoImageView.isUserInteractionEnabled = true
-    }
-    
-    private func setConstraint() {
+    func setConstraint() {
         NSLayoutConstraint.activate([
             // scrollView
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -179,35 +130,14 @@ private extension DetailImagesListViewController {
 }
 
 extension DetailImagesListViewController: DetailImageListViewControllerProtocol {
-    func scrollViewSetContentOffset(offset: CGPoint) {
-        scrollView.setContentOffset(offset, animated: false)
-    }
-    
-    func scrollViewLayoutIfNeeded() -> CGSize {
-        scrollView.layoutIfNeeded()
-        return scrollView.contentSize
-    }
-    
-    func scrollViewSetScale(_ scale: CGFloat) {
-        scrollView.setZoomScale(scale, animated: false)
-    }
-    
-    func didReceiveImageData(_ image: UIImage) {
-//        guard
-//            let imageData = imageData,
-//            let image = UIImage(data: imageData)
-//        else {
-//            return
-//        }
-        
+    func didReceiveImage(_ image: UIImage) {
         photoImageView.image = image
+        
         view.layoutIfNeeded()
-        presenter.configureImageInScrollview(
-            image.size,
-            scrollView.bounds.size,
-            scrollView.minimumZoomScale,
-            scrollView.maximumZoomScale
-        )
+        scrollView.rescaleImage()
+        scrollView.layoutIfNeeded()
+        scrollView.centerImage()
+        
         UIView.animate(withDuration: 0.5, delay: 0) {
             self.photoImageView.alpha = 1
         }
@@ -225,7 +155,7 @@ extension DetailImagesListViewController: DetailImageListViewControllerProtocol 
         spinner.stopAnimating()
     }
     
-    func showAlert(url: URL) {
+    func showAlertAndMaybeTryAgainWith(url: URL) {
         showAlert(
             title: "Что то пошло не так(",
             message: "Попробовать ещё раз?",
@@ -238,17 +168,5 @@ extension DetailImagesListViewController: DetailImageListViewControllerProtocol 
                 }
             ]
         )
-    }
-}
-
-// MARK: - UIScrollViewDelegate
-extension DetailImagesListViewController: UIScrollViewDelegate {
-    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        return photoImageView
-    }
-    
-    func scrollViewDidZoom(_ scrollView: UIScrollView) {
-        // Center the image after zooming
-        centerImageAfterZooming(scrollView, photoImageView.frame.size)
     }
 }
