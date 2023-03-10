@@ -8,7 +8,7 @@ protocol ImageListViewControllerProtocol: AnyObject {
     func showProgress()
     func hideProgress()
     func cellToggle(like: Bool, for cell: ImageListTableViewCell)
-    func showAlert()    
+    func showAlert()
 }
 
 final class ImagesListViewController: UIViewController {
@@ -101,7 +101,9 @@ extension ImagesListViewController: ImageListViewControllerProtocol {
         showAlert(
             title: "Что то пошло не так(",
             message: "Попробуйте ещё раз!",
-            actions: [ Action(title: "Ок", style: .default, handler: nil) ]
+            actions: [
+                Action(title: "Ок", style: .default, handler: nil)
+            ]
         )
     }
 }

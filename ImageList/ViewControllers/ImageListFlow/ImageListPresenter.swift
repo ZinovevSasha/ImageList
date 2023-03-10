@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import UIKit
 
 protocol ImageListPresenterProtocol {
     var view: ImageListViewControllerProtocol? { get }
@@ -110,7 +109,7 @@ extension ImageListPresenter: ImageListPresenterProtocol  {
     
     func heightForCell(at index: Int, widthOfScreen: CGFloat) -> CGFloat {
         let imageSize = getImageSize(at: index)
-        let imageInsets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
+        let imageInsets = EdgeInsets(top: 4, left: 16, right: 16, bottom: 4)
         let imageViewWidth = widthOfScreen - imageInsets.left - imageInsets.right
         let imageWidth = imageSize.width
         let imageHeight = imageSize.height

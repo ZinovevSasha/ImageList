@@ -1,12 +1,24 @@
 import UIKit
-import Kingfisher
 
-class DetailImagesListViewController: UIViewController {
+protocol DetailImageListViewControllerProtocol: AnyObject {
+    var presenter: DetailImageListPresenterProtocol { get }
+    func startSpinner()
+    func stopSpinner()
+    func showAlert(url: URL)
+    func hideScribble()
+    func didReceiveImageData(_ imageData: UIImage)
+    func scrollViewSetScale(_ scale: CGFloat)
+    func scrollViewLayoutIfNeeded() -> CGSize
+    func scrollViewSetContentOffset(offset: CGPoint)
+}
+
+final class DetailImagesListViewController: UIViewController {
     override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
     
     private let photoImageView: UIImageView = {
         let image = UIImageView()
         image.alpha = 0
+        image.contentMode = .scaleAspectFill
         image.translatesAutoresizingMaskIntoConstraints = false
         return image
     }()
@@ -34,7 +46,7 @@ class DetailImagesListViewController: UIViewController {
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.minimumZoomScale = 0.1
-        scrollView.maximumZoomScale = 1.2
+        scrollView.maximumZoomScale = 0.7
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         return scrollView
     }()
@@ -46,64 +58,13 @@ class DetailImagesListViewController: UIViewController {
         return spinner
     }()
     
+    lazy var presenter: DetailImageListPresenterProtocol = DetailImageListPresenter(view: self
+    )
     // MARK: - Public
     public func configure(with stringURL: String) {
         guard let url = URL(string: stringURL) else { return }
-        fetchImage(with: url)
-    }
-    
-    var imageState: DetailImageState = .loading {
-        didSet {
-            configureImageState()
-        }
-    }
-    
-    private func fetchImage(with url: URL) {
-        imageState = .loading
-        KingfisherManager.shared.retrieveImage(with: url) { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case .success(let result):
-                self.imageState = .finished(result.image)
-            case .failure:
-                self.imageState = .error(url)
-            }
-        }
-    }
-    
-    enum DetailImageState {
-        case loading
-        case error(URL)
-        case finished(UIImage)
-    }
-    
-    private func configureImageState() {
-        switch imageState {
-        case .loading:
-            spinner.startAnimating()
-        case .error(let url):
-            spinner.stopAnimating()
-            showAlert(
-                title: "Что то пошло не так(",
-                message: "Попробовать ещё раз?",
-                actions: [
-                    Action(title: "Не надо", style: .default, handler: nil),
-                    Action(
-                        title: "Повторить",
-                        style: .default,
-                        handler: { [weak self] _ in self?.fetchImage(with: url) }
-                    )
-                ]
-            )
-        case .finished(let image):
-            scribbleImageView.isHidden = true
-            spinner.stopAnimating()
-            photoImageView.image = image
-            rescaleAndCenterImageInScrollView(image)
-            UIView.animate(withDuration: 0.5, delay: 0) {
-                self.photoImageView.alpha = 1
-            }
-        }
+        
+        presenter.fetchImage(with: url)
     }
     
     // MARK: - LifeCycle
@@ -119,27 +80,6 @@ class DetailImagesListViewController: UIViewController {
         setConstraint()
     }
     
-    private func rescaleAndCenterImageInScrollView(_ image: UIImage) {
-        let imageSize = image.size
-        let minZoomScale = scrollView.minimumZoomScale
-        let maxZoomScale = scrollView.maximumZoomScale
-        
-        view.layoutIfNeeded()
-        let visibleRectSize = scrollView.bounds.size
-       
-        let hScale = visibleRectSize.width / imageSize.width
-        let vScale = visibleRectSize.height / imageSize.height
-        let theoreticalScale = max(hScale, vScale)
-        let scale = min(maxZoomScale, max(minZoomScale, theoreticalScale))
-        scrollView.setZoomScale(scale, animated: false)
-        
-        scrollView.layoutIfNeeded()
-        let newContentsSize = scrollView.contentSize
-        let x = (newContentsSize.width - visibleRectSize.width) / 2
-        let y = (newContentsSize.height - visibleRectSize.height) / 2
-        scrollView.setContentOffset(CGPoint(x: x, y: y), animated: true)
-    }
-    
     @objc private func goBack() {
         dismiss(animated: true)
     }
@@ -152,17 +92,55 @@ class DetailImagesListViewController: UIViewController {
         )
         present(activityController, animated: true, completion: nil)
     }
+    
+    @objc func doubleTapAction(_ recognizer: UITapGestureRecognizer) {
+        let imageViewSize = photoImageView.frame.size
+        let scale: CGFloat = 1.5
+        let point = recognizer.location(in: photoImageView)
+        let zoomRect = CGRect(
+            x: point.x - imageViewSize.width / (2 * scale),
+            y: point.y - imageViewSize.height / (2 * scale),
+            width: imageViewSize.width / scale,
+            height: imageViewSize.height / scale
+        )
+        print(zoomRect.minX, imageViewSize.width)
+        print(zoomRect.minY, imageViewSize.height)
+        print(zoomRect)
+        scrollView.zoom(to: zoomRect, animated: true)
+    }
+    
+    func centerImageAfterZooming(_ scrollViewBoundsSize: UIScrollView, _ imageViewSize: CGSize) {
+        let scrollViewSize = scrollView.bounds.size
+        let imageSize = imageViewSize
+        
+        let horizontalPadding = imageSize.width < scrollViewSize.width ? (scrollViewSize.width - imageSize.width) / 2 : 0
+        let verticalPadding = imageSize.height < scrollViewSize.height ? (scrollViewSize.height - imageSize.height) / 2 : 0
+        scrollView.contentInset = UIEdgeInsets(
+            top: verticalPadding,
+            left: horizontalPadding,
+            bottom: verticalPadding,
+            right: horizontalPadding
+        )
+    }
 }
 
 // MARK: - UI
 private extension DetailImagesListViewController {
     private func setSubviews() {
-        scrollView.addSubview(photoImageView)
-        view.addSubviews(scrollView, backButton, shareButton, spinner, scribbleImageView)        
         view.backgroundColor = .myBlack
+        scrollView.addSubview(photoImageView)
+        view.addSubviews(scrollView, backButton, shareButton, spinner, scribbleImageView)
         scrollView.delegate = self
         backButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
         shareButton.addTarget(self, action: #selector(share), for: .touchUpInside)
+        addDoubleTapGestureToPhotoImageView()
+    }
+    
+    func addDoubleTapGestureToPhotoImageView() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(doubleTapAction(_:)))
+        tapGesture.numberOfTapsRequired = 2
+        photoImageView.addGestureRecognizer(tapGesture)
+        photoImageView.isUserInteractionEnabled = true
     }
     
     private func setConstraint() {
@@ -200,9 +178,77 @@ private extension DetailImagesListViewController {
     }
 }
 
+extension DetailImagesListViewController: DetailImageListViewControllerProtocol {
+    func scrollViewSetContentOffset(offset: CGPoint) {
+        scrollView.setContentOffset(offset, animated: false)
+    }
+    
+    func scrollViewLayoutIfNeeded() -> CGSize {
+        scrollView.layoutIfNeeded()
+        return scrollView.contentSize
+    }
+    
+    func scrollViewSetScale(_ scale: CGFloat) {
+        scrollView.setZoomScale(scale, animated: false)
+    }
+    
+    func didReceiveImageData(_ image: UIImage) {
+//        guard
+//            let imageData = imageData,
+//            let image = UIImage(data: imageData)
+//        else {
+//            return
+//        }
+        
+        photoImageView.image = image
+        view.layoutIfNeeded()
+        presenter.configureImageInScrollview(
+            image.size,
+            scrollView.bounds.size,
+            scrollView.minimumZoomScale,
+            scrollView.maximumZoomScale
+        )
+        UIView.animate(withDuration: 0.5, delay: 0) {
+            self.photoImageView.alpha = 1
+        }
+    }
+    
+    func hideScribble() {
+        scribbleImageView.isHidden = true
+    }
+    
+    func startSpinner() {
+        spinner.startAnimating()
+    }
+    
+    func stopSpinner() {
+        spinner.stopAnimating()
+    }
+    
+    func showAlert(url: URL) {
+        showAlert(
+            title: "Что то пошло не так(",
+            message: "Попробовать ещё раз?",
+            actions: [
+                Action(title: "Не надо", style: .default, handler: nil),
+                Action(
+                    title: "Повторить",
+                    style: .default) { [weak self] _ in
+                        self?.presenter.fetchImage(with: url)
+                }
+            ]
+        )
+    }
+}
+
 // MARK: - UIScrollViewDelegate
 extension DetailImagesListViewController: UIScrollViewDelegate {
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         return photoImageView
+    }
+    
+    func scrollViewDidZoom(_ scrollView: UIScrollView) {
+        // Center the image after zooming
+        centerImageAfterZooming(scrollView, photoImageView.frame.size)
     }
 }
