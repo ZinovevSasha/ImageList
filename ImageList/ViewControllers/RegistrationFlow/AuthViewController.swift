@@ -55,6 +55,7 @@ final class AuthViewController: UIViewController {
         super.viewDidLoad()
         
         setView()
+        setTargets()
     }
     
     override func viewDidLayoutSubviews() {
@@ -88,9 +89,12 @@ private extension AuthViewController {
     func setView() {
         view.addSubviews(image, enterButton)
         view.backgroundColor = .myBlack
-        image.center = view.center
+    }
+    
+    func setTargets() {
         enterButton.addTarget(
-            self, action: #selector(enterButtonTapped), for: .touchUpInside)
+            self, action: #selector(enterButtonTapped), for: .touchUpInside
+        )
     }
     
     func setConstraint() {

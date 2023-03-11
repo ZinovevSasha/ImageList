@@ -104,6 +104,6 @@ extension DetailScrollView: UIScrollViewDelegate {
     }
     
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
-       centerImageAfterZooming()
+        centerImageAfterZooming()
     }
 }

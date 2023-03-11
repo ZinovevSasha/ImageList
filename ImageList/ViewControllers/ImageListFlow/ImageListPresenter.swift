@@ -82,7 +82,7 @@ extension ImageListPresenter: ImageListPresenterProtocol  {
             switch result {
             case .success:
                 let like = self.imageListService.photos[index].isLiked
-                self.view?.cellToggle(like: like, for: cell)
+                self.view?.toggle(like: like, for: cell)
             case .failure:
                 self.view?.showAlert()
             }

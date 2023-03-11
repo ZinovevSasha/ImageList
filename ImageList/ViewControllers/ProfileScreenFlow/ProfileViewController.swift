@@ -1,6 +1,14 @@
 import UIKit
-import Kingfisher
-import WebKit
+
+protocol ProfileViewControllerProtocol: AnyObject {
+    var presenter: ProfilePresenterProtocol! { get }
+    func goToSplashViewController()
+    func configureUI(with viewModel: ProfileViewModel)
+    func hideGradientView()
+    func showGradientView()
+    func animateGradientView()
+    func stopAnimatingGradientView()
+}
 
 final class ProfileViewController: UIViewController {
     override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
@@ -57,34 +65,19 @@ final class ProfileViewController: UIViewController {
     
     let gradientView = GradientView()
     
-    // MARK: - Dependency
-    private let profileImageService: ProfileImageServiceProtocol
-    private let profileService: ProfileServiceProtocol
-    private var profileImageServiceObserver: NSObjectProtocol?
-
-    private var profileInfo: Profile?
-    
-    // MARK: - Init (Dependency injection)
-    init(
-        profileImageService: ProfileImageServiceProtocol,
-        profileService: ProfileServiceProtocol
-    ) {
-        self.profileImageService = profileImageService
-        self.profileService = profileService
-        super.init(nibName: nil, bundle: nil)
-        fetchProfile()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("Unsupported")
-    }
-    
+    var presenter: ProfilePresenterProtocol!
     // MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        presenter = ProfilePresenter(
+            view: self,
+            profileImageService: ProfileImageService(requests: UnsplashRequest()),
+            profileService: ProfileService(requests: UnsplashRequest())
+        )
         
         setView()
-        updateAvatarImage(url: profileImageService.avatarUrl)
+        setTargets()
+        presenter.viewDidLoad()
     }
     
     override func viewDidLayoutSubviews() {
@@ -92,141 +85,26 @@ final class ProfileViewController: UIViewController {
         
         setConstraints()
     }
-    
-    enum ProfilePersonalDataState {
-        case loading
-        case error
-        case finished(UIImage)
-    }
-    
-    var profileState: ProfilePersonalDataState = .loading {
-        didSet {
-            configureImageState()
-        }
-    }
-    
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         if nameLabel.text == nil {
-            profileState = .loading
+            presenter.changeStateToLoading()
         }
     }
     
-    private func configureImageState() {
-        switch profileState {
-        case .loading:
-            gradientView.isHidden = false
-            gradientView.animate()
-        case .error:
-            gradientView.stopAnimation()
-        case .finished(let image):
-            gradientView.stopAnimation()
-            gradientView.isHidden = true
-            configureUI(with: image)
-        }
-    }
-    
-    private func configureUI(with image: UIImage) {
-        portraitImage.image = image
-        nameLabel.text = profileInfo?.name
-        emailLabel.text = profileInfo?.loginName
-        helloLabel.text = profileInfo?.bio
-    }
-    
-    private func updateAvatarImage(url: String?) {
-        profileState = .loading
-        guard let avatarURLString = url,
-            let url = URL(string: avatarURLString)
-        else {
-            return
-        }
-        portraitImage.kf.setImage(with: url) { [weak self] result in
-            switch result {
-            case .success(let result):
-                self?.profileState = .finished(result.image)
-            case .failure:
-                self?.profileState = .error
-            }
-        }
-    }
-    
-    private func fetchProfile() {
-        profileService.fetchProfile { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case .success(let profile):
-                self.profileInfo = profile
-                self.fetchProfileImageUrl(username: profile.username)
-            case .failure:
-                self.profileState = .error
-            }
-        }
-    }
-    
-    private func fetchProfileImageUrl(username: String) {
-        profileImageService
-            .fetchProfileImageUrl(username: username) { [weak self] result in
-                guard case .failure = result else { return }
-                self?.profileState = .error
-            }
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        addObserver()
-    }
-    
-    private func addObserver() {
-        profileImageServiceObserver = NotificationCenter.default
-            .addObserver(
-                forName: ProfileImageService.didChangeNotification,
-                object: nil,
-                queue: .main) { [weak self] notification in
-                    guard let self = self else { return }
-                    
-                    let url = notification.userInfo?[UserInfo.url.rawValue] as? String
-                    self.updateAvatarImage(url: url)
-            }
-    }
-    
-    @objc private func exitButtonDidTapped() {
+    @objc private func exitButtonTapped() {
         showAlert(
             title: "Пока, пока!",
             message: "Уверены что хотите выйти?",
             actions: [
                 Action(title: "Нет", style: .cancel, handler: nil),
                 Action(title: "Да", style: .default, handler: { [weak self] _ in
-                    guard let self = self else { return}
-                    self.cleanWebViewSavedData()
-                    self.cleanTokenFromKeyChain()
-                    self.goToSplashViewController()
+                    guard let self = self else { return }
+                    self.presenter.exitButtonDidTapped()
                 })
             ]
         )
-    }
-    
-    private func cleanWebViewSavedData() {
-        HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
-        WKWebsiteDataStore.default().fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { records in
-            records.forEach { record in
-                WKWebsiteDataStore.default().removeData(
-                    ofTypes: record.dataTypes,
-                    for: [record]) {}
-            }
-        }
-    }
-    
-    private func cleanTokenFromKeyChain() {
-        OAuth2TokenStorage().token = nil
-    }
-    
-    private func goToSplashViewController() {
-        guard let window = UIApplication.shared.windows.first else {
-            fatalError("Wrong Configuration")
-        }
-        let splashViewController = SplashViewController()
-        window.rootViewController = splashViewController
     }
 }
 
@@ -240,8 +118,11 @@ extension ProfileViewController {
         [nameLabel, emailLabel, helloLabel]
             .forEach { verticalStackView.addArrangedSubview($0) }
         gradientView.translatesAutoresizingMaskIntoConstraints = false
+    }
+    
+    private func setTargets() {
         exitButton.addTarget(
-            self, action: #selector(exitButtonDidTapped), for: .touchUpInside)
+            self, action: #selector(exitButtonTapped), for: .touchUpInside)
     }
 
     private func setConstraints() {
@@ -271,4 +152,44 @@ extension ProfileViewController {
             gradientView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
     }
+}
+
+extension ProfileViewController: ProfileViewControllerProtocol {
+    func hideGradientView() {
+        gradientView.isHidden = true
+    }
+    
+    func showGradientView() {
+        gradientView.isHidden = false
+    }
+    
+    func animateGradientView() {
+        gradientView.animate()
+    }
+    
+    func stopAnimatingGradientView() {
+        gradientView.stopAnimation()
+    }
+    
+    func configureUI(with model: ProfileViewModel) {
+        portraitImage.image = UIImage(data: model.portraitImageData)
+        nameLabel.text = model.name
+        emailLabel.text = model.email
+        helloLabel.text = model.greeting
+    }
+    
+    func goToSplashViewController() {
+        guard let window = UIApplication.shared.windows.first else {
+            fatalError("Wrong Configuration")
+        }
+        let splashViewController = SplashViewController()
+        window.rootViewController = splashViewController
+    }
+}
+
+struct ProfileViewModel {
+    let portraitImageData: Data
+    let name: String
+    let email: String
+    let greeting: String
 }

@@ -14,22 +14,17 @@ protocol SplashViewControllerPresenterProtocol {
 
 final class SplashViewController: UIViewController {
     override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
-
-    private let imageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.image = .launchScreen
-        return imageView
-    }()
+    
+    private let imageView = UIImageView(image: .launchScreen)
     
     // MARK: - Presenter (will be initialized at first call)
     lazy private var presenter: SplashViewControllerPresenterProtocol = SplashViewControllerPresenter(
         view: self,
         oAuth2Service: OAuth2Service(
-            
             authHelper: AuthHelper(
                 UnsplashAuthConfiguration.standard,
-                requestBuilder: RequestBuilder())
-        ), oAuth2TokenStorage: OAuth2TokenStorage())
+                requestBuilder: RequestBuilder())),
+        oAuth2TokenStorage: OAuth2TokenStorage())
     
     // MARK: - LifeCycle
     override func viewDidLoad() {

@@ -86,6 +86,7 @@ final class WebViewViewController: UIViewController {
         super.viewDidLoad()
         
         setView()
+        setTargets()
         presenter.viewDidLoad()
     }
     
@@ -122,6 +123,7 @@ final class WebViewViewController: UIViewController {
         fatalError("Unsupported")
     }
 }
+
 extension WebViewViewController: WebViewViewControllerProtocol {
     func load(request: URLRequest) {
         webView.load(request)
@@ -143,6 +145,9 @@ private extension WebViewViewController {
         view.backgroundColor = .white
         webView.backgroundColor = .white
         webView.navigationDelegate = self
+    }
+    
+    func setTargets() {
         backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
     }
     

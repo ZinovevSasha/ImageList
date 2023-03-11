@@ -16,15 +16,15 @@ protocol UnsplashRequestProtocol {
 
 struct UnsplashRequest {
     // MARK: - Dependency
-    private let authTokenStorage: OAuth2TokenStorage
+    private let authTokenStorage: OAuth2TokenStorageProtocol
     private let configuration: AuthConfigurationProtocol
     private let requestBuilder: RequestBuilding
     
     // MARK: - Init (Dependency injection)
     init(
-        configuration: AuthConfigurationProtocol,
-        authTokenStorage: OAuth2TokenStorage,
-        requestBuilder: RequestBuilding
+        configuration: AuthConfigurationProtocol = UnsplashAuthConfiguration.standard,
+        authTokenStorage: OAuth2TokenStorageProtocol = OAuth2TokenStorage(),
+        requestBuilder: RequestBuilding = RequestBuilder()
     ) {
         self.configuration = configuration
         self.authTokenStorage = authTokenStorage

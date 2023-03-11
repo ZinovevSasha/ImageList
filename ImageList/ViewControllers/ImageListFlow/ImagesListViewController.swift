@@ -7,7 +7,7 @@ protocol ImageListViewControllerProtocol: AnyObject {
     func updateTableViewAnimated(at indexPath: [IndexPath])
     func showProgress()
     func hideProgress()
-    func cellToggle(like: Bool, for cell: ImageListTableViewCell)
+    func toggle(like: Bool, for cell: ImageListTableViewCell)
     func showAlert()
 }
 
@@ -92,7 +92,7 @@ extension ImagesListViewController: ImageListViewControllerProtocol {
         UIBlockingProgressHUD.dismiss()
     }
     
-    func cellToggle(like: Bool, for cell: ImageListTableViewCell) {
+    func toggle(like: Bool, for cell: ImageListTableViewCell) {
         cell.setLike(like)
     }
     
@@ -100,19 +100,16 @@ extension ImagesListViewController: ImageListViewControllerProtocol {
         showAlert(
             title: "Что то пошло не так(",
             message: "Попробуйте ещё раз!",
-            actions: [
-                Action(title: "Ок", style: .default, handler: nil)
-            ]
+            actions: [ Action(title: "Ок", style: .default, handler: nil) ]
         )
     }
 }
 
 extension ImagesListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        let size = presenter.heightForCell(
+        return presenter.heightForCell(
             at: indexPath.row, widthOfScreen: tableView.frame.width
         )
-        return size
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
