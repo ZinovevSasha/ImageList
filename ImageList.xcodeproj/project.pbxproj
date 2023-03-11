@@ -52,7 +52,7 @@
 		F9B796AC29BA19F800B2CECE /* DetailImageListPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9B796AB29BA19F800B2CECE /* DetailImageListPresenter.swift */; };
 		F9B796AE29BB24B500B2CECE /* DetailScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9B796AD29BB24B500B2CECE /* DetailScrollView.swift */; };
 		F9B796B229BB8B3900B2CECE /* ProfilePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9B796B129BB8B3900B2CECE /* ProfilePresenter.swift */; };
-		F9B8467529BC7E91008CA38D /* Gradient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9B8467429BC7E91008CA38D /* Gradient.swift */; };
+		F9B8467529BC7E91008CA38D /* CustomGradientLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9B8467429BC7E91008CA38D /* CustomGradientLayer.swift */; };
 		F9C3F9802998F6A100133F25 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = F9C3F97F2998F6A100133F25 /* Kingfisher */; };
 		F9C3F98229994B8300133F25 /* UnsplashRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C3F98129994B8300133F25 /* UnsplashRequest.swift */; };
 		F9F39003299FBF090043CE8C /* SwiftKeychainWrapper in Frameworks */ = {isa = PBXBuildFile; productRef = F9F39002299FBF090043CE8C /* SwiftKeychainWrapper */; };
@@ -119,7 +119,7 @@
 		F9B796AB29BA19F800B2CECE /* DetailImageListPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailImageListPresenter.swift; sourceTree = "<group>"; };
 		F9B796AD29BB24B500B2CECE /* DetailScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailScrollView.swift; sourceTree = "<group>"; };
 		F9B796B129BB8B3900B2CECE /* ProfilePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePresenter.swift; sourceTree = "<group>"; };
-		F9B8467429BC7E91008CA38D /* Gradient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gradient.swift; sourceTree = "<group>"; };
+		F9B8467429BC7E91008CA38D /* CustomGradientLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomGradientLayer.swift; sourceTree = "<group>"; };
 		F9C3F98129994B8300133F25 /* UnsplashRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnsplashRequest.swift; sourceTree = "<group>"; };
 		F9F856C1299297DF00C0725F /* UIBlockingProgressHUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIBlockingProgressHUD.swift; sourceTree = "<group>"; };
 		F9F856C32992A52D00C0725F /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
@@ -279,7 +279,7 @@
 				F9A584CD2962CD990055FC5D /* DetailImagesListViewController.swift */,
 				F9B796AD29BB24B500B2CECE /* DetailScrollView.swift */,
 				F9B796AB29BA19F800B2CECE /* DetailImageListPresenter.swift */,
-				F9B8467429BC7E91008CA38D /* Gradient.swift */,
+				F9B8467429BC7E91008CA38D /* CustomGradientLayer.swift */,
 			);
 			path = ImageListFlow;
 			sourceTree = "<group>";
@@ -457,7 +457,7 @@
 				F963BD86297B2B38003AA3FE /* UnsplashAuthConfiguration.swift in Sources */,
 				F9843F1B295861CF00EB2CF4 /* AuthViewController.swift in Sources */,
 				F9B1A5752958745E002D6394 /* Date+Extension.swift in Sources */,
-				F9B8467529BC7E91008CA38D /* Gradient.swift in Sources */,
+				F9B8467529BC7E91008CA38D /* CustomGradientLayer.swift in Sources */,
 				F9487D9029A146D10083236B /* ImageListService.swift in Sources */,
 				F9A541CC299A69A600F4A21C /* OAuth2Service.swift in Sources */,
 				F960DE3129B7126400DEC97C /* AuthHelper.swift in Sources */,

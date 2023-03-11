@@ -9,54 +9,59 @@ import UIKit
 
 class GradientView: UIView {
     private let portraitImage = UIImageView()
-    private let portraitImageLayer = CAGradientLayer()
     private let nameLabel = UILabel()
-    private let nameLabelLayer = CAGradientLayer()
     private let emailLabel = UILabel()
-    private let emailLabelLayer = CAGradientLayer()
     private let helloLabel = UILabel()
-    private let helloLabelLayer = CAGradientLayer()
     
-    public var animationLayers = Set<CALayer>()
-    
-    func animate() {
-        animationLayers.forEach { $0.animate(
-            .locations,
-            duration: 1.5,
-            fromValue: [-1.0, -0.5, 0.0],
-            toValue: [1.0, 1.5, 2.0],
-            forKey: .locationsChanged)
-        }
-    }
-    
-    func stopAnimation() {
-        animationLayers
-            .forEach {
-                $0.removeAllAnimations()
-                $0.removeFromSuperlayer()
-            }
-    }
+    private var portraitLayer = CustomGradientLayer()
+    private let nameLayer = CustomGradientLayer()
+    private let emailLayer = CustomGradientLayer()
+    private let helloLayer = CustomGradientLayer()
+    private var animationLayers = Set<CustomGradientLayer>()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
         setupView()
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        setupView()
         setupFrames()
         addConstraint()
         addGradient()
     }
     
+    required init?(coder: NSCoder) {
+        fatalError("Unsupported")
+    }
+    
+    func animate() {
+        animationLayers.forEach { $0.animate() }
+    }
+    
+    func stopAnimation() {
+        animationLayers.forEach {
+            $0.removeAllAnimations()
+            $0.removeFromSuperlayer()
+        }
+    }
+    
+    private func addGradient() {
+        let layers = [portraitLayer, nameLayer, emailLayer, helloLayer]
+        [portraitImage, nameLabel, emailLabel, helloLabel].enumerated()
+            .forEach { $0.1.layer.insertSublayer(layers[$0.0], at: 1) }
+        layers.forEach { animationLayers.insert($0) }
+    }
+}
+
+// MARK: - UI
+extension GradientView {
     private func setupView() {
+        backgroundColor = .backgroundColorForShimmer
+        addSubviews(portraitImage, nameLabel, emailLabel, helloLabel)
         [portraitImage, nameLabel, emailLabel, helloLabel]
             .forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
-        addSubviews(portraitImage, nameLabel, emailLabel, helloLabel)
-        backgroundColor = .backgroundColorForShimmer
         portraitImage.cornerRadius = 35
         nameLabel.cornerRadius = 9
         emailLabel.cornerRadius = 9
@@ -64,10 +69,10 @@ class GradientView: UIView {
     }
     
     private func setupFrames() {
-        portraitImageLayer.frame = portraitImage.bounds
-        nameLabelLayer.frame = nameLabel.bounds
-        emailLabelLayer.frame = emailLabel.bounds
-        helloLabelLayer.frame = helloLabel.bounds
+        portraitLayer.frame = portraitImage.bounds
+        nameLayer.frame = nameLabel.bounds
+        emailLayer.frame = emailLabel.bounds
+        helloLayer.frame = helloLabel.bounds
     }
     
     private func addConstraint() {
@@ -92,33 +97,5 @@ class GradientView: UIView {
             helloLabel.heightAnchor.constraint(equalToConstant: 18),
             helloLabel.widthAnchor.constraint(equalToConstant: 67)
         ])
-    }
-    
-    private func addGradient() {
-        let layers = [
-            nameLabelLayer,
-            emailLabelLayer,
-            helloLabelLayer,
-            portraitImageLayer
-        ]
-        
-        [nameLabel, emailLabel, helloLabel, portraitImage]
-            .enumerated()
-            .forEach {
-                $0.1.addGradient(
-                    with: layers[$0.0],
-                    colorSet: [ .shimmerColor, .backgroundColorForShimmer, .shimmerColor],
-                    locations: [0, 0.5, 1],
-                    startEndPoints: (
-                        CGPoint(x: 0, y: 0.5),
-                        CGPoint(x: 1, y: 0.5)),
-                    insertAt: 0
-                )
-            }
-        layers.forEach { animationLayers.insert($0) }
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("Unsupported")
     }
 }

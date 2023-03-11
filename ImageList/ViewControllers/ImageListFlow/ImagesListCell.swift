@@ -52,11 +52,7 @@ final class ImageListTableViewCell: UITableViewCell {
         startEndPoints: (CGPoint.zero, CGPoint(x: 0, y: 1))
     )
 
-    private var placeholderGradient = CustomGradientLayer(
-        colors: [.backgroundColorForShimmer, .shimmerColor, .backgroundColorForShimmer],
-        locations: [0, 0.5, 1],
-        startEndPoints: (CGPoint.zero, CGPoint(x: 1, y: 0))
-    )
+    private var placeholderGradient = CustomGradientLayer()
 
     // MARK: Public
     public func configure(with photoInfo: Photo) {

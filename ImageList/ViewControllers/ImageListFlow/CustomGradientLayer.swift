@@ -1,5 +1,5 @@
 //
-//  Gradient.swift
+//  CustomGradientLayer.swift
 //  ImageList
 //
 //  Created by Александр Зиновьев on 11.03.2023.
@@ -8,18 +8,22 @@
 import UIKit
 
 class CustomGradientLayer: CAGradientLayer {
-    convenience init(
-        colors: [UIColor],
-        locations: [Double],
-        startEndPoints: (CGPoint, CGPoint)? = nil
+    init(
+        colors: [UIColor] = [.shimmerColor, .backgroundColorForShimmer, .shimmerColor],
+        locations: [Double] = [0, 0.5, 1],
+        startEndPoints: (CGPoint, CGPoint)? = (CGPoint.zero, CGPoint(x: 1, y: 0))
     ) {
-        self.init()
+        super.init()
         self.colors = colors.map { $0.cgColor }
         self.locations = locations.map { $0 as NSNumber }
         if let startEndPoints = startEndPoints {
             self.startPoint = startEndPoints.0
             self.endPoint = startEndPoints.1
         }
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     func animate(
@@ -44,5 +48,4 @@ class CustomGradientLayer: CAGradientLayer {
     enum Keys: String {
         case locationsChanged
     }
-    
 }
