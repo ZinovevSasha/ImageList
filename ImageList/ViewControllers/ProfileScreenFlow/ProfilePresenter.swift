@@ -5,14 +5,13 @@
 //  Created by Александр Зиновьев on 10.03.2023.
 //
 
-import WebKit
 import Foundation
 import Kingfisher
 
 protocol ProfilePresenterProtocol {
+    var view: ProfileViewControllerProtocol? { get }
     func viewDidLoad()
     func exitButtonDidTapped()
-    func changeStateToLoading()
 }
 
 enum ProfilePersonalDataState {
@@ -26,6 +25,8 @@ final class ProfilePresenter {
     weak var view: ProfileViewControllerProtocol?
     private let profileImageService: ProfileImageServiceProtocol
     private let profileService: ProfileServiceProtocol
+    private var oAuth2TokenStorage: OAuth2TokenStorageProtocol
+    private var webViewCleaner: WebViewCookieDataCleanerProtocol
     private var profileImageServiceObserver: NSObjectProtocol?
     
     private var profile: Profile?
@@ -34,17 +35,22 @@ final class ProfilePresenter {
     init(
         view: ProfileViewControllerProtocol?,
         profileImageService: ProfileImageServiceProtocol,
-        profileService: ProfileServiceProtocol
+        profileService: ProfileServiceProtocol,
+        oAuth2TokenStorage: OAuth2TokenStorageProtocol,
+        webViewCleaner: WebViewCookieDataCleanerProtocol
     ) {
         self.view = view
         self.profileImageService = profileImageService
         self.profileService = profileService
+        self.oAuth2TokenStorage = oAuth2TokenStorage
+        self.webViewCleaner = webViewCleaner
         
         addObserver()
         fetchProfile()
     }
     
-    var profileState: ProfilePersonalDataState = .loading {
+    // MARK: - Private
+    private var profileState: ProfilePersonalDataState = .loading {
         didSet {
             configureImageState()
         }
@@ -53,29 +59,32 @@ final class ProfilePresenter {
     private func configureImageState() {
         switch profileState {
         case .loading:
-            view?.showGradientView()
             view?.animateGradientView()
         case .error:
-            view?.stopAnimatingGradientView()
-        case .finished(let image):
-            view?.stopAnimatingGradientView()
-            view?.hideGradientView()
+            view?.removeAllAnimationsFromGradientView()
+        case .finished(let data):
+            view?.removeAllAnimationsFromGradientView()
+            view?.removeGradientViewFromSuperLayer()
             
             guard
                 let profile = profile,
-                let image = image
+                let data = data
             else {
                 return
             }
             
-            let profileViewModel = ProfileViewModel(
-                portraitImageData: image,
-                name: profile.name,
-                email: profile.loginName,
-                greeting: profile.bio)
-            
-            view?.configureUI(with: profileViewModel)
+            let viewModel = createProfileViewModel(from: data, profile: profile)
+            view?.configureUI(with: viewModel)
         }
+    }
+    
+    private func createProfileViewModel(from data: Data, profile: Profile) -> ProfileViewModel {
+        ProfileViewModel(
+            portraitImageData: data,
+            name: profile.name,
+            email: profile.loginName,
+            greeting: profile.bio
+        )
     }
     
     private func fetchProfile() {
@@ -130,33 +139,22 @@ final class ProfilePresenter {
     }
     
     private func cleanWebViewSavedData() {
-        HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
-        WKWebsiteDataStore.default().fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { records in
-            records.forEach { record in
-                WKWebsiteDataStore.default().removeData(
-                    ofTypes: record.dataTypes,
-                    for: [record]) {}
-            }
-        }
+        webViewCleaner.clean()
     }
     
     private func cleanTokenFromKeyChain() {
-        OAuth2TokenStorage().token = nil
+        oAuth2TokenStorage.token = nil
     }
 }
 
 extension ProfilePresenter: ProfilePresenterProtocol {
-    func changeStateToLoading() {
-        profileState = .loading
+    func viewDidLoad() {
+        updateAvatarImage(url: profileImageService.avatarUrl)
     }
     
     func exitButtonDidTapped() {
         cleanWebViewSavedData()
         cleanTokenFromKeyChain()
         view?.goToSplashViewController()
-    }
-    
-    func viewDidLoad() {
-        updateAvatarImage(url: profileImageService.avatarUrl)
     }
 }

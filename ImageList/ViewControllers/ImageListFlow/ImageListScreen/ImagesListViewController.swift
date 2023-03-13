@@ -1,7 +1,7 @@
 import UIKit
 
 protocol ImageListViewControllerProtocol: AnyObject {
-    var presenter: ImageListPresenterProtocol! { get }
+    var presenter: ImageListPresenterProtocol { get }
     func stopSpinner()
     func startSpinner()
     func updateTableViewAnimated(at indexPath: [IndexPath])
@@ -33,22 +33,20 @@ final class ImagesListViewController: UIViewController {
         return spinner
     }()
     
-    var presenter: ImageListPresenterProtocol!
+    lazy var presenter: ImageListPresenterProtocol = ImageListPresenter(
+        view: self,
+        imageListService: ImageListService(
+            requests: UnsplashRequest(
+                configuration: UnsplashAuthConfiguration.standard,
+                authTokenStorage: OAuth2TokenStorage(),
+                requestBuilder: RequestBuilder()
+            )
+        )
+    )
     // MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         createTableView()
-        presenter = ImageListPresenter(
-            view: self,
-            imageListService: ImageListService(
-                requests: UnsplashRequest(
-                    configuration: UnsplashAuthConfiguration.standard,
-                    authTokenStorage: OAuth2TokenStorage(),
-                    requestBuilder: RequestBuilder()
-                )
-            )
-        )
         presenter.viewDidLoad()
     }
     
@@ -107,9 +105,7 @@ extension ImagesListViewController: ImageListViewControllerProtocol {
 
 extension ImagesListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return presenter.heightForCell(
-            at: indexPath.row, widthOfScreen: tableView.frame.width
-        )
+        presenter.heightForCell(at: indexPath.row, widthOfScreen: tableView.frame.width)
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -127,9 +123,14 @@ extension ImagesListViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        return generateCell(tableView, at: indexPath)
+    }
+    
+    private func generateCell(_ tableView: UITableView, at indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(
             withIdentifier: ImageListTableViewCell.reusableIdentifier,
-            for: indexPath) as? ImageListTableViewCell else {
+            for: indexPath) as? ImageListTableViewCell
+        else {
             return UITableViewCell()
         }
         let photo = presenter.getPhoto(at: indexPath.row)

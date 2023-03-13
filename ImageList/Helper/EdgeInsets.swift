@@ -8,8 +8,8 @@
 import Foundation
 
 struct EdgeInsets {
-  var top: CGFloat
-  var left: CGFloat
-  var right: CGFloat
-  var bottom: CGFloat
+    var top: CGFloat
+    var left: CGFloat
+    var right: CGFloat
+    var bottom: CGFloat
 }

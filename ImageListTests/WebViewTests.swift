@@ -8,32 +8,34 @@
 import XCTest
 @testable import ImageList
 
-final class WebViewViewControllerSpy: WebViewViewControllerProtocol {
+final class WebViewControllerSpy: WebViewControllerProtocol {
     var loadRequestCalled = false
     var progressValue: Float = 0.0
     var isProgressValueHiden = false
     
+    var presenter: WebViewPresenterProtocol
     
-    var presenter: ImageList.WebViewViewPresenterProtocol
+    init(presenter: WebViewPresenterProtocol) {
+        self.presenter = presenter
+    }
+    
     func load(request: URLRequest) {
         loadRequestCalled = true
     }
+    
     func setProgressValue(_ newValue: Float) {
         progressValue = newValue
     }
+    
     func setProgressHidden(_ isHiden: Bool) {
         isProgressValueHiden = isHiden
     }
-    
-    init(presenter: ImageList.WebViewViewPresenterProtocol) {
-        self.presenter = presenter
-    }
 }
 
-final class WebViewPresenterSpy: WebViewViewPresenterProtocol {
+final class WebViewPresenterSpy: WebViewPresenterProtocol {
     var viewDidLoadCalled = false
     
-    var view: ImageList.WebViewViewControllerProtocol?
+    var view: WebViewControllerProtocol?
     func viewDidLoad() {
         viewDidLoadCalled = true
     }
@@ -59,7 +61,7 @@ final class WebViewTests: XCTestCase {
     func testViewControllerCallsViewDidLoad() {
         // Given
         let webViewPresenterSpy = WebViewPresenterSpy()
-        let webViewController = WebViewViewController(delegate: nil)
+        let webViewController = WebViewController(delegate: nil)
         webViewController.presenter = webViewPresenterSpy
         webViewPresenterSpy.view = webViewController
         
@@ -74,7 +76,7 @@ final class WebViewTests: XCTestCase {
         // Given
         let authHelperMock = AuthHelperMock()
         let presenter = WebViewViewPresenter(view: nil, authHelper: AuthHelperMock())
-        let webViewController = WebViewViewControllerSpy(presenter: presenter)
+        let webViewController = WebViewControllerSpy(presenter: presenter)
         presenter.view = webViewController
         
         // When
@@ -88,7 +90,7 @@ final class WebViewTests: XCTestCase {
         // Given
         let authHelperMock = AuthHelperMock()
         let presenter = WebViewViewPresenter(view: nil, authHelper: AuthHelperMock())
-        let webViewController = WebViewViewControllerSpy(presenter: presenter)
+        let webViewController = WebViewControllerSpy(presenter: presenter)
         presenter.view = webViewController
         
         // When
@@ -102,7 +104,7 @@ final class WebViewTests: XCTestCase {
         // Given
         let authHelperMock = AuthHelperMock()
         let presenter = WebViewViewPresenter(view: nil, authHelper: AuthHelperMock())
-        let webViewController = WebViewViewControllerSpy(presenter: presenter)
+        let webViewController = WebViewControllerSpy(presenter: presenter)
         presenter.view = webViewController
         
         // When progress more or equal to 0.745 it must disappear

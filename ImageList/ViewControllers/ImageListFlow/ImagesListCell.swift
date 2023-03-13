@@ -5,11 +5,15 @@ protocol ImageListTableViewCellDelegate: AnyObject {
     func imageListCellDidTapLikeButton(_ cell: ImageListTableViewCell)
 }
 
+enum CellImageState {
+    case loading
+    case error
+    case finished(CellViewModel)
+}
+
 final class ImageListTableViewCell: UITableViewCell {
     static let reusableIdentifier = String(describing: ImageListTableViewCell.self)
 
-    var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
-    
     private let photoImageView: UIImageView = {
         let image = UIImageView()
         image.translatesAutoresizingMaskIntoConstraints = false
@@ -41,7 +45,6 @@ final class ImageListTableViewCell: UITableViewCell {
         let container = UIView()
         container.layer.masksToBounds = true
         container.layer.cornerRadius = 16
-        container.backgroundColor = .white
         container.translatesAutoresizingMaskIntoConstraints = false
         return container
     }()
@@ -54,6 +57,18 @@ final class ImageListTableViewCell: UITableViewCell {
 
     private var placeholderGradient = CustomGradientLayer()
 
+    // MARK: Dependency
+    weak var delegate: ImageListTableViewCellDelegate?
+    
+    // MARK: - Init
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setViews()
+        setTargets()
+//        addGradient()
+//        animateGradient()
+    }
+    
     // MARK: Public
     public func configure(with photoInfo: Photo) {
         imageState = .loading
@@ -91,18 +106,24 @@ final class ImageListTableViewCell: UITableViewCell {
             self.likeButton.setImage(UIImage.noLike, for: .normal)
         }
     }
-
-    // MARK: Dependency
-    weak var delegate: ImageListTableViewCellDelegate?
     
-    // MARK: - Init
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
-        setColors()        
-        setTargets()
-        addGradient()
-        animateGradient()
+    private var imageState: CellImageState = .loading {
+        didSet {
+            configureImageState()
+        }
+    }
+    
+    private func configureImageState() {
+        switch imageState {
+        case .loading:
+            addGradient()
+            animateGradient()
+        case .error:
+            removeAllAnimations()
+        case .finished(let model):
+            removeAllAnimations()
+            configurePropertiesOrNil(model)
+        }
     }
     
     required init?(coder: NSCoder) {
@@ -111,22 +132,15 @@ final class ImageListTableViewCell: UITableViewCell {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        setConstraint()
-        
-        if footerGradient.frame != gradientContainerView.bounds {
-            footerGradient.frame = gradientContainerView.bounds
-        }
-        if placeholderGradient.frame != photoContainer.bounds {
-            placeholderGradient.frame = photoContainer.bounds
-        }
+        setConstraints()
+        setFrames()
     }
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        
         photoImageView.kf.cancelDownloadTask()
         configurePropertiesOrNil(nil)
-        removeAnimation()
+        removeAllAnimations()
     }
     
     @objc private func likeButtonDidTapped() {
@@ -141,35 +155,9 @@ final class ImageListTableViewCell: UITableViewCell {
         placeholderGradient.animate()
     }
     
-    private func removeAnimation() {
+    private func removeAllAnimations() {
         placeholderGradient.removeAllAnimations()
         placeholderGradient.removeFromSuperlayer()
-    }
-    
-    
-    private enum CellImageState {
-        case loading
-        case error
-        case finished(CellViewModel)
-    }
-    
-    private var imageState: CellImageState = .loading {
-        didSet {
-            configureImageState()
-        }
-    }
-    
-    private func configureImageState() {
-        switch imageState {
-        case .loading:
-            addGradient()
-            animateGradient()
-        case .error:
-            removeAnimation()
-        case .finished(let model):
-            removeAnimation()
-            configurePropertiesOrNil(model)
-        }
     }
         
     func configurePropertiesOrNil(_ model: CellViewModel?) {
@@ -192,10 +180,10 @@ final class ImageListTableViewCell: UITableViewCell {
 
 // MARK: - UI
 private extension ImageListTableViewCell {
-    func setColors() {
+    func setViews() {
         contentView.backgroundColor = .myBlack
         contentView.addSubviews(photoContainer)
-        photoContainer.backgroundColor = .white
+        photoContainer.backgroundColor = .myShimmerColor
         photoContainer
             .addSubviews(photoImageView, likeButton, gradientContainerView, dateLabel)
     }
@@ -204,7 +192,16 @@ private extension ImageListTableViewCell {
         likeButton.addTarget(self, action: #selector(likeButtonDidTapped), for: .touchDown)
     }
     
-    func setConstraint() {
+    func setFrames() {
+        if footerGradient.frame != gradientContainerView.bounds {
+            footerGradient.frame = gradientContainerView.bounds
+        }
+        if placeholderGradient.frame != photoContainer.bounds {
+            placeholderGradient.frame = photoContainer.bounds
+        }
+    }
+    
+    func setConstraints() {
         NSLayoutConstraint.activate([
             // dateContainer
             gradientContainerView.leadingAnchor.constraint(equalTo: photoContainer.leadingAnchor),

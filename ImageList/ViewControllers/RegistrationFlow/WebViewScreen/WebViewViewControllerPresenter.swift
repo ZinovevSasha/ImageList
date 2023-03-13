@@ -7,19 +7,19 @@
 
 import Foundation
 
-protocol WebViewViewControllerProtocol: AnyObject {
-    var presenter: WebViewViewPresenterProtocol { get }
+protocol WebViewControllerProtocol: AnyObject {
+    var presenter: WebViewPresenterProtocol { get }
     func load(request: URLRequest)
     func setProgressValue(_ newValue: Float)
     func setProgressHidden(_ isHiden: Bool)
 }
 
 final class WebViewViewPresenter {
-    weak var view: WebViewViewControllerProtocol?
+    weak var view: WebViewControllerProtocol?
     private let authHelper: AuthHelperProtocol
     
     init(
-        view: WebViewViewControllerProtocol?,
+        view: WebViewControllerProtocol?,
         authHelper: AuthHelperProtocol
     ) {
         self.view = view
@@ -32,7 +32,7 @@ final class WebViewViewPresenter {
     }
 }
 
-extension WebViewViewPresenter: WebViewViewPresenterProtocol {
+extension WebViewViewPresenter: WebViewPresenterProtocol {
     func viewDidLoad() {
         didUpdateProgressValue(0.05)
         guard let authRequest = authHelper.authRequest() else { return }

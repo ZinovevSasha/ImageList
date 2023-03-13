@@ -1,13 +1,6 @@
-//
-//  GradientView.swift
-//  ImageList
-//
-//  Created by Александр Зиновьев on 27.02.2023.
-//
-
 import UIKit
 
-class GradientView: UIView {
+final class ProfileGradientView: UIView {
     private let portraitImage = UIImageView()
     private let nameLabel = UILabel()
     private let emailLabel = UILabel()
@@ -19,46 +12,40 @@ class GradientView: UIView {
     private let helloLayer = CustomGradientLayer()
     private var animationLayers = Set<CustomGradientLayer>()
     
+    // MARK: - Public
+    func animate() {
+        animationLayers.forEach { $0.animate() }
+    }
+    
+    func removeAllAnimations() {
+        animationLayers.forEach { $0.removeAllAnimations() }
+    }
+    
+    func removeFromSuperLayer() {
+        animationLayers.forEach { $0.removeFromSuperlayer() }
+    }
+    
+    // MARK: - Init
     override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupView()
+        super.init(frame: .zero)
+        setViews()
+        addGradient()
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        
-        setupFrames()
-        addConstraint()
-        addGradient()
+        setConstraints()
+        setFrames()
     }
     
     required init?(coder: NSCoder) {
         fatalError("Unsupported")
     }
-    
-    func animate() {
-        animationLayers.forEach { $0.animate() }
-    }
-    
-    func stopAnimation() {
-        animationLayers.forEach {
-            $0.removeAllAnimations()
-            $0.removeFromSuperlayer()
-        }
-    }
-    
-    private func addGradient() {
-        let layers = [portraitLayer, nameLayer, emailLayer, helloLayer]
-        [portraitImage, nameLabel, emailLabel, helloLabel].enumerated()
-            .forEach { $0.1.layer.insertSublayer(layers[$0.0], at: 1) }
-        layers.forEach { animationLayers.insert($0) }
-    }
 }
 
 // MARK: - UI
-extension GradientView {
-    private func setupView() {
-        backgroundColor = .backgroundColorForShimmer
+private extension ProfileGradientView {
+    func setViews() {
         addSubviews(portraitImage, nameLabel, emailLabel, helloLabel)
         [portraitImage, nameLabel, emailLabel, helloLabel]
             .forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
@@ -68,14 +55,22 @@ extension GradientView {
         helloLabel.cornerRadius = 9
     }
     
-    private func setupFrames() {
+    func setFrames() {
         portraitLayer.frame = portraitImage.bounds
         nameLayer.frame = nameLabel.bounds
         emailLayer.frame = emailLabel.bounds
         helloLayer.frame = helloLabel.bounds
     }
     
-    private func addConstraint() {
+    func addGradient() {
+        let layers = [portraitLayer, nameLayer, emailLayer, helloLayer]
+        [portraitImage, nameLabel, emailLabel, helloLabel]
+            .enumerated()
+            .forEach { $0.1.layer.insertSublayer(layers[$0.0], at: 1) }
+        layers.forEach { animationLayers.insert($0) }
+    }
+    
+    func setConstraints() {
         NSLayoutConstraint.activate([
             portraitImage.topAnchor.constraint(equalTo: topAnchor),
             portraitImage.leadingAnchor.constraint(equalTo: leadingAnchor),

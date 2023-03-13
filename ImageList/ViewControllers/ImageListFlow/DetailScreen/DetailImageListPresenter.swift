@@ -10,6 +10,7 @@ import Kingfisher
 import UIKit
 
 protocol DetailImageListPresenterProtocol {
+    var view: DetailImageListViewControllerProtocol? { get } 
     func fetchImage(with url: URL)
 }
 

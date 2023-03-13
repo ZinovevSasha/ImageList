@@ -1,13 +1,12 @@
 import UIKit
 
 protocol ProfileViewControllerProtocol: AnyObject {
-    var presenter: ProfilePresenterProtocol! { get }
+    var presenter: ProfilePresenterProtocol { get }
     func goToSplashViewController()
     func configureUI(with viewModel: ProfileViewModel)
-    func hideGradientView()
-    func showGradientView()
     func animateGradientView()
-    func stopAnimatingGradientView()
+    func removeAllAnimationsFromGradientView()
+    func removeGradientViewFromSuperLayer()
 }
 
 final class ProfileViewController: UIViewController {
@@ -63,19 +62,19 @@ final class ProfileViewController: UIViewController {
         return stackView
     }()
     
-    let gradientView = GradientView()
+    private let gradientView = ProfileGradientView()
     
-    var presenter: ProfilePresenterProtocol!
+    lazy var presenter: ProfilePresenterProtocol = ProfilePresenter(
+        view: self,
+        profileImageService: ProfileImageService(requests: UnsplashRequest()),
+        profileService: ProfileService(requests: UnsplashRequest()),
+        oAuth2TokenStorage: OAuth2TokenStorage(),
+        webViewCleaner: WebViewCookieDataCleaner()
+    )
     // MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        presenter = ProfilePresenter(
-            view: self,
-            profileImageService: ProfileImageService(requests: UnsplashRequest()),
-            profileService: ProfileService(requests: UnsplashRequest())
-        )
-        
-        setView()
+        setViews()
         setTargets()
         presenter.viewDidLoad()
     }
@@ -88,8 +87,10 @@ final class ProfileViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        if nameLabel.text == nil {
-            presenter.changeStateToLoading()
+        if nameLabel.text == nil,
+            portraitImage.image == nil,
+            emailLabel.text == nil {
+            animateGradientView()
         }
     }
     
@@ -99,10 +100,10 @@ final class ProfileViewController: UIViewController {
             message: "Уверены что хотите выйти?",
             actions: [
                 Action(title: "Нет", style: .cancel, handler: nil),
-                Action(title: "Да", style: .default, handler: { [weak self] _ in
+                Action(title: "Да", style: .default) { [weak self] _ in
                     guard let self = self else { return }
                     self.presenter.exitButtonDidTapped()
-                })
+                }
             ]
         )
     }
@@ -110,19 +111,16 @@ final class ProfileViewController: UIViewController {
 
 // MARK: - UI
 extension ProfileViewController {
-    private func setView() {
+    private func setViews() {
         view.backgroundColor = .myBlack
-        view.addSubviews(portraitImage, exitButton)
-        view.addSubview(verticalStackView)
-        view.addSubview(gradientView)
+        view.addSubviews(portraitImage, exitButton, verticalStackView, gradientView)
         [nameLabel, emailLabel, helloLabel]
             .forEach { verticalStackView.addArrangedSubview($0) }
         gradientView.translatesAutoresizingMaskIntoConstraints = false
     }
     
     private func setTargets() {
-        exitButton.addTarget(
-            self, action: #selector(exitButtonTapped), for: .touchUpInside)
+        exitButton.addTarget(self, action: #selector(exitButtonTapped), for: .touchUpInside)
     }
 
     private func setConstraints() {
@@ -155,20 +153,16 @@ extension ProfileViewController {
 }
 
 extension ProfileViewController: ProfileViewControllerProtocol {
-    func hideGradientView() {
-        gradientView.isHidden = true
-    }
-    
-    func showGradientView() {
-        gradientView.isHidden = false
-    }
-    
     func animateGradientView() {
         gradientView.animate()
     }
     
-    func stopAnimatingGradientView() {
-        gradientView.stopAnimation()
+    func removeAllAnimationsFromGradientView() {
+        gradientView.removeAllAnimations()
+    }
+    
+    func removeGradientViewFromSuperLayer() {
+        gradientView.removeFromSuperLayer()
     }
     
     func configureUI(with model: ProfileViewModel) {
@@ -185,11 +179,4 @@ extension ProfileViewController: ProfileViewControllerProtocol {
         let splashViewController = SplashViewController()
         window.rootViewController = splashViewController
     }
-}
-
-struct ProfileViewModel {
-    let portraitImageData: Data
-    let name: String
-    let email: String
-    let greeting: String
 }

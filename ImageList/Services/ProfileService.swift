@@ -25,6 +25,7 @@ final class ProfileService: ProfileServiceProtocol {
     func fetchProfile(
         completion: @escaping (Result<Profile, Error>) -> Void
     ) {
+        print("True fetchProfile")
         let request = requests.getMe()
         let task = URLSession.shared.object(
             for: request,

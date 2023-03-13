@@ -7,15 +7,15 @@
 
 import Foundation
 
-protocol SplashViewControllerProtocol: AnyObject {
-    func switchToTabBarController()
-    func presentAuthViewController()
-    func dismissLoader()
+protocol SplashViewPresenterProtocol {
+    var view: SplashViewControllerProtocol? { get }
+    func checkIfTokenAvailable()
+    func fetchAuthToken(auth vc: AuthViewController, code: String)
 }
 
-final class SplashViewControllerPresenter {
+final class SplashViewPresenter {
     // MARK: - Dependency
-    private weak var view: SplashViewControllerProtocol?
+    weak var view: SplashViewControllerProtocol?
     private let oAuth2Service: OAuth2ServiceProtocol
     private var oAuth2TokenStorage: OAuth2TokenStorageProtocol
     
@@ -31,7 +31,7 @@ final class SplashViewControllerPresenter {
     }
 }
 
-extension SplashViewControllerPresenter: SplashViewControllerPresenterProtocol {
+extension SplashViewPresenter: SplashViewPresenterProtocol {
     func checkIfTokenAvailable() {
         if oAuth2TokenStorage.token != nil {
             view?.switchToTabBarController()

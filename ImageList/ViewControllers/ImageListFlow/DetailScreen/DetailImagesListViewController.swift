@@ -60,14 +60,12 @@ final class DetailImagesListViewController: UIViewController {
     // MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
-    
-        setSubviews()
+        setViews()
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        
-        setConstraint()
+        setConstraints()
     }
     
     @objc private func goBack() {
@@ -86,7 +84,7 @@ final class DetailImagesListViewController: UIViewController {
 
 // MARK: - UI
 private extension DetailImagesListViewController {
-    func setSubviews() {
+    func setViews() {
         view.backgroundColor = .myBlack
         scrollView.setImageView(photoImageView)
         view.addSubviews(scrollView, backButton, shareButton, spinner, scribbleImageView)
@@ -94,7 +92,7 @@ private extension DetailImagesListViewController {
         shareButton.addTarget(self, action: #selector(share), for: .touchUpInside)
     }
     
-    func setConstraint() {
+    func setConstraints() {
         NSLayoutConstraint.activate([
             // scrollView
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -161,9 +159,7 @@ extension DetailImagesListViewController: DetailImageListViewControllerProtocol 
             message: "Попробовать ещё раз?",
             actions: [
                 Action(title: "Не надо", style: .default, handler: nil),
-                Action(
-                    title: "Повторить",
-                    style: .default) { [weak self] _ in
+                Action(title: "Повторить", style: .default) { [weak self] _ in
                         self?.presenter.fetchImage(with: url)
                 }
             ]

@@ -9,7 +9,6 @@
 import XCTest
 @testable import ImageList
 
-
 struct UnsplashConfigurationMockEmpty: AuthConfigurationProtocol {
     var accessKey: String = ""
     var secretKey: String = ""

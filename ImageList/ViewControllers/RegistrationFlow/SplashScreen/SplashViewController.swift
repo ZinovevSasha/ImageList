@@ -7,9 +7,11 @@
 
 import UIKit
 
-protocol SplashViewControllerPresenterProtocol {
-    func checkIfTokenAvailable()
-    func fetchAuthToken(auth vc: AuthViewController, code: String)
+protocol SplashViewControllerProtocol: AnyObject {
+    var presenter: SplashViewPresenterProtocol { get }
+    func switchToTabBarController()
+    func presentAuthViewController()
+    func dismissLoader()
 }
 
 final class SplashViewController: UIViewController {
@@ -18,24 +20,23 @@ final class SplashViewController: UIViewController {
     private let imageView = UIImageView(image: .launchScreen)
     
     // MARK: - Presenter (will be initialized at first call)
-    lazy private var presenter: SplashViewControllerPresenterProtocol = SplashViewControllerPresenter(
+    lazy var presenter: SplashViewPresenterProtocol = SplashViewPresenter(
         view: self,
         oAuth2Service: OAuth2Service(
             authHelper: AuthHelper(
                 UnsplashAuthConfiguration.standard,
                 requestBuilder: RequestBuilder())),
-        oAuth2TokenStorage: OAuth2TokenStorage())
+        oAuth2TokenStorage: OAuth2TokenStorage()
+    )
     
     // MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         setView()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
         presenter.checkIfTokenAvailable()
     }
     

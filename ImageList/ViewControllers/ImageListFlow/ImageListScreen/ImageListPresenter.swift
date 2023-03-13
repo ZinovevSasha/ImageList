@@ -33,7 +33,7 @@ final class ImageListPresenter {
         self.imageListService = imageListService
         
         subscribeToNotification()
-        imageListService.fetchPhotosNextPage()    
+        imageListService.fetchPhotosNextPage()
     }
     
     private func subscribeToNotification() {

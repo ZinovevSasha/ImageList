@@ -1,20 +1,11 @@
 import UIKit
 
 final class TabBarController: UITabBarController {
-    // MARK: - Init (Dependency injection)
-    init() {
-        super.init(nibName: nil, bundle: nil)
-        self.delegate = self
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("Unsupported")
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let imagesListViewController = ImagesListViewController()        
+        delegate = self
+        let imagesListViewController = ImagesListViewController()
         let profileViewController = ProfileViewController()
         
         imagesListViewController.tabBarItem = UITabBarItem(

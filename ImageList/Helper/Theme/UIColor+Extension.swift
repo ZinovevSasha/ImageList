@@ -25,10 +25,7 @@ extension UIColor {
     static var myWhite50: UIColor {
         UIColor(named: "myWhite50")!
     }
-    static var shimmerColor: UIColor {
-        UIColor(white: 0.92, alpha: 1.0)
-    }
-    static var backgroundColorForShimmer: UIColor {
-        UIColor(named: "placeholderStartColor")!
+    static var myShimmerColor: UIColor {
+        UIColor(white: 0.85, alpha: 1.0)
     }
 }

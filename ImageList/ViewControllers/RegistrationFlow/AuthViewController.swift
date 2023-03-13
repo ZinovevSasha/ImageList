@@ -54,19 +54,19 @@ final class AuthViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        setView()
+        setViews()
         setTargets()
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        setConstraint()
+        setConstraints()
     }
     
     // MARK: - Transition
     @objc private func enterButtonTapped() {
-        let webViewController = WebViewViewController(delegate: self)
+        let webViewController = WebViewController(delegate: self)
         webViewController.modalPresentationStyle = .fullScreen
         present(webViewController, animated: true)
     }
@@ -86,7 +86,7 @@ final class AuthViewController: UIViewController {
 
 // MARK: - UI
 private extension AuthViewController {
-    func setView() {
+    func setViews() {
         view.addSubviews(image, enterButton)
         view.backgroundColor = .myBlack
     }
@@ -97,7 +97,7 @@ private extension AuthViewController {
         )
     }
     
-    func setConstraint() {
+    func setConstraints() {
         NSLayoutConstraint.activate([
             // Image
             image.centerYAnchor.constraint(equalTo: view.centerYAnchor),
@@ -120,9 +120,9 @@ private extension AuthViewController {
 }
 
 // MARK: - WebViewViewControllerDelegate
-extension AuthViewController: WebViewViewControllerDelegate {
+extension AuthViewController: WebViewControllerDelegate {
     func webViewViewController(
-        _ vc: WebViewViewController,
+        _ vc: WebViewController,
         didAuthenticateWithCode code: String
     ) {
         delegate?.authViewController(self, didAuthenticateWithCode: code)
@@ -130,7 +130,7 @@ extension AuthViewController: WebViewViewControllerDelegate {
         vc.dismiss(animated: true)
     }
     
-    func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
+    func webViewViewControllerDidCancel(_ vc: WebViewController) {
         vc.dismiss(animated: true)
     }
 }
