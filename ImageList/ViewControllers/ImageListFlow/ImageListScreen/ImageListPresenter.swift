@@ -13,9 +13,9 @@ protocol ImageListPresenterProtocol {
     func heightForCell(at index: Int, widthOfScreen: CGFloat) -> CGFloat
     func getImageURL(at index: Int) -> String
     func getTotalNumberOfImages() -> Int
-    func getPhoto(at index: Int) -> Photo
+    func getPhoto(at indexPath: IndexPath) -> Photo
     func fetchNextPhotosIfNeeded(index: Int)
-    func setLikeForPhotoAtIndex(index: Int, for cell: ImageListTableViewCell)
+    func setLikeForPhoto(at indexPath: IndexPath)
 }
 
 final class ImageListPresenter {
@@ -31,9 +31,15 @@ final class ImageListPresenter {
     ) {
         self.view = view
         self.imageListService = imageListService
-        
-        subscribeToNotification()
-        imageListService.fetchPhotosNextPage()
+    }
+    
+    func fetchPhotosNextPage() {
+        imageListService.fetchPhotosNextPage { [weak self] _ in
+            guard let self = self else { return }
+            self.view?.showAlert { _ in
+                self.fetchPhotosNextPage()
+            }
+        }
     }
     
     private func subscribeToNotification() {
@@ -47,8 +53,9 @@ final class ImageListPresenter {
                 else {
                     return
                 }
-            self.view?.stopSpinner()
+            
             let indexPath = self.getIndexPath(from: numberOfPictures)
+            self.view?.hideProgress()
             self.view?.updateTableViewAnimated(at: indexPath)
         }
     }
@@ -67,11 +74,13 @@ final class ImageListPresenter {
 
 extension ImageListPresenter: ImageListPresenterProtocol  {
     func viewDidLoad() {
-        view?.startSpinner()
+        view?.showProgress()
+        subscribeToNotification()
+        fetchPhotosNextPage()
     }
     
-    func setLikeForPhotoAtIndex(index: Int, for cell: ImageListTableViewCell) {
-        let photo = getPhoto(at: index)
+    func setLikeForPhoto(at indexPath: IndexPath) {
+        let photo = getPhoto(at: indexPath)
         
         view?.showProgress()
         imageListService.changeLike(
@@ -81,22 +90,24 @@ extension ImageListPresenter: ImageListPresenterProtocol  {
             self.view?.hideProgress()
             switch result {
             case .success:
-                let like = self.imageListService.photos[index].isLiked
-                self.view?.toggle(like: like, for: cell)
+                let like = self.getPhoto(at: indexPath).isLiked
+                self.view?.toggle(like: like, at: indexPath)
             case .failure:
-                self.view?.showAlert()
+                self.view?.showAlert(nil)
             }
         }
     }
     
     func fetchNextPhotosIfNeeded(index: Int) {
         if index + 2 == getTotalNumberOfImages() {
-            imageListService.fetchPhotosNextPage()
+            imageListService.fetchPhotosNextPage { [weak self] _ in
+                self?.view?.showAlert(nil)
+            }
         }
     }
     
-    func getPhoto(at index: Int) -> Photo {
-        imageListService.photos[index]
+    func getPhoto(at indexPath: IndexPath) -> Photo {
+        imageListService.photos[indexPath.row]
     }
     
     func getTotalNumberOfImages() -> Int {

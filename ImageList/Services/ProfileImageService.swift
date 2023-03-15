@@ -41,8 +41,7 @@ extension ProfileImageService: ProfileImageServiceProtocol {
     func fetchProfileImageUrl(
         username: String,
         completion: @escaping (Result<String, Error>) -> Void
-    ) {
-        print("fetchProfileImageUrl true")
+    ) {        
         let request = requests.userPortfolio(username: username)
         let task = URLSession.shared.object(
             for: request,

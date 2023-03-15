@@ -160,7 +160,7 @@ extension DetailImagesListViewController: DetailImageListViewControllerProtocol 
             actions: [
                 Action(title: "Не надо", style: .default, handler: nil),
                 Action(title: "Повторить", style: .default) { [weak self] _ in
-                        self?.presenter.fetchImage(with: url)
+                    self?.presenter.fetchImage(with: url)
                 }
             ]
         )

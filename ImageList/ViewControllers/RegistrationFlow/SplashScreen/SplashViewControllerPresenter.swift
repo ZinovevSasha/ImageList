@@ -9,7 +9,7 @@ import Foundation
 
 protocol SplashViewPresenterProtocol {
     var view: SplashViewControllerProtocol? { get }
-    func checkIfTokenAvailable()
+    func viewDidAppear()
     func fetchAuthToken(auth vc: AuthViewController, code: String)
 }
 
@@ -32,7 +32,7 @@ final class SplashViewPresenter {
 }
 
 extension SplashViewPresenter: SplashViewPresenterProtocol {
-    func checkIfTokenAvailable() {
+    func viewDidAppear() {
         if oAuth2TokenStorage.token != nil {
             view?.switchToTabBarController()
         } else {

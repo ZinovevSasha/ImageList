@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ProfileViewModel {
+struct ProfileViewModel: Equatable {
     let portraitImageData: Data
     let name: String
     let email: String

@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Kingfisher
 
 protocol ProfilePresenterProtocol {
     var view: ProfileViewControllerProtocol? { get }
@@ -23,10 +22,11 @@ enum ProfilePersonalDataState {
 final class ProfilePresenter {
     // MARK: - Dependency
     weak var view: ProfileViewControllerProtocol?
-    private let profileImageService: ProfileImageServiceProtocol
-    private let profileService: ProfileServiceProtocol
-    private var oAuth2TokenStorage: OAuth2TokenStorageProtocol
-    private var webViewCleaner: WebViewCookieDataCleanerProtocol
+    private let profileImageService: ProfileImageServiceProtocol?
+    private let profileService: ProfileServiceProtocol?
+    private var oAuth2TokenStorage: OAuth2TokenStorageProtocol?
+    private let webViewCleaner: WebViewCookieDataCleanerProtocol?
+    private let imageLoader: ImageLoaderProtocol?
     private var profileImageServiceObserver: NSObjectProtocol?
     
     private var profile: Profile?
@@ -34,16 +34,18 @@ final class ProfilePresenter {
     // MARK: - Init (Dependency injection)
     init(
         view: ProfileViewControllerProtocol?,
-        profileImageService: ProfileImageServiceProtocol,
-        profileService: ProfileServiceProtocol,
-        oAuth2TokenStorage: OAuth2TokenStorageProtocol,
-        webViewCleaner: WebViewCookieDataCleanerProtocol
+        profileImageService: ProfileImageServiceProtocol?,
+        profileService: ProfileServiceProtocol?,
+        oAuth2TokenStorage: OAuth2TokenStorageProtocol?,
+        webViewCleaner: WebViewCookieDataCleanerProtocol?,
+        imageLoader: ImageLoaderProtocol?
     ) {
         self.view = view
         self.profileImageService = profileImageService
         self.profileService = profileService
         self.oAuth2TokenStorage = oAuth2TokenStorage
         self.webViewCleaner = webViewCleaner
+        self.imageLoader = imageLoader
         
         addObserver()
         fetchProfile()
@@ -63,9 +65,6 @@ final class ProfilePresenter {
         case .error:
             view?.removeAllAnimationsFromGradientView()
         case .finished(let data):
-            view?.removeAllAnimationsFromGradientView()
-            view?.removeGradientViewFromSuperLayer()
-            
             guard
                 let profile = profile,
                 let data = data
@@ -73,13 +72,15 @@ final class ProfilePresenter {
                 return
             }
             
-            let viewModel = createProfileViewModel(from: data, profile: profile)
-            view?.configureUI(with: viewModel)
+            let viewModel = convertToViewModel(data, profile: profile)
+            view?.removeAllAnimationsFromGradientView()
+            view?.removeGradientViewFromSuperLayer()
+            view?.show(viewModel)
         }
     }
     
-    private func createProfileViewModel(from data: Data, profile: Profile) -> ProfileViewModel {
-        ProfileViewModel(
+    private func convertToViewModel(_ data: Data, profile: Profile) -> ProfileViewModel {
+        return ProfileViewModel(
             portraitImageData: data,
             name: profile.name,
             email: profile.loginName,
@@ -88,7 +89,7 @@ final class ProfilePresenter {
     }
     
     private func fetchProfile() {
-        profileService.fetchProfile { [weak self] result in
+        profileService?.fetchProfile { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success(let profile):
@@ -101,7 +102,7 @@ final class ProfilePresenter {
     }
     
     private func fetchProfileImageUrl(username: String) {
-        profileImageService
+        profileImageService?
             .fetchProfileImageUrl(username: username) { [weak self] result in
                 guard case .failure = result else { return }
                 self?.profileState = .error
@@ -115,10 +116,10 @@ final class ProfilePresenter {
         else {
             return
         }
-        KingfisherManager.shared.retrieveImage(with: url) { [weak self] result in
+        imageLoader?.downloadImage(url) { [weak self] result in
             switch result {
             case .success(let result):
-                self?.profileState = .finished(result.data())
+                self?.profileState = .finished(result)
             case .failure:
                 self?.profileState = .error
             }
@@ -139,17 +140,17 @@ final class ProfilePresenter {
     }
     
     private func cleanWebViewSavedData() {
-        webViewCleaner.clean()
+        webViewCleaner?.clean()
     }
     
     private func cleanTokenFromKeyChain() {
-        oAuth2TokenStorage.token = nil
+        oAuth2TokenStorage?.token = nil
     }
 }
 
 extension ProfilePresenter: ProfilePresenterProtocol {
     func viewDidLoad() {
-        updateAvatarImage(url: profileImageService.avatarUrl)
+        updateAvatarImage(url: profileImageService?.avatarUrl)
     }
     
     func exitButtonDidTapped() {

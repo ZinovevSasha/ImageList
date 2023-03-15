@@ -3,7 +3,7 @@ import UIKit
 protocol ProfileViewControllerProtocol: AnyObject {
     var presenter: ProfilePresenterProtocol { get }
     func goToSplashViewController()
-    func configureUI(with viewModel: ProfileViewModel)
+    func show(_ viewModel: ProfileViewModel)
     func animateGradientView()
     func removeAllAnimationsFromGradientView()
     func removeGradientViewFromSuperLayer()
@@ -69,7 +69,8 @@ final class ProfileViewController: UIViewController {
         profileImageService: ProfileImageService(requests: UnsplashRequest()),
         profileService: ProfileService(requests: UnsplashRequest()),
         oAuth2TokenStorage: OAuth2TokenStorage(),
-        webViewCleaner: WebViewCookieDataCleaner()
+        webViewCleaner: WebViewCookieDataCleaner(),
+        imageLoader: ImageLoader()
     )
     // MARK: - LifeCycle
     override func viewDidLoad() {
@@ -165,7 +166,7 @@ extension ProfileViewController: ProfileViewControllerProtocol {
         gradientView.removeFromSuperLayer()
     }
     
-    func configureUI(with model: ProfileViewModel) {
+    func show(_ model: ProfileViewModel) {
         portraitImage.image = UIImage(data: model.portraitImageData)
         nameLabel.text = model.name
         emailLabel.text = model.email

@@ -1,14 +1,12 @@
 import UIKit
 
 protocol ImageListViewControllerProtocol: AnyObject {
-    var presenter: ImageListPresenterProtocol { get }
-    func stopSpinner()
-    func startSpinner()
+    var presenter: ImageListPresenterProtocol { get }    
     func updateTableViewAnimated(at indexPath: [IndexPath])
     func showProgress()
     func hideProgress()
-    func toggle(like: Bool, for cell: ImageListTableViewCell)
-    func showAlert()
+    func toggle(like: Bool, at indexPath: IndexPath)
+    func showAlert(_ completion: ((UIAlertAction) -> Void)?)
 }
 
 final class ImagesListViewController: UIViewController {
@@ -68,18 +66,10 @@ final class ImagesListViewController: UIViewController {
 }
 
 extension ImagesListViewController: ImageListViewControllerProtocol {
-    func startSpinner() {
-        spinner.startAnimating()
-    }
-    
     func updateTableViewAnimated(at indexPath: [IndexPath]) {
         tableView.performBatchUpdates {
             tableView.insertRows(at: indexPath, with: .automatic)
         }
-    }
-    
-    func stopSpinner() {
-        spinner.stopAnimating()
     }
     
     func showProgress() {
@@ -89,16 +79,21 @@ extension ImagesListViewController: ImageListViewControllerProtocol {
     func hideProgress() {
         UIBlockingProgressHUD.dismiss()
     }
-    
-    func toggle(like: Bool, for cell: ImageListTableViewCell) {
+       
+    func toggle(like: Bool, at indexPath: IndexPath) {
+        guard
+            let cell = tableView.cellForRow(at: indexPath) as? ImageListTableViewCell
+        else {
+            return
+        }
         cell.setLike(like)
     }
     
-    func showAlert() {
+    func showAlert(_ completion: ((UIAlertAction) -> Void)?) {
         showAlert(
             title: "Что то пошло не так(",
             message: "Попробуйте ещё раз!",
-            actions: [ Action(title: "Ок", style: .default, handler: nil) ]
+            actions: [ Action(title: "Ок", style: .default, handler: completion) ]
         )
     }
 }
@@ -133,7 +128,7 @@ extension ImagesListViewController: UITableViewDataSource {
         else {
             return UITableViewCell()
         }
-        let photo = presenter.getPhoto(at: indexPath.row)
+        let photo = presenter.getPhoto(at: indexPath)
         cell.delegate = self
         cell.configure(with: photo)
         return cell
@@ -143,6 +138,6 @@ extension ImagesListViewController: UITableViewDataSource {
 extension ImagesListViewController: ImageListTableViewCellDelegate {
     func imageListCellDidTapLikeButton(_ cell: ImageListTableViewCell) {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
-        presenter.setLikeForPhotoAtIndex(index: indexPath.row, for: cell)
+        presenter.setLikeForPhoto(at: indexPath)
     }
 }
