@@ -54,6 +54,7 @@ final class ProfilePresenterTests: XCTestCase {
         let imageLoaderStubSpy = ImageLoaderStub(emulateError: false)
         let profileImageService = ProfileImageServiceMock(emulateError: false)
         let profileServiceMock = ProfileServiceMock(emulateError: false)
+        let profileViewModel = ProfileViewModel(portraitImageData: Data(), name: "name", email: "loginName", greeting: "bio")
         
         // When
         let profilePresenter = ProfilePresenter(
@@ -72,7 +73,6 @@ final class ProfilePresenterTests: XCTestCase {
         XCTAssertEqual(imageLoaderStubSpy.fakeURL, "https://unsplash.com/avatarURL")
         XCTAssertTrue(profileViewController.gradientAnimationRemoved)
         XCTAssertTrue(profileViewController.gradientRemovedFromSuperLayer)
-        let profileViewModel = ProfileViewModel(portraitImageData: Data(), name: "name", email: "loginName", greeting: "bio")
         XCTAssertEqual(profileViewController.profileViewModel, profileViewModel)
     }
 }
@@ -121,7 +121,6 @@ final class ProfileViewControllerSpy: ProfileViewControllerProtocol {
     // show
     var profileViewModel: ProfileViewModel?
     func show(_ viewModel: ImageList.ProfileViewModel) {
-        
         profileViewModel = ProfileViewModel(
             portraitImageData: viewModel.portraitImageData,
             name: viewModel.name,
@@ -185,7 +184,6 @@ enum FakeError: Error {
 
 final class WebViewCleanerSpy: WebViewCookieDataCleanerProtocol {
     var cleanIsCalled = false
-    
     func clean() {
         cleanIsCalled = true
     }
@@ -198,7 +196,7 @@ final class OAuthTokenStorageSpy: OAuth2TokenStorageProtocol {
         get {
             return tokenSetToNil
         }
-        set {          
+        set {      
             tokenSetToNil = newValue
         }
     }

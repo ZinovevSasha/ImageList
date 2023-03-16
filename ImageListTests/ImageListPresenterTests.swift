@@ -74,7 +74,6 @@ final class ImageListPresenterTests: XCTestCase {
         view.presenter.setLikeForPhoto(at: IndexPath(row: 2, section: 0))
         // Then
         XCTAssertTrue(view.alertShown)
-        
     }
 }
 

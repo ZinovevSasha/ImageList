@@ -40,7 +40,7 @@ final class AuthViewController: UIViewController {
         image.translatesAutoresizingMaskIntoConstraints = false
         return image
     }()
-
+    
     // MARK: Delegate
     weak var delegate: AuthViewControllerDelegate?
     
@@ -48,6 +48,10 @@ final class AuthViewController: UIViewController {
     init(delegate: AuthViewControllerDelegate?) {
         self.delegate = delegate
         super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("Unsupported")
     }
     
     // MARK: - LifeCycle
@@ -70,17 +74,25 @@ final class AuthViewController: UIViewController {
         webViewController.modalPresentationStyle = .fullScreen
         present(webViewController, animated: true)
     }
-    
-    func makeEnterButtonWhite() {
-        enterButton.backgroundColor = .white
-    }
-    
-    func makeEnterButtonDarkened() {
-        enterButton.backgroundColor = .myWhite50
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("Unsupported")
+}
+
+protocol AuthViewControllerProtocol {
+    func showAlert()
+}
+
+extension AuthViewController: AuthViewControllerProtocol {
+    func showAlert() {
+        showAlert(
+            title: "Что то пошло не так(",
+            message: "Не удалось войти в систему",
+            actions: [
+                Action(
+                    title: "Ok",
+                    style: .cancel) { [weak self] _ in
+                        self?.enterButton.backgroundColor = .white
+                }
+            ]
+        )
     }
 }
 
@@ -126,7 +138,7 @@ extension AuthViewController: WebViewControllerDelegate {
         didAuthenticateWithCode code: String
     ) {
         delegate?.authViewController(self, didAuthenticateWithCode: code)
-        makeEnterButtonDarkened()
+        enterButton.backgroundColor = .myWhite50
         vc.dismiss(animated: true)
     }
     

@@ -41,10 +41,10 @@ final class DetailImageListPresenter {
         case .error(let url):
             view?.stopSpinner()
             view?.showAlertAndMaybeTryAgainWith(url: url)
-        case .finished(let data):
+        case .finished(let image):
             view?.hideScribble()
             view?.stopSpinner()
-            view?.didReceiveImage(data)
+            view?.didReceiveImage(image)
         }
     }
 }

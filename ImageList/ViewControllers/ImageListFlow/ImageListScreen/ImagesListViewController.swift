@@ -1,7 +1,7 @@
 import UIKit
 
 protocol ImageListViewControllerProtocol: AnyObject {
-    var presenter: ImageListPresenterProtocol { get }    
+    var presenter: ImageListPresenterProtocol { get }
     func updateTableViewAnimated(at indexPath: [IndexPath])
     func showProgress()
     func hideProgress()
