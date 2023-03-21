@@ -20,14 +20,16 @@ final class ProfileViewController: UIViewController {
     }()
     
     private let exitButton: UIButton = {
-        let image = UIButton()
-        image.setImage(.exit, for: .normal)
-        image.translatesAutoresizingMaskIntoConstraints = false
-        return image
+        let button = UIButton()
+        button.accessibilityIdentifier = "exitButton"
+        button.setImage(.exit, for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
     }()
     
     private let nameLabel: UILabel = {
         let label = UILabel()
+        label.accessibilityIdentifier = "nameLabel"
         label.numberOfLines = 2
         label.textColor = .white
         label.font = .systemFont(ofSize: 23, weight: .bold)
@@ -38,6 +40,7 @@ final class ProfileViewController: UIViewController {
     private let emailLabel: UILabel = {
         let label = UILabel()
         label.textColor = .white
+        label.accessibilityIdentifier = "emailLabel"
         label.font = .systemFont(ofSize: 13, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label

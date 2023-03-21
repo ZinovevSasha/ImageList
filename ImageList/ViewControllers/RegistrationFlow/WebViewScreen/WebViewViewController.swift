@@ -42,6 +42,7 @@ final class WebViewController: UIViewController {
     
     @objc private var webView: WKWebView = {
         let webView = WKWebView()
+        webView.accessibilityIdentifier = "WebView"
         webView.translatesAutoresizingMaskIntoConstraints = false
         return webView
     }()

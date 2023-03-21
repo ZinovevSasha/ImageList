@@ -50,6 +50,7 @@ extension AuthHelper: AuthHelperProtocol {
         }
         
         return requestBuilder.makeHTTPRequest(
+            scheme: "https",
             host: url.host,
             path: url.path,
             queryItems: [
@@ -57,7 +58,8 @@ extension AuthHelper: AuthHelperProtocol {
                 URLQueryItem(name: "redirect_uri", value: configuration.redirectURI),
                 URLQueryItem(name: "response_type", value: "code"),
                 URLQueryItem(name: "scope", value: configuration.accessScope)
-            ]
+            ],
+            httpMethod: .get
         )
     }
     
@@ -83,6 +85,7 @@ extension AuthHelper: AuthTokenRequestProtocol {
             return nil
         }
         let request = requestBuilder.makeHTTPRequest(
+            scheme: "https",
             host: url.host,
             path: url.path,
             queryItems: [

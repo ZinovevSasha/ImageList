@@ -26,6 +26,7 @@ final class AuthViewController: UIViewController {
     private var enterButton: UIButton = {
         let button = UIButton()
         button.cornerRadius = 16
+        button.accessibilityIdentifier = "Authenticate"
         button.backgroundColor = .white
         button.setTitle("Войти", for: .normal)
         button.setTitleColor(.myBlack, for: .normal)
@@ -34,9 +35,8 @@ final class AuthViewController: UIViewController {
         return button
     }()
     
-    private var image: UIImageView = {
-        let image = UIImageView()
-        image.image = UIImage.welcomeScreenImage
+    private var imageView: UIImageView = {
+        let image = UIImageView(image: .welcomeScreenImage)        
         image.translatesAutoresizingMaskIntoConstraints = false
         return image
     }()
@@ -99,7 +99,7 @@ extension AuthViewController: AuthViewControllerProtocol {
 // MARK: - UI
 private extension AuthViewController {
     func setViews() {
-        view.addSubviews(image, enterButton)
+        view.addSubviews(imageView, enterButton)
         view.backgroundColor = .myBlack
     }
     
@@ -112,8 +112,8 @@ private extension AuthViewController {
     func setConstraints() {
         NSLayoutConstraint.activate([
             // Image
-            image.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            image.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            imageView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
             // Button
             enterButton.heightAnchor.constraint(

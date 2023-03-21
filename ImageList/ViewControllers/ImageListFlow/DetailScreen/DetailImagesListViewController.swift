@@ -29,6 +29,7 @@ final class DetailImagesListViewController: UIViewController {
     private let backButton: UIButton = {
         let button = UIButton()
         button.setImage(.backward, for: .normal)
+        button.accessibilityIdentifier = "backButton"
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()

@@ -15,6 +15,7 @@ final class ImagesListViewController: UIViewController {
     private var tableView: UITableView = {
         let tableView = UITableView()
         tableView.backgroundColor = .myBlack
+        tableView.accessibilityIdentifier = "tableView"
         tableView.separatorStyle = .none
         tableView.separatorColor = .clear
         tableView.contentOffset.y = 16
@@ -23,12 +24,6 @@ final class ImagesListViewController: UIViewController {
             ImageListTableViewCell.self,
             forCellReuseIdentifier: ImageListTableViewCell.reusableIdentifier)
         return tableView
-    }()
-    
-    private let spinner: UIActivityIndicatorView = {
-        let spinner = UIActivityIndicatorView(style: .large)
-        spinner.hidesWhenStopped = true
-        return spinner
     }()
     
     lazy var presenter: ImageListPresenterProtocol = ImageListPresenter(
@@ -50,10 +45,9 @@ final class ImagesListViewController: UIViewController {
     
     private func createTableView() {
         tableView.frame = view.bounds
-        spinner.center = view.center
         tableView.dataSource = self
         tableView.delegate = self
-        view.addSubviews(tableView, spinner)
+        view.addSubview(tableView)
     }
     
     private func presentDetailImagesListViewController(with indexPath: IndexPath) {

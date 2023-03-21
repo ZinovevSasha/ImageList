@@ -17,7 +17,6 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.rootViewController = SplashViewController()
         window.makeKeyAndVisible()
         self.window = window
-        // po NSHomeDirectory()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

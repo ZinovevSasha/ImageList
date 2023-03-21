@@ -22,6 +22,7 @@ final class ImageListTableViewCell: UITableViewCell {
     
     private let likeButton: UIButton = {
         let button = UIButton()
+        button.accessibilityIdentifier = "likeButton"
         button.adjustsImageWhenDisabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -65,8 +66,8 @@ final class ImageListTableViewCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setViews()
         setTargets()
-//        addGradient()
-//        animateGradient()
+        addGradient()
+        animateGradient()
     }
     
     // MARK: Public

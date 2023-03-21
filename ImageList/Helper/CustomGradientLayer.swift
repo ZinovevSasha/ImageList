@@ -14,7 +14,6 @@ class CustomGradientLayer: CAGradientLayer {
         startEndPoints: (CGPoint, CGPoint)? = (CGPoint.zero, CGPoint(x: 1, y: 0))
     ) {
         super.init()
-        
         self.colors = colors.map { $0.cgColor }
         self.locations = locations.map { $0 as NSNumber }
         if let startEndPoints = startEndPoints {
@@ -22,15 +21,7 @@ class CustomGradientLayer: CAGradientLayer {
             self.endPoint = startEndPoints.1
         }
     }
-    
-    required override init(layer: Any) {
-        super.init(layer: layer)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
+
     func animate(
         _ property: Animatable = .locations,
         duration: CFTimeInterval = 1.5,
@@ -53,5 +44,14 @@ class CustomGradientLayer: CAGradientLayer {
     
     enum Keys: String {
         case locationsChanged
+    }
+    
+    
+    required override init(layer: Any) {
+        super.init(layer: layer)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }

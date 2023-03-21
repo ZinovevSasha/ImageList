@@ -39,7 +39,7 @@ final class ImageListPresenterTests: XCTestCase {
         // Than
         XCTAssertTrue(view.showProgressCalled)
         XCTAssertTrue(view.hideProgressCalled)
-        XCTAssertEqual(view.indexes?.count, 2)
+        XCTAssertTrue(view.updateCalled)
     }
     
     func testPresenterSetLikeForSelectedCell() {
@@ -58,7 +58,7 @@ final class ImageListPresenterTests: XCTestCase {
         // Then
         XCTAssertTrue(view.showProgressCalled)
         XCTAssertTrue(view.isLiked)
-        XCTAssertEqual(view.index, 2)
+        XCTAssertEqual(view.indexIsLiked, 2)
     }
     
     func testPresenterFailToSetLikeForSelectedCell() {
@@ -141,17 +141,19 @@ final class ImageListViewControllerSpy: ImageListViewControllerProtocol {
     }
     
     // updateTableViewAnimated
-    var indexes: [IndexPath]?
+    var indexes: Int?
+    var updateCalled = false
     func updateTableViewAnimated(at indexPath: [IndexPath]) {
-        indexes = indexPath
+        indexes = indexPath.count
+        updateCalled = true
     }
     
     // Like
     var isLiked = false
-    var index: Int?
+    var indexIsLiked: Int?
     func toggle(like: Bool, at indexPath: IndexPath) {
         isLiked = like
-        index = indexPath.row
+        indexIsLiked = indexPath.row
     }
     
     // showAlert
@@ -166,10 +168,9 @@ final class ImageListServiceMock: ImageListServiceProtocol {
     private func postNotification(with numberOfPictures: Int) {
         NotificationCenter.default
             .post(
-                name: ImageListService.didChangeNotification,
+                name: ImageListServiceMock.didChangeNotification,
                 object: self,
                 userInfo: [
-                    UserInfo.photos.rawValue: photos,
                     UserInfo.numberOfPictures.rawValue: numberOfPictures
                 ]
             )
@@ -183,7 +184,7 @@ final class ImageListServiceMock: ImageListServiceProtocol {
         if simulateError {
             completion("error")
         } else {
-            postNotification(with: 2)
+            postNotification(with: 0)
         }
     }
     

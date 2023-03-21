@@ -45,6 +45,7 @@ struct UnsplashRequest {
         httpMethod: HTTPMethod = .get
     ) -> URLRequest {
         var request = requestBuilder.makeHTTPRequest(
+            scheme: "https",
             host: configuration.defaultBaseHost,
             path: path,
             queryItems: queryItems,
