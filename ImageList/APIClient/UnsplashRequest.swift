@@ -16,11 +16,19 @@ protocol UnsplashRequestProtocol {
 
 struct UnsplashRequest {
     // MARK: - Dependency
-    private let authTokenStorage: OAuth2TokenStorage
+    private let authTokenStorage: OAuth2TokenStorageProtocol
+    private let configuration: AuthConfigurationProtocol
+    private let requestBuilder: RequestBuilding
     
     // MARK: - Init (Dependency injection)
-    init(authTokenStorage: OAuth2TokenStorage) {
+    init(
+        configuration: AuthConfigurationProtocol = UnsplashAuthConfiguration.standard,
+        authTokenStorage: OAuth2TokenStorageProtocol = OAuth2TokenStorage(),
+        requestBuilder: RequestBuilding = RequestBuilder()
+    ) {
+        self.configuration = configuration
         self.authTokenStorage = authTokenStorage
+        self.requestBuilder = requestBuilder
     }
     
     private var token: String {
@@ -31,17 +39,14 @@ struct UnsplashRequest {
         }
     }
     
-    private var host: String {
-        "api.unsplash.com"
-    }
-    
     private func createRequest(
         path: String,
         queryItems: [URLQueryItem]? = nil,
         httpMethod: HTTPMethod = .get
     ) -> URLRequest {
-        var request = URLRequest.makeHTTPRequest(
-            host: host,
+        var request = requestBuilder.makeHTTPRequest(
+            scheme: "https",
+            host: configuration.defaultBaseHost,
             path: path,
             queryItems: queryItems,
             httpMethod: httpMethod

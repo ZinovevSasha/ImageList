@@ -26,6 +26,7 @@ final class AuthViewController: UIViewController {
     private var enterButton: UIButton = {
         let button = UIButton()
         button.cornerRadius = 16
+        button.accessibilityIdentifier = "Authenticate"
         button.backgroundColor = .white
         button.setTitle("Войти", for: .normal)
         button.setTitleColor(.myBlack, for: .normal)
@@ -34,13 +35,12 @@ final class AuthViewController: UIViewController {
         return button
     }()
     
-    private var image: UIImageView = {
-        let image = UIImageView()
-        image.image = UIImage.welcomeScreenImage
+    private var imageView: UIImageView = {
+        let image = UIImageView(image: .welcomeScreenImage)        
         image.translatesAutoresizingMaskIntoConstraints = false
         return image
     }()
-
+    
     // MARK: Delegate
     weak var delegate: AuthViewControllerDelegate?
     
@@ -50,54 +50,70 @@ final class AuthViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
+    required init?(coder: NSCoder) {
+        fatalError("Unsupported")
+    }
+    
     // MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        setView()
+        setViews()
+        setTargets()
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        setConstraint()
+        setConstraints()
     }
     
     // MARK: - Transition
     @objc private func enterButtonTapped() {
-        let webViewController = WebViewViewController(delegate: self)
+        let webViewController = WebViewController(delegate: self)
         webViewController.modalPresentationStyle = .fullScreen
         present(webViewController, animated: true)
     }
-    
-    func makeEnterButtonWhite() {
-        enterButton.backgroundColor = .white
-    }
-    
-    func makeEnterButtonDarkened() {
-        enterButton.backgroundColor = .myWhite50
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("Unsupported")
+}
+
+protocol AuthViewControllerProtocol {
+    func showAlert()
+}
+
+extension AuthViewController: AuthViewControllerProtocol {
+    func showAlert() {
+        showAlert(
+            title: "Что то пошло не так(",
+            message: "Не удалось войти в систему",
+            actions: [
+                Action(
+                    title: "Ok",
+                    style: .cancel) { [weak self] _ in
+                        self?.enterButton.backgroundColor = .white
+                }
+            ]
+        )
     }
 }
 
 // MARK: - UI
 private extension AuthViewController {
-    func setView() {
-        view.addSubviews(image, enterButton)
+    func setViews() {
+        view.addSubviews(imageView, enterButton)
         view.backgroundColor = .myBlack
-        image.center = view.center
-        enterButton.addTarget(
-            self, action: #selector(enterButtonTapped), for: .touchUpInside)
     }
     
-    func setConstraint() {
+    func setTargets() {
+        enterButton.addTarget(
+            self, action: #selector(enterButtonTapped), for: .touchUpInside
+        )
+    }
+    
+    func setConstraints() {
         NSLayoutConstraint.activate([
             // Image
-            image.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            image.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            imageView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
             // Button
             enterButton.heightAnchor.constraint(
@@ -116,17 +132,17 @@ private extension AuthViewController {
 }
 
 // MARK: - WebViewViewControllerDelegate
-extension AuthViewController: WebViewViewControllerDelegate {
+extension AuthViewController: WebViewControllerDelegate {
     func webViewViewController(
-        _ vc: WebViewViewController,
+        _ vc: WebViewController,
         didAuthenticateWithCode code: String
     ) {
         delegate?.authViewController(self, didAuthenticateWithCode: code)
-        makeEnterButtonDarkened()
+        enterButton.backgroundColor = .myWhite50
         vc.dismiss(animated: true)
     }
     
-    func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
+    func webViewViewControllerDidCancel(_ vc: WebViewController) {
         vc.dismiss(animated: true)
     }
 }

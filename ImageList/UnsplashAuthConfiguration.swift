@@ -1,3 +1,13 @@
+protocol AuthConfigurationProtocol {
+    var accessKey: String { get }
+    var secretKey: String { get }
+    var redirectURI: String { get }
+    var accessScope: String { get }
+    var defaultBaseHost: String { get }
+    var authorizeURLString: String { get }
+    var tokenURLString: String { get }
+}
+
 extension UnsplashAuthConfiguration {
     static var standard: UnsplashAuthConfiguration {
         return UnsplashAuthConfiguration(
@@ -12,7 +22,7 @@ extension UnsplashAuthConfiguration {
     }
 }
 
-struct UnsplashAuthConfiguration {
+struct UnsplashAuthConfiguration: AuthConfigurationProtocol {
     let accessKey: String
     let secretKey: String
     let redirectURI: String

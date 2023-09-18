@@ -7,39 +7,37 @@
 
 import UIKit
 
-protocol SplashViewControllerPresenterProtocol {
-    func checkIfTokenAvailable()
-    func fetchAuthToken(auth vc: AuthViewController, code: String)
+protocol SplashViewControllerProtocol: AnyObject {
+    var presenter: SplashViewPresenterProtocol { get }
+    func switchToTabBarController()
+    func presentAuthViewController()
+    func dismissLoader()
 }
 
 final class SplashViewController: UIViewController {
     override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
-
-    private let imageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.image = .launchScreen
-        return imageView
-    }()
+    
+    private let imageView = UIImageView(image: .launchScreen)
     
     // MARK: - Presenter (will be initialized at first call)
-    lazy private var presenter: SplashViewControllerPresenterProtocol = SplashViewControllerPresenter(
+    lazy var presenter: SplashViewPresenterProtocol = SplashViewPresenter(
         view: self,
         oAuth2Service: OAuth2Service(
-            authHelper: UnsplashAuthHelper(UnsplashAuthConfiguration.standard)),
+            authHelper: AuthHelper(
+                UnsplashAuthConfiguration.standard,
+                requestBuilder: RequestBuilder())),
         oAuth2TokenStorage: OAuth2TokenStorage()
     )
     
     // MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         setView()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
-        presenter.checkIfTokenAvailable()
+        presenter.viewDidAppear()
     }
     
     private func setView() {

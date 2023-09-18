@@ -8,7 +8,7 @@
 import Foundation
 
 protocol ImageListServiceProtocol {
-    func fetchPhotosNextPage()
+    func fetchPhotosNextPage(completion: @escaping (String) -> Void)
     func changeLike(photoId: String, isLiked: Bool, completion: @escaping (Result<Void, Error>) -> Void)
     var photos: [Photo] { get }
 }
@@ -61,8 +61,7 @@ extension ImageListService: ImageListServiceProtocol {
                         self.photos[index].isLiked = isLiked.photo.likedByUser
                     }
                     completion(.success(Void()))
-                case .failure(let failure):
-                    print(failure)
+                case .failure(let failure):                    
                     completion(.failure(failure))
                 }
                 self.task = nil
@@ -71,7 +70,7 @@ extension ImageListService: ImageListServiceProtocol {
         task.resume()
     }
     
-    func fetchPhotosNextPage() {
+    func fetchPhotosNextPage(completion: @escaping (String) -> Void) {
         guard task == nil else { return }
         let nextPage = lastLoadedPage == nil ? 1 : lastLoadedPage! + 1
         lastLoadedPage = nextPage
@@ -88,7 +87,7 @@ extension ImageListService: ImageListServiceProtocol {
                     self.photos.append(contentsOf: newPhotos)
                     self.postNotification(with: newPhotos.count)
                 case .failure(let failure):
-                    print(failure)
+                    completion(failure.localizedDescription)
                 }
                 self.task = nil
         }

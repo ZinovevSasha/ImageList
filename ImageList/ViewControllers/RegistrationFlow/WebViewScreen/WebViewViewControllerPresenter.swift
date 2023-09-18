@@ -7,34 +7,36 @@
 
 import Foundation
 
-protocol WebViewViewControllerProtocol: AnyObject {
-    var presenter: WebViewViewPresenterProtocol { get }
+protocol WebViewControllerProtocol: AnyObject {
+    var presenter: WebViewPresenterProtocol { get }
     func load(request: URLRequest)
     func setProgressValue(_ newValue: Float)
     func setProgressHidden(_ isHiden: Bool)
 }
 
 final class WebViewViewPresenter {
-    weak var view: WebViewViewControllerProtocol?
-    private let authHelper: UnsplashAuthHelperProtocol
+    weak var view: WebViewControllerProtocol?
+    private let authHelper: AuthHelperProtocol
     
     init(
-        view: WebViewViewControllerProtocol?,
-        authHelper: UnsplashAuthHelperProtocol
+        view: WebViewControllerProtocol?,
+        authHelper: AuthHelperProtocol
     ) {
         self.view = view
         self.authHelper = authHelper
     }
     
+    // Helper function
     private func shouldHideProgress(for value: Double) -> Bool {
-        (value - 0.745) >= 0.0001
+        (value - 0.745) >= 0.0
     }
 }
 
-extension WebViewViewPresenter: WebViewViewPresenterProtocol {
+extension WebViewViewPresenter: WebViewPresenterProtocol {
     func viewDidLoad() {
-        view?.load(request: authHelper.authRequest())
         didUpdateProgressValue(0.05)
+        guard let authRequest = authHelper.authRequest() else { return }
+        view?.load(request: authRequest)
     }
     
     func didUpdateProgressValue(_ newValue: Double) {

@@ -7,13 +7,23 @@
 
 import Foundation
 
-extension URLRequest {
-    static func makeHTTPRequest(
-        scheme: String = "https",
+protocol RequestBuilding {
+    func makeHTTPRequest(
+        scheme: String,
         host: String,
         path: String,
-        queryItems: [URLQueryItem]? = nil,
-        httpMethod: HTTPMethod = .get
+        queryItems: [URLQueryItem]?,
+        httpMethod: HTTPMethod
+    ) -> URLRequest
+}
+
+struct RequestBuilder: RequestBuilding {
+    func makeHTTPRequest(
+        scheme: String,
+        host: String,
+        path: String,
+        queryItems: [URLQueryItem]?,
+        httpMethod: HTTPMethod
     ) -> URLRequest {
         var components = URLComponents()
         components.scheme = scheme

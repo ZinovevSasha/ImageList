@@ -1,12 +1,21 @@
 import UIKit
-import Kingfisher
 
-class DetailImagesListViewController: UIViewController {
+protocol DetailImageListViewControllerProtocol: AnyObject {
+    var presenter: DetailImageListPresenterProtocol { get }
+    func startSpinner()
+    func stopSpinner()
+    func showAlertAndMaybeTryAgainWith(url: URL)
+    func hideScribble()
+    func didReceiveImage(_ image: UIImage)
+}
+
+final class DetailImagesListViewController: UIViewController {
     override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
     
     private let photoImageView: UIImageView = {
         let image = UIImageView()
         image.alpha = 0
+        image.contentMode = .scaleAspectFill
         image.translatesAutoresizingMaskIntoConstraints = false
         return image
     }()
@@ -20,6 +29,7 @@ class DetailImagesListViewController: UIViewController {
     private let backButton: UIButton = {
         let button = UIButton()
         button.setImage(.backward, for: .normal)
+        button.accessibilityIdentifier = "backButton"
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -31,14 +41,6 @@ class DetailImagesListViewController: UIViewController {
         return shareButton
     }()
     
-    private let scrollView: UIScrollView = {
-        let scrollView = UIScrollView()
-        scrollView.minimumZoomScale = 0.1
-        scrollView.maximumZoomScale = 1.2
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        return scrollView
-    }()
-    
     private let spinner: UIActivityIndicatorView = {
         let spinner = UIActivityIndicatorView(style: .large)
         spinner.hidesWhenStopped = true
@@ -46,98 +48,25 @@ class DetailImagesListViewController: UIViewController {
         return spinner
     }()
     
+    private var scrollView = DetailScrollView()
+    lazy var presenter: DetailImageListPresenterProtocol = DetailImageListPresenter(
+        view: self
+    )
     // MARK: - Public
     public func configure(with stringURL: String) {
         guard let url = URL(string: stringURL) else { return }
-        fetchImage(with: url)
-    }
-    
-    var imageState: DetailImageState = .loading {
-        didSet {
-            configureImageState()
-        }
-    }
-    
-    private func fetchImage(with url: URL) {
-        imageState = .loading
-        KingfisherManager.shared.retrieveImage(with: url) { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case .success(let result):
-                self.imageState = .finished(result.image)
-            case .failure:
-                self.imageState = .error(url)
-            }
-        }
-    }
-    
-    enum DetailImageState {
-        case loading
-        case error(URL)
-        case finished(UIImage)
-    }
-    
-    private func configureImageState() {
-        switch imageState {
-        case .loading:
-            spinner.startAnimating()
-        case .error(let url):
-            spinner.stopAnimating()
-            showAlert(
-                title: "Что то пошло не так(",
-                message: "Попробовать ещё раз?",
-                actions: [
-                    Action(title: "Не надо", style: .default, handler: nil),
-                    Action(
-                        title: "Повторить",
-                        style: .default,
-                        handler: { [weak self] _ in self?.fetchImage(with: url) }
-                    )
-                ]
-            )
-        case .finished(let image):
-            scribbleImageView.isHidden = true
-            spinner.stopAnimating()
-            photoImageView.image = image
-            rescaleAndCenterImageInScrollView(image)
-            UIView.animate(withDuration: 0.5, delay: 0) {
-                self.photoImageView.alpha = 1
-            }
-        }
+        presenter.fetchImage(with: url)
     }
     
     // MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
-    
-        setSubviews()
+        setViews()
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        
-        setConstraint()
-    }
-    
-    private func rescaleAndCenterImageInScrollView(_ image: UIImage) {
-        let imageSize = image.size
-        let minZoomScale = scrollView.minimumZoomScale
-        let maxZoomScale = scrollView.maximumZoomScale
-        
-        view.layoutIfNeeded()
-        let visibleRectSize = scrollView.bounds.size
-       
-        let hScale = visibleRectSize.width / imageSize.width
-        let vScale = visibleRectSize.height / imageSize.height
-        let theoreticalScale = max(hScale, vScale)
-        let scale = min(maxZoomScale, max(minZoomScale, theoreticalScale))
-        scrollView.setZoomScale(scale, animated: false)
-        
-        scrollView.layoutIfNeeded()
-        let newContentsSize = scrollView.contentSize
-        let x = (newContentsSize.width - visibleRectSize.width) / 2
-        let y = (newContentsSize.height - visibleRectSize.height) / 2
-        scrollView.setContentOffset(CGPoint(x: x, y: y), animated: true)
+        setConstraints()
     }
     
     @objc private func goBack() {
@@ -156,16 +85,15 @@ class DetailImagesListViewController: UIViewController {
 
 // MARK: - UI
 private extension DetailImagesListViewController {
-    private func setSubviews() {
-        scrollView.addSubview(photoImageView)
-        view.addSubviews(scrollView, backButton, shareButton, spinner, scribbleImageView)        
+    func setViews() {
         view.backgroundColor = .myBlack
-        scrollView.delegate = self
+        scrollView.setImageView(photoImageView)
+        view.addSubviews(scrollView, backButton, shareButton, spinner, scribbleImageView)
         backButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
         shareButton.addTarget(self, action: #selector(share), for: .touchUpInside)
     }
     
-    private func setConstraint() {
+    func setConstraints() {
         NSLayoutConstraint.activate([
             // scrollView
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -200,9 +128,42 @@ private extension DetailImagesListViewController {
     }
 }
 
-// MARK: - UIScrollViewDelegate
-extension DetailImagesListViewController: UIScrollViewDelegate {
-    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        return photoImageView
+extension DetailImagesListViewController: DetailImageListViewControllerProtocol {
+    func didReceiveImage(_ image: UIImage) {
+        photoImageView.image = image
+        
+        view.layoutIfNeeded()
+        scrollView.rescaleImage()
+        scrollView.layoutIfNeeded()
+        scrollView.centerImage()
+        
+        UIView.animate(withDuration: 0.5, delay: 0) {
+            self.photoImageView.alpha = 1
+        }
+    }
+    
+    func hideScribble() {
+        scribbleImageView.isHidden = true
+    }
+    
+    func startSpinner() {
+        spinner.startAnimating()
+    }
+    
+    func stopSpinner() {
+        spinner.stopAnimating()
+    }
+    
+    func showAlertAndMaybeTryAgainWith(url: URL) {
+        showAlert(
+            title: "Что то пошло не так(",
+            message: "Попробовать ещё раз?",
+            actions: [
+                Action(title: "Не надо", style: .default, handler: nil),
+                Action(title: "Повторить", style: .default) { [weak self] _ in
+                    self?.presenter.fetchImage(with: url)
+                }
+            ]
+        )
     }
 }

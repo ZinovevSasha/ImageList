@@ -1,31 +1,12 @@
 import UIKit
 
 final class TabBarController: UITabBarController {
-    // MARK: - Init (Dependency injection)
-    init() {
-        super.init(nibName: nil, bundle: nil)
-        self.delegate = self
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("Unsupported")
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let imagesListViewController = ImagesListViewController(
-            imageListService: ImageListService(
-                requests: UnsplashRequest(authTokenStorage: OAuth2TokenStorage()))
-        )
-        let profileViewController = ProfileViewController(
-            profileImageService: ProfileImageService(
-                requests: UnsplashRequest(
-                    authTokenStorage: OAuth2TokenStorage())),
-            profileService: ProfileService(
-                requests: UnsplashRequest(
-                    authTokenStorage: OAuth2TokenStorage()))
-        )
+        delegate = self
+        let imagesListViewController = ImagesListViewController()
+        let profileViewController = ProfileViewController()
         
         imagesListViewController.tabBarItem = UITabBarItem(
             title: "",

@@ -22,26 +22,27 @@ with the authorization code in the code query parameter.
 """
 */
 
-protocol WebViewViewControllerDelegate: AnyObject {
+protocol WebViewControllerDelegate: AnyObject {
     func webViewViewController(
-        _ vc: WebViewViewController,
+        _ vc: WebViewController,
         didAuthenticateWithCode code: String
     )
-    func webViewViewControllerDidCancel(_ vc: WebViewViewController)
+    func webViewViewControllerDidCancel(_ vc: WebViewController)
 }
 
-protocol WebViewViewPresenterProtocol {
-    var view: WebViewViewControllerProtocol? { get }
+protocol WebViewPresenterProtocol {
+    var view: WebViewControllerProtocol? { get }
     func viewDidLoad()
     func code(from url: URL?) -> String?
     func didUpdateProgressValue(_ newValue: Double)
 }
 
-final class WebViewViewController: UIViewController {
+final class WebViewController: UIViewController {
     override var preferredStatusBarStyle: UIStatusBarStyle { .darkContent }
     
     @objc private var webView: WKWebView = {
         let webView = WKWebView()
+        webView.accessibilityIdentifier = "WebView"
         webView.translatesAutoresizingMaskIntoConstraints = false
         return webView
     }()
@@ -62,16 +63,21 @@ final class WebViewViewController: UIViewController {
     }()
     
     // MARK: Delegate
-    weak var delegate: WebViewViewControllerDelegate?
-    private var estimatedProgressObservation: NSKeyValueObservation?
+    weak var delegate: WebViewControllerDelegate?
     
     // MARK: Presenter
-    lazy var presenter: WebViewViewPresenterProtocol = WebViewViewPresenter(
-        view: self, authHelper: UnsplashAuthHelper(UnsplashAuthConfiguration.standard)
+    lazy var presenter: WebViewPresenterProtocol = WebViewViewPresenter(
+        view: self,
+        authHelper: AuthHelper(
+            UnsplashAuthConfiguration.standard,
+            requestBuilder: RequestBuilder()
+        )
     )
     
+    private var estimatedProgressObservation: NSKeyValueObservation?
+    
     // MARK: - Init
-    init(delegate: WebViewViewControllerDelegate?) {
+    init(delegate: WebViewControllerDelegate?) {
         self.delegate = delegate
         super.init(nibName: nil, bundle: nil)
     }
@@ -80,14 +86,15 @@ final class WebViewViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        setView()
+        setViews()
+        setTargets()
         presenter.viewDidLoad()
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        addConstraints()
+        setConstraints()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -117,7 +124,8 @@ final class WebViewViewController: UIViewController {
         fatalError("Unsupported")
     }
 }
-extension WebViewViewController: WebViewViewControllerProtocol {
+
+extension WebViewController: WebViewControllerProtocol {
     func load(request: URLRequest) {
         webView.load(request)
     }
@@ -132,16 +140,19 @@ extension WebViewViewController: WebViewViewControllerProtocol {
 }
 
 // MARK: - UI
-private extension WebViewViewController {
-    func setView() {
+private extension WebViewController {
+    func setViews() {
         view.addSubviews(webView, backButton, progressView)
         view.backgroundColor = .white
         webView.backgroundColor = .white
         webView.navigationDelegate = self
+    }
+    
+    func setTargets() {
         backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
     }
     
-    func addConstraints() {
+    func setConstraints() {
         NSLayoutConstraint.activate([
             webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -161,7 +172,7 @@ private extension WebViewViewController {
 }
 
 // MARK: - WKNavigationDelegate
-extension WebViewViewController: WKNavigationDelegate {
+extension WebViewController: WKNavigationDelegate {
     func webView(
         _ webView: WKWebView,
         decidePolicyFor navigationAction: WKNavigationAction,

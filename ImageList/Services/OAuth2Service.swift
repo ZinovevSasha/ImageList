@@ -16,10 +16,10 @@ protocol OAuth2ServiceProtocol {
 
 final class OAuth2Service: OAuth2ServiceProtocol {
     // MARK: - Dependency
-    private let authHelper: UnsplashAuthTokenRequestProtocol
+    private let authHelper: AuthTokenRequestProtocol
     
     // MARK: - Init (Dependency injection)
-    init(authHelper: UnsplashAuthTokenRequestProtocol) {
+    init(authHelper: AuthTokenRequestProtocol) {
         self.authHelper = authHelper
     }
     
@@ -36,7 +36,8 @@ final class OAuth2Service: OAuth2ServiceProtocol {
         task?.cancel()
         lastCode = code
         
-        let request = authHelper.oAuthToken(code: code)
+        guard let request = authHelper.oAuthTokenRequest(code: code) else { return }
+        
         let task = urlSession.object(
             for: request,
             expectedType: OAuthTokenResponseBody.self
